@@ -5,6 +5,9 @@ Clang frontend across the 21-kernel [Polybench/GPU](https://github.com/RiverDave
 suite, to define the builtin surface ClangIR must support for end-to-end GPU
 compilation ([llvm/llvm-project#179278](https://github.com/llvm/llvm-project/issues/179278)).
 
+This may also be used to explore and identify potential heterogeneous optimizations
+as part of the GSOC project [CIR Combine: Cross-Boundary Analysis for Heterogeneous CUDA/HIP Compilation](https://summerofcode.withgoogle.com/programs/2026/projects/DtnfQpPD).
+
 ## Reproduce
 
 ```bash
