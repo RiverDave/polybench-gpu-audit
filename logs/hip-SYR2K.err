@@ -1,0 +1,43 @@
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:123:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  123 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.4/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:125:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  125 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:154:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  154 |         hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * NI * NJ);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:155:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  155 |         hipMalloc((void **)&B_gpu, sizeof(DATA_TYPE) * NI * NJ);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:156:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  156 |         hipMalloc((void **)&C_gpu, sizeof(DATA_TYPE) * NI * NI);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:157:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  157 |         hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:158:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  158 |         hipMemcpy(B_gpu, B, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:159:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  159 |         hipMemcpy(C_gpu, C, sizeof(DATA_TYPE) * NI * NI, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:168:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  168 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:175:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  175 |         hipMemcpy(C_outputFromGpu, C_gpu, sizeof(DATA_TYPE) * NI * NI, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:177:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  177 |         hipFree(A_gpu);
+      |         ^~~~~~~ ~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:178:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  178 |         hipFree(B_gpu);
+      |         ^~~~~~~ ~~~~~
+/home/ubuntu/audit/hip-src/SYR2K.hip.cpp:179:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  179 |         hipFree(C_gpu);
+      |         ^~~~~~~ ~~~~~
+13 warnings generated when compiling for gfx90a.

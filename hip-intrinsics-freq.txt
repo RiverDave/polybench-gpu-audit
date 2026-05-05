@@ -1,0 +1,14 @@
+    126 @llvm.amdgcn.readfirstlane.i32
+    105 @llvm.amdgcn.s.sleep
+    105 @llvm.amdgcn.implicitarg.ptr
+     84 @llvm.amdgcn.workgroup.id.z
+     84 @llvm.amdgcn.workgroup.id.y
+     84 @llvm.amdgcn.workgroup.id.x
+     84 @llvm.amdgcn.dispatch.ptr
+     42 @llvm.amdgcn.workitem.id.z
+     42 @llvm.amdgcn.workitem.id.y
+     42 @llvm.amdgcn.workitem.id.x
+     42 @llvm.amdgcn.s.sendmsg
+     42 @llvm.amdgcn.mbcnt.lo
+     42 @llvm.amdgcn.mbcnt.hi
+     42 @llvm.amdgcn.ballot.i64

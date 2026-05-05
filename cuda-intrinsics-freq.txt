@@ -1,0 +1,10 @@
+     68 @llvm.nvvm.read.ptx.sreg.tid.x
+     68 @llvm.nvvm.read.ptx.sreg.ntid.x
+     68 @llvm.nvvm.read.ptx.sreg.ctaid.x
+     35 @llvm.nvvm.read.ptx.sreg.tid.y
+     35 @llvm.nvvm.read.ptx.sreg.ntid.y
+     35 @llvm.nvvm.read.ptx.sreg.ctaid.y
+      5 @llvm.nvvm.sqrt.approx.f
+      2 @llvm.nvvm.sqrt.rn.ftz.f
+      2 @llvm.nvvm.sqrt.rn.f
+      2 @llvm.nvvm.sqrt.approx.ftz.f

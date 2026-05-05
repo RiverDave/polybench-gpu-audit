@@ -1,0 +1,48 @@
+clang-20: warning: CUDA version 12.8 is only partially supported [-Wunknown-cuda-version]
+DOITGEN/doitgen.cu:173:12: error: use of undeclared identifier 'rtclock'; did you mean 'clock'?
+  173 |         t_start = rtclock();
+      |                   ^~~~~~~
+      |                   clock
+/usr/include/time.h:72:16: note: 'clock' declared here
+   72 | extern clock_t clock (void) __THROW;
+      |                ^
+DOITGEN/doitgen.cu:178:3: warning: 'cudaThreadSynchronize' is deprecated [-Wdeprecated-declarations]
+  178 |                 cudaThreadSynchronize();
+      |                 ^
+/usr/include/cuda_runtime_api.h:1172:8: note: 'cudaThreadSynchronize' has been explicitly marked deprecated here
+ 1172 | extern __CUDA_DEPRECATED __host__ cudaError_t CUDARTAPI cudaThreadSynchronize(void);
+      |        ^
+/usr/include/cuda_runtime_api.h:280:42: note: expanded from macro '__CUDA_DEPRECATED'
+  280 | #define __CUDA_DEPRECATED __attribute__((deprecated))
+      |                                          ^
+DOITGEN/doitgen.cu:180:3: warning: 'cudaThreadSynchronize' is deprecated [-Wdeprecated-declarations]
+  180 |                 cudaThreadSynchronize();
+      |                 ^
+/usr/include/cuda_runtime_api.h:1172:8: note: 'cudaThreadSynchronize' has been explicitly marked deprecated here
+ 1172 | extern __CUDA_DEPRECATED __host__ cudaError_t CUDARTAPI cudaThreadSynchronize(void);
+      |        ^
+/usr/include/cuda_runtime_api.h:280:42: note: expanded from macro '__CUDA_DEPRECATED'
+  280 | #define __CUDA_DEPRECATED __attribute__((deprecated))
+      |                                          ^
+DOITGEN/doitgen.cu:183:10: error: use of undeclared identifier 'rtclock'; did you mean 'clock'?
+  183 |         t_end = rtclock();
+      |                 ^~~~~~~
+      |                 clock
+/usr/include/time.h:72:16: note: 'clock' declared here
+   72 | extern clock_t clock (void) __THROW;
+      |                ^
+DOITGEN/doitgen.cu:211:12: error: use of undeclared identifier 'rtclock'; did you mean 'clock'?
+  211 |         t_start = rtclock();
+      |                   ^~~~~~~
+      |                   clock
+/usr/include/time.h:72:16: note: 'clock' declared here
+   72 | extern clock_t clock (void) __THROW;
+      |                ^
+DOITGEN/doitgen.cu:213:10: error: use of undeclared identifier 'rtclock'; did you mean 'clock'?
+  213 |         t_end = rtclock();
+      |                 ^~~~~~~
+      |                 clock
+/usr/include/time.h:72:16: note: 'clock' declared here
+   72 | extern clock_t clock (void) __THROW;
+      |                ^
+2 warnings and 4 errors generated when compiling for sm_80.

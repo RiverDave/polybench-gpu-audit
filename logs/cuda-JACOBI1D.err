@@ -1,0 +1,20 @@
+clang-20: warning: CUDA version 12.8 is only partially supported [-Wunknown-cuda-version]
+JACOBI1D/jacobi1D.cu:132:3: warning: 'cudaThreadSynchronize' is deprecated [-Wdeprecated-declarations]
+  132 |                 cudaThreadSynchronize();
+      |                 ^
+/usr/include/cuda_runtime_api.h:1172:8: note: 'cudaThreadSynchronize' has been explicitly marked deprecated here
+ 1172 | extern __CUDA_DEPRECATED __host__ cudaError_t CUDARTAPI cudaThreadSynchronize(void);
+      |        ^
+/usr/include/cuda_runtime_api.h:280:42: note: expanded from macro '__CUDA_DEPRECATED'
+  280 | #define __CUDA_DEPRECATED __attribute__((deprecated))
+      |                                          ^
+JACOBI1D/jacobi1D.cu:134:3: warning: 'cudaThreadSynchronize' is deprecated [-Wdeprecated-declarations]
+  134 |                 cudaThreadSynchronize();
+      |                 ^
+/usr/include/cuda_runtime_api.h:1172:8: note: 'cudaThreadSynchronize' has been explicitly marked deprecated here
+ 1172 | extern __CUDA_DEPRECATED __host__ cudaError_t CUDARTAPI cudaThreadSynchronize(void);
+      |        ^
+/usr/include/cuda_runtime_api.h:280:42: note: expanded from macro '__CUDA_DEPRECATED'
+  280 | #define __CUDA_DEPRECATED __attribute__((deprecated))
+      |                                          ^
+2 warnings generated when compiling for sm_80.
