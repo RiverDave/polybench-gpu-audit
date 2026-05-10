@@ -1,0 +1,94 @@
+COMMAND: /opt/rocm-6.3.0/lib/llvm/bin/clang-18 --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -I/root/polybenchGpu/CUDA/DOITGEN -std=c++17 -O0 -c /root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/DOITGEN -o /tmp/DOITGEN_doitgen.hip.cpp.og.o
+
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:124:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  124 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:126:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  126 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:166:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  166 |         hipMalloc(&AGpu, NR * NQ * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:167:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  167 |         hipMalloc(&C4Gpu, NP * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:168:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  168 |         hipMalloc(&sumGpu, NR * NQ * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:170:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  170 |         hipMemcpy(AGpu, A, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:171:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  171 |         hipMemcpy(C4Gpu, C4, NP * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:172:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  172 |         hipMemcpy(sumGpu, sum, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:181:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  181 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:183:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  183 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:189:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  189 |         hipMemcpy(sum_outputFromGpu, sumGpu, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:191:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  191 |         hipFree(AGpu);
+      |         ^~~~~~~ ~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:192:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  192 |         hipFree(C4Gpu);
+      |         ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:193:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  193 |         hipFree(sumGpu);
+      |         ^~~~~~~ ~~~~~~
+14 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:124:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  124 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:126:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  126 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:166:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  166 |         hipMalloc(&AGpu, NR * NQ * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:167:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  167 |         hipMalloc(&C4Gpu, NP * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:168:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  168 |         hipMalloc(&sumGpu, NR * NQ * NP * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:170:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  170 |         hipMemcpy(AGpu, A, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:171:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  171 |         hipMemcpy(C4Gpu, C4, NP * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:172:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  172 |         hipMemcpy(sumGpu, sum, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:181:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  181 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:183:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  183 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:189:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  189 |         hipMemcpy(sum_outputFromGpu, sumGpu, NR * NQ * NP * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:191:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  191 |         hipFree(AGpu);
+      |         ^~~~~~~ ~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:192:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  192 |         hipFree(C4Gpu);
+      |         ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/DOITGEN/doitgen.hip.cpp:193:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  193 |         hipFree(sumGpu);
+      |         ^~~~~~~ ~~~~~~
+14 warnings generated when compiling for host.

@@ -1,0 +1,81 @@
+COMMAND: /workspace/llvm-bin/clang-23 -fclangir --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -D__AMDGCN_WAVEFRONT_SIZE=64 -I/root/polybenchGpu/CUDA/ADI -std=c++17 -O0 -c /root/polybenchGpu/HIP/ADI/adi.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/ADI -o /tmp/ADI_adi.hip.cpp.cir.o
+
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:138:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  138 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:140:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  140 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:225:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  225 |         hipMalloc(&A_gpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:226:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  226 |         hipMalloc(&B_gpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:227:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  227 |         hipMalloc(&X_gpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:228:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  228 |         hipMemcpy(A_gpu, A, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:229:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  229 |         hipMemcpy(B_gpu, B, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:230:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  230 |         hipMemcpy(X_gpu, X, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:243:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  243 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:245:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  245 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:247:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  247 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:252:4: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  252 |                         hipDeviceSynchronize();
+      |                         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:256:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  256 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:261:4: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  261 |                         hipDeviceSynchronize();
+      |                         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:270:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  270 |         hipMemcpy(B_outputFromGpu, B_gpu, N * N * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:271:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  271 |         hipMemcpy(X_outputFromGpu, X_gpu, N * N * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:273:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  273 |         hipFree(A_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:274:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  274 |         hipFree(B_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/ADI/adi.hip.cpp:275:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  275 |         hipFree(X_gpu);
+      |         ^~~~~~~~~~~~~~
+loc("/opt/rocm-6.3.0/include/hip/amd_detail/hip_assert.h":70:3): error: 'cir.cast' op result type address space does not match the address space of the operand
+fatal error: CIR module verification error before running CIR-to-CIR passes
+clang-23: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 23.0.0git (git@github.com:llvm/llvm-project.git f30c3bb2647d4385c9d2035b9a661ecc0bcca813)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /workspace/llvm-bin
+Build config: +assertions
+clang-23: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-23: note: diagnostic msg: /tmp/adi-gfx942-85d977.hip
+clang-23: note: diagnostic msg: /tmp/adi-7b93eb.hip
+clang-23: note: diagnostic msg: /tmp/adi-gfx942-85d977.sh
+clang-23: note: diagnostic msg: 
+
+********************

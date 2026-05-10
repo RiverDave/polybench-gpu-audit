@@ -1,0 +1,130 @@
+COMMAND: /opt/rocm-6.3.0/lib/llvm/bin/clang-18 --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -I/root/polybenchGpu/CUDA/CORR -std=c++17 -O0 -c /root/polybenchGpu/HIP/CORR/correlation.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/CORR -o /tmp/CORR_correlation.hip.cpp.og.o
+
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:141:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  141 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:143:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  143 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:234:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  234 |         hipMalloc((void **)&data_gpu, sizeof(DATA_TYPE) * M * N);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:235:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  235 |         hipMalloc((void **)&symmat_gpu, sizeof(DATA_TYPE) * M * N);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:236:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  236 |         hipMalloc((void **)&stddev_gpu, sizeof(DATA_TYPE) * M);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:237:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  237 |         hipMalloc((void **)&mean_gpu, sizeof(DATA_TYPE) * M);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:238:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  238 |         hipMemcpy(data_gpu, data, sizeof(DATA_TYPE) * M * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:239:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  239 |         hipMemcpy(symmat_gpu, symmat, sizeof(DATA_TYPE) * M * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:240:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  240 |         hipMemcpy(stddev_gpu, stddev, sizeof(DATA_TYPE) * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:241:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  241 |         hipMemcpy(mean_gpu, mean, sizeof(DATA_TYPE) * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:259:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  259 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:261:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  261 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:263:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  263 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:265:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  265 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:273:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  273 |         hipMemcpy(&(symmat_gpu[(M-1)*M + (M-1)]), &valueAtSymmatIndexMTimesMPlus1PlusMPoint, sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:275:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  275 |         hipMemcpy(symmat_outputFromGpu, symmat_gpu, sizeof(DATA_TYPE) * M * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:277:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  277 |         hipFree(data_gpu);
+      |         ^~~~~~~ ~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:278:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  278 |         hipFree(symmat_gpu);
+      |         ^~~~~~~ ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:279:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  279 |         hipFree(stddev_gpu);
+      |         ^~~~~~~ ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:280:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  280 |         hipFree(mean_gpu);
+      |         ^~~~~~~ ~~~~~~~~
+20 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:141:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  141 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:143:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  143 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:234:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  234 |         hipMalloc((void **)&data_gpu, sizeof(DATA_TYPE) * M * N);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:235:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  235 |         hipMalloc((void **)&symmat_gpu, sizeof(DATA_TYPE) * M * N);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:236:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  236 |         hipMalloc((void **)&stddev_gpu, sizeof(DATA_TYPE) * M);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:237:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  237 |         hipMalloc((void **)&mean_gpu, sizeof(DATA_TYPE) * M);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:238:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  238 |         hipMemcpy(data_gpu, data, sizeof(DATA_TYPE) * M * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:239:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  239 |         hipMemcpy(symmat_gpu, symmat, sizeof(DATA_TYPE) * M * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:240:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  240 |         hipMemcpy(stddev_gpu, stddev, sizeof(DATA_TYPE) * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:241:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  241 |         hipMemcpy(mean_gpu, mean, sizeof(DATA_TYPE) * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:259:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  259 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:261:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  261 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:263:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  263 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:265:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  265 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:273:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  273 |         hipMemcpy(&(symmat_gpu[(M-1)*M + (M-1)]), &valueAtSymmatIndexMTimesMPlus1PlusMPoint, sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:275:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  275 |         hipMemcpy(symmat_outputFromGpu, symmat_gpu, sizeof(DATA_TYPE) * M * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:277:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  277 |         hipFree(data_gpu);
+      |         ^~~~~~~ ~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:278:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  278 |         hipFree(symmat_gpu);
+      |         ^~~~~~~ ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:279:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  279 |         hipFree(stddev_gpu);
+      |         ^~~~~~~ ~~~~~~~~~~
+/root/polybenchGpu/HIP/CORR/correlation.hip.cpp:280:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  280 |         hipFree(mean_gpu);
+      |         ^~~~~~~ ~~~~~~~~
+20 warnings generated when compiling for host.

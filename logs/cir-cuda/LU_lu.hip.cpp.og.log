@@ -1,0 +1,58 @@
+COMMAND: /opt/rocm-6.3.0/lib/llvm/bin/clang-18 --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -I/root/polybenchGpu/CUDA/LU -std=c++17 -O0 -c /root/polybenchGpu/HIP/LU/lu.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/LU -o /tmp/LU_lu.hip.cpp.og.o
+
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:93:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   93 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:95:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   95 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:126:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  126 |         hipMalloc(&AGpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:127:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  127 |         hipMemcpy(AGpu, A, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:141:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  141 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:146:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  146 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:154:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  154 |         hipMemcpy(A_outputFromGpu, AGpu, N * N * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:155:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  155 |         hipFree(AGpu);
+      |         ^~~~~~~ ~~~~
+8 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:93:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   93 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:95:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+   95 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:126:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  126 |         hipMalloc(&AGpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:127:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  127 |         hipMemcpy(AGpu, A, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:141:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  141 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:146:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  146 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:154:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  154 |         hipMemcpy(A_outputFromGpu, AGpu, N * N * sizeof(DATA_TYPE), hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/LU/lu.hip.cpp:155:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  155 |         hipFree(AGpu);
+      |         ^~~~~~~ ~~~~
+8 warnings generated when compiling for host.

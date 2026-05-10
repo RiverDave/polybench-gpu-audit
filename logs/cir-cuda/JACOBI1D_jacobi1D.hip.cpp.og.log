@@ -1,0 +1,64 @@
+COMMAND: /opt/rocm-6.3.0/lib/llvm/bin/clang-18 --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -I/root/polybenchGpu/CUDA/JACOBI1D -std=c++17 -O0 -c /root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/JACOBI1D -o /tmp/JACOBI1D_jacobi1D.hip.cpp.og.o
+
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:117:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  117 |         hipMalloc(&Agpu, N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:118:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  118 |         hipMalloc(&Bgpu, N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:120:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  120 |         hipMemcpy(Agpu, A, N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:121:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  121 |         hipMemcpy(Bgpu, B, N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:133:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  133 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:135:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  135 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:143:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  143 |         hipMemcpy(A_outputFromGpu, Agpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:144:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  144 |         hipMemcpy(B_outputFromGpu, Bgpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:146:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  146 |         hipFree(Agpu);
+      |         ^~~~~~~ ~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:147:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  147 |         hipFree(Bgpu);
+      |         ^~~~~~~ ~~~~
+10 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:117:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  117 |         hipMalloc(&Agpu, N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:118:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  118 |         hipMalloc(&Bgpu, N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:120:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  120 |         hipMemcpy(Agpu, A, N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:121:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  121 |         hipMemcpy(Bgpu, B, N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:133:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  133 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:135:3: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  135 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:143:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  143 |         hipMemcpy(A_outputFromGpu, Agpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:144:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  144 |         hipMemcpy(B_outputFromGpu, Bgpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:146:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  146 |         hipFree(Agpu);
+      |         ^~~~~~~ ~~~~
+/root/polybenchGpu/HIP/JACOBI1D/jacobi1D.hip.cpp:147:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+  147 |         hipFree(Bgpu);
+      |         ^~~~~~~ ~~~~
+10 warnings generated when compiling for host.

@@ -1,0 +1,63 @@
+COMMAND: /workspace/llvm-bin/clang-23 -fclangir --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -D__AMDGCN_WAVEFRONT_SIZE=64 -I/root/polybenchGpu/CUDA/GEMM -std=c++17 -O0 -c /root/polybenchGpu/HIP/GEMM/gemm.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/GEMM -o /tmp/GEMM_gemm.hip.cpp.cir.o
+
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:118:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  118 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:120:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  120 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:148:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  148 |         hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * NI * NK);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:149:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  149 |         hipMalloc((void **)&B_gpu, sizeof(DATA_TYPE) * NK * NJ);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:150:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  150 |         hipMalloc((void **)&C_gpu, sizeof(DATA_TYPE) * NI * NJ);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:152:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  152 |         hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * NI * NK, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:153:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  153 |         hipMemcpy(B_gpu, B, sizeof(DATA_TYPE) * NK * NJ, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:154:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  154 |         hipMemcpy(C_gpu, C, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:163:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  163 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:170:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  170 |         hipMemcpy(C_outputFromGpu, C_gpu, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyDeviceToHost);    
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:172:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  172 |         hipFree(A_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:173:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  173 |         hipFree(B_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:174:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  174 |         hipFree(C_gpu);
+      |         ^~~~~~~~~~~~~~
+loc("/opt/rocm-6.3.0/include/hip/amd_detail/hip_assert.h":70:3): error: 'cir.cast' op result type address space does not match the address space of the operand
+fatal error: CIR module verification error before running CIR-to-CIR passes
+clang-23: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 23.0.0git (git@github.com:llvm/llvm-project.git f30c3bb2647d4385c9d2035b9a661ecc0bcca813)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /workspace/llvm-bin
+Build config: +assertions
+clang-23: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-23: note: diagnostic msg: /tmp/gemm-gfx942-464dc1.hip
+clang-23: note: diagnostic msg: /tmp/gemm-796dff.hip
+clang-23: note: diagnostic msg: /tmp/gemm-gfx942-464dc1.sh
+clang-23: note: diagnostic msg: 
+
+********************

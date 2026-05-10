@@ -1,0 +1,69 @@
+COMMAND: /workspace/llvm-bin/clang-23 -fclangir --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-6.3.0 --offload-arch=gfx942 -D__AMDGCN_WAVEFRONT_SIZE=64 -I/root/polybenchGpu/CUDA/COVAR -std=c++17 -O0 -c /root/polybenchGpu/HIP/COVAR/covariance.hip.cpp -I/root/polybenchGpu/HIP -I/root/polybenchGpu/HIP/COVAR -o /tmp/COVAR_covariance.hip.cpp.cir.o
+
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:115:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  115 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/opt/rocm-6.3.0/include/hip/hip_runtime_api.h:91:32: note: expanded from macro 'hipGetDeviceProperties'
+   91 | #define hipGetDeviceProperties hipGetDevicePropertiesR0600
+      |                                ^
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:117:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  117 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:180:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  180 |         hipMalloc((void **)&data_gpu, sizeof(DATA_TYPE) * M * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:181:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  181 |         hipMalloc((void **)&symmat_gpu, sizeof(DATA_TYPE) * M * M);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:182:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  182 |         hipMalloc((void **)&mean_gpu, sizeof(DATA_TYPE) * M);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:183:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  183 |         hipMemcpy(data_gpu, data, sizeof(DATA_TYPE) * M * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:184:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  184 |         hipMemcpy(symmat_gpu, symmat, sizeof(DATA_TYPE) * M * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:185:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  185 |         hipMemcpy(mean_gpu, mean, sizeof(DATA_TYPE) * M, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:200:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  200 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:202:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  202 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:204:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  204 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:211:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  211 |         hipMemcpy(symmat_outputFromGpu, symmat_gpu, sizeof(DATA_TYPE) * M * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:213:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  213 |         hipFree(data_gpu);
+      |         ^~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:214:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  214 |         hipFree(symmat_gpu);
+      |         ^~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/COVAR/covariance.hip.cpp:215:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  215 |         hipFree(mean_gpu);
+      |         ^~~~~~~~~~~~~~~~~
+loc("/opt/rocm-6.3.0/include/hip/amd_detail/hip_assert.h":70:3): error: 'cir.cast' op result type address space does not match the address space of the operand
+fatal error: CIR module verification error before running CIR-to-CIR passes
+clang-23: error: clang frontend command failed with exit code 70 (use -v to see invocation)
+clang version 23.0.0git (git@github.com:llvm/llvm-project.git f30c3bb2647d4385c9d2035b9a661ecc0bcca813)
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /workspace/llvm-bin
+Build config: +assertions
+clang-23: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING FILES TO THE BUG REPORT:
+Preprocessed source(s) and associated run script(s) are located at:
+clang-23: note: diagnostic msg: /tmp/covariance-gfx942-e3f23e.hip
+clang-23: note: diagnostic msg: /tmp/covariance-77f2d0.hip
+clang-23: note: diagnostic msg: /tmp/covariance-gfx942-e3f23e.sh
+clang-23: note: diagnostic msg: 
+
+********************

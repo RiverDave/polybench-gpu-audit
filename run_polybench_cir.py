@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile PolyBench CUDA files through ClangIR and print a PR-friendly report. TODO: Missing HIP support once we have a rocm machine"""
+"""Compile PolyBench CUDA/HIP files through ClangIR and print a PR-friendly report."""
 
 from __future__ import annotations
 
@@ -55,9 +55,16 @@ def path_arg(text: str) -> Path:
     return Path(text).expanduser().resolve()
 
 
-def discover_include_dirs(root: Path) -> list[Path]:
-    suffixes = {".h", ".hpp", ".cuh"}
-    dirs = {p.parent for p in root.rglob("*") if p.is_file() and p.suffix in suffixes}
+def discover_include_dirs(files: list[Path]) -> list[Path]:
+    """Return the unique parent directories of all headers co-located with the given source files."""
+    suffixes = {".h", ".hpp", ".cuh", ".hip"}
+    search_dirs = {f.parent for f in files}
+    dirs: set[Path] = set()
+    for d in search_dirs:
+        for p in d.iterdir():
+            if p.is_file() and p.suffix in suffixes:
+                dirs.add(p.parent)
+                break
     return sorted(dirs)
 
 
@@ -73,6 +80,8 @@ def source_set(root: Path, file: Path) -> str:
     parts = file.relative_to(root).parts
     if parts[:1] == ("CUDA",):
         return "CUDA"
+    if parts[:1] == ("HIP",):
+        return "HIP"
     if len(parts) >= 2 and parts[0] == "polybenchCodesCudaOpenClHMPPOpenAcc":
         return "CUDA duplicate"
     return parts[0] if parts else "unknown"
@@ -95,12 +104,19 @@ def first_real_error(log_text: str) -> str:
     return ""
 
 
+def is_hip(file: Path) -> bool:
+    return ".hip" in file.suffixes or file.suffix == ".hip"
+
+
 def compile_one(
     clang: Path,
+    og_clang: Path,
     root: Path,
     cuda_root: Path,
+    hip_path: Path,
     gcc_install_dir: Path,
-    arch: str,
+    cuda_arch: str,
+    hip_arch: str,
     pipeline: str,
     file: Path,
     include_dirs: list[Path],
@@ -108,13 +124,34 @@ def compile_one(
 ) -> Result:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.log"
     out = Path("/tmp") / f"{safe_name(root, file)}.{pipeline.lower()}.o"
-    cmd = [str(clang)]
+    # OG uses the ROCm-native clang (compatible with HIP device linking).
+    # CIR uses our clang-23 with -fclangir. clang-linker-wrapper from the CIR
+    # build has a static-init double-registration bug so we can't use it for OG.
+    active_clang = clang if pipeline == "CIR" else og_clang
+    cmd = [str(active_clang)]
     if pipeline == "CIR":
         cmd.append("-fclangir")
+    cmd.append(f"--gcc-install-dir={gcc_install_dir}")
+    if is_hip(file):
+        # HIP .cuh headers live in the corresponding CUDA/ subtree
+        cuda_counterpart = Path(str(file.parent).replace("/HIP/", "/CUDA/", 1))
+        hip_flags = [
+            "-x", "hip",
+            f"--hip-path={hip_path}",
+            f"--offload-arch={hip_arch}",
+        ]
+        if pipeline == "CIR":
+            # __AMDGCN_WAVEFRONT_SIZE was removed in clang-23; ROCm headers still use it
+            hip_flags.append("-D__AMDGCN_WAVEFRONT_SIZE=64")
+        cmd.extend(hip_flags)
+        if cuda_counterpart.is_dir():
+            cmd.append(f"-I{cuda_counterpart}")
+    else:
+        cmd.extend([
+            f"--cuda-path={cuda_root}",
+            f"--cuda-gpu-arch={cuda_arch}",
+        ])
     cmd.extend([
-        f"--gcc-install-dir={gcc_install_dir}",
-        f"--cuda-path={cuda_root}",
-        f"--cuda-gpu-arch={arch}",
         "-std=c++17",
         "-O0",
         "-c",
@@ -123,8 +160,9 @@ def compile_one(
         f"-I{file.parent}",
         "-o",
         str(out),
-        "-v",
     ])
+    if not is_hip(file):
+        cmd.append("-v")
     cmd.extend(f"-I{d}" for d in include_dirs)
 
     start = time.perf_counter()
@@ -160,7 +198,7 @@ def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str
     og_passed = sum(1 for f in files_ordered if by_key.get((f, "OG")) and by_key[(f, "OG")].ok)
 
     lines = [
-        "PolyBench CUDA compile-only results through ClangIR.",
+        "PolyBench CUDA/HIP compile-only results through ClangIR.",
         "",
         f"- CUDA arch: `{arch}`",
         f"- PolyBench root: `{root}`",
@@ -201,11 +239,16 @@ def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--clang", type=path_arg, default=Path("~/llvm-project/build/bin/clang++"))
+    parser.add_argument("--clang", type=path_arg, default=Path("/workspace/llvm-bin/clang"),
+                        help="ClangIR-enabled clang binary (used for CIR pipeline)")
+    parser.add_argument("--og-clang", type=path_arg, default=Path("/opt/rocm-6.3.0/llvm/bin/clang"),
+                        help="Stock clang binary for OG baseline (default: ROCm 6.3 clang)")
     parser.add_argument("--polybench-root", type=path_arg, default=Path("~/polybenchGpu"))
     parser.add_argument("--cuda-root", type=path_arg, default=Path("/usr/local/cuda"))
-    parser.add_argument("--gcc-install-dir", type=path_arg, default=Path("/usr/lib/gcc/aarch64-linux-gnu/11"))
-    parser.add_argument("--arch", default="sm_90a")
+    parser.add_argument("--hip-path", type=path_arg, default=Path("/opt/rocm-6.3.0"))
+    parser.add_argument("--gcc-install-dir", type=path_arg, default=Path("/usr/lib/gcc/x86_64-linux-gnu/11"))
+    parser.add_argument("--cuda-arch", default="sm_80", help="CUDA GPU arch (e.g. sm_80)")
+    parser.add_argument("--hip-arch", default="gfx942", help="HIP/AMDGPU arch (e.g. gfx942 for MI300X)")
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/logs/cir-cuda"))
     parser.add_argument("--limit", type=int, default=0, help="Compile only the first N files.")
     parser.add_argument(
@@ -218,13 +261,18 @@ def main() -> int:
     args = parser.parse_args()
 
     args.clang = args.clang.expanduser().resolve()
+    args.og_clang = args.og_clang.expanduser().resolve()
     args.polybench_root = args.polybench_root.expanduser().resolve()
     args.cuda_root = args.cuda_root.expanduser().resolve()
+    args.hip_path = args.hip_path.expanduser().resolve()
     args.gcc_install_dir = args.gcc_install_dir.expanduser().resolve()
     args.log_dir = args.log_dir.expanduser().resolve()
 
     if not args.clang.exists():
         print(f"error: clang not found: {args.clang}", file=sys.stderr)
+        return 2
+    if not args.og_clang.exists():
+        print(f"error: og-clang not found: {args.og_clang}", file=sys.stderr)
         return 2
     if not args.polybench_root.exists():
         print(f"error: PolyBench root not found: {args.polybench_root}", file=sys.stderr)
@@ -234,10 +282,14 @@ def main() -> int:
     for old_log in args.log_dir.glob("*.log"):
         old_log.unlink()
 
-    files = sorted(args.polybench_root.rglob("*.cu"))
+    files = sorted(
+        list(args.polybench_root.rglob("*.cu")) +
+        list(args.polybench_root.rglob("*.hip.cpp")),
+        key=lambda p: p.name,
+    )
     if args.limit:
         files = files[: args.limit]
-    include_dirs = discover_include_dirs(args.polybench_root)
+    include_dirs = discover_include_dirs(files)
 
     if args.jobs < 1:
         print("error: --jobs must be >= 1", file=sys.stderr)
@@ -252,10 +304,13 @@ def main() -> int:
             executor.submit(
                 compile_one,
                 args.clang,
+                args.og_clang,
                 args.polybench_root,
                 args.cuda_root,
+                args.hip_path,
                 args.gcc_install_dir,
-                args.arch,
+                args.cuda_arch,
+                args.hip_arch,
                 pipeline,
                 file,
                 include_dirs,
@@ -292,7 +347,7 @@ def main() -> int:
         if (file, pipeline) in results_by_key
     ]
 
-    report = markdown(results, args.polybench_root, args.arch, args.log_dir)
+    report = markdown(results, args.polybench_root, f"cuda:{args.cuda_arch} hip:{args.hip_arch}", args.log_dir)
     report_path = args.log_dir / "summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
     print()
