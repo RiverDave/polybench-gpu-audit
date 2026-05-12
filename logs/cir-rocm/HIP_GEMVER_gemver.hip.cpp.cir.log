@@ -1,0 +1,216 @@
+COMMAND: /workspace/llvm-bin/clang-23 -fclangir --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-5.7.0 --offload-arch=gfx942 -D__AMDGCN_WAVEFRONT_SIZE=64 --rocm-device-lib-path=/opt/rocm-6.3.0/amdgcn/bitcode -I/root/polybenchGpu/CUDA/GEMVER -std=c++17 -O0 -c /root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp -I/root/polybenchGpu -I/root/polybenchGpu/HIP/GEMVER -o /tmp/HIP_GEMVER_gemver.hip.cpp.cir.o -I/root/polybenchGpu/CUDA/2DCONV -I/root/polybenchGpu/CUDA/2MM -I/root/polybenchGpu/CUDA/3DCONV -I/root/polybenchGpu/CUDA/3MM -I/root/polybenchGpu/CUDA/ADI -I/root/polybenchGpu/CUDA/ATAX -I/root/polybenchGpu/CUDA/BICG -I/root/polybenchGpu/CUDA/CORR -I/root/polybenchGpu/CUDA/COVAR -I/root/polybenchGpu/CUDA/FDTD-2D -I/root/polybenchGpu/CUDA/GEMM -I/root/polybenchGpu/CUDA/GEMVER -I/root/polybenchGpu/CUDA/GESUMMV -I/root/polybenchGpu/CUDA/GRAMSCHM -I/root/polybenchGpu/CUDA/JACOBI1D -I/root/polybenchGpu/CUDA/JACOBI2D -I/root/polybenchGpu/CUDA/LU -I/root/polybenchGpu/CUDA/MVT -I/root/polybenchGpu/CUDA/SYR2K -I/root/polybenchGpu/CUDA/SYRK
+
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:130:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  130 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:132:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  132 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:201:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  201 |         hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * N * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:202:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  202 |         hipMalloc((void **)&x_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:203:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  203 |         hipMalloc((void **)&y_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:204:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  204 |         hipMalloc((void **)&z_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:205:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  205 |         hipMalloc((void **)&w_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:206:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |         hipMalloc((void **)&v1_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:207:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  207 |         hipMalloc((void **)&v2_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:208:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  208 |         hipMalloc((void **)&u1_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:209:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  209 |         hipMalloc((void **)&u2_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:211:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  211 |         hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * N * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:212:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  212 |         hipMemcpy(x_gpu, x, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:213:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  213 |         hipMemcpy(y_gpu, y, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:214:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  214 |         hipMemcpy(z_gpu, z, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:215:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  215 |         hipMemcpy(w_gpu, w, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:216:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  216 |         hipMemcpy(v1_gpu, v1, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:217:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  217 |         hipMemcpy(v2_gpu, v2, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:218:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  218 |         hipMemcpy(u1_gpu, u1, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:219:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  219 |         hipMemcpy(u2_gpu, u2, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:234:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  234 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:236:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  236 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:238:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  238 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:245:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  245 |         hipMemcpy(w_outputFromGpu, w_gpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:247:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  247 |         hipFree(A_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:248:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  248 |         hipFree(x_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:249:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  249 |         hipFree(y_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:250:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  250 |         hipFree(z_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:251:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  251 |         hipFree(w_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:252:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  252 |         hipFree(v1_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:253:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  253 |         hipFree(v2_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:254:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  254 |         hipFree(u1_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:255:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  255 |         hipFree(u2_gpu);
+      |         ^~~~~~~~~~~~~~~
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/ocml.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/ockl.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_unsafe_math_off.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_finite_only_off.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_wavefrontsize64_on.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_isa_version_942.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_abi_version_600.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+33 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:130:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  130 |         hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:132:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  132 |         hipSetDevice( GPU_DEVICE );
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:201:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  201 |         hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * N * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:202:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  202 |         hipMalloc((void **)&x_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:203:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  203 |         hipMalloc((void **)&y_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:204:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  204 |         hipMalloc((void **)&z_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:205:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  205 |         hipMalloc((void **)&w_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:206:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  206 |         hipMalloc((void **)&v1_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:207:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  207 |         hipMalloc((void **)&v2_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:208:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  208 |         hipMalloc((void **)&u1_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:209:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  209 |         hipMalloc((void **)&u2_gpu, sizeof(DATA_TYPE) * N);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:211:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  211 |         hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * N * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:212:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  212 |         hipMemcpy(x_gpu, x, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:213:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  213 |         hipMemcpy(y_gpu, y, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:214:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  214 |         hipMemcpy(z_gpu, z, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:215:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  215 |         hipMemcpy(w_gpu, w, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:216:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  216 |         hipMemcpy(v1_gpu, v1, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:217:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  217 |         hipMemcpy(v2_gpu, v2, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:218:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  218 |         hipMemcpy(u1_gpu, u1, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:219:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  219 |         hipMemcpy(u2_gpu, u2, sizeof(DATA_TYPE) * N, hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:234:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  234 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:236:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  236 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:238:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  238 |         hipDeviceSynchronize();
+      |         ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:245:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  245 |         hipMemcpy(w_outputFromGpu, w_gpu, sizeof(DATA_TYPE) * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:247:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  247 |         hipFree(A_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:248:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  248 |         hipFree(x_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:249:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  249 |         hipFree(y_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:250:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  250 |         hipFree(z_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:251:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  251 |         hipFree(w_gpu);
+      |         ^~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:252:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  252 |         hipFree(v1_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:253:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  253 |         hipFree(v2_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:254:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  254 |         hipFree(u1_gpu);
+      |         ^~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMVER/gemver.hip.cpp:255:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  255 |         hipFree(u2_gpu);
+      |         ^~~~~~~~~~~~~~~
+33 warnings generated when compiling for host.

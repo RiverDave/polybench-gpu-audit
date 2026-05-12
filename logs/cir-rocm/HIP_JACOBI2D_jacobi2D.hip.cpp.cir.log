@@ -1,0 +1,78 @@
+COMMAND: /workspace/llvm-bin/clang-23 -fclangir --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-5.7.0 --offload-arch=gfx942 -D__AMDGCN_WAVEFRONT_SIZE=64 --rocm-device-lib-path=/opt/rocm-6.3.0/amdgcn/bitcode -I/root/polybenchGpu/CUDA/JACOBI2D -std=c++17 -O0 -c /root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp -I/root/polybenchGpu -I/root/polybenchGpu/HIP/JACOBI2D -o /tmp/HIP_JACOBI2D_jacobi2D.hip.cpp.cir.o -I/root/polybenchGpu/CUDA/2DCONV -I/root/polybenchGpu/CUDA/2MM -I/root/polybenchGpu/CUDA/3DCONV -I/root/polybenchGpu/CUDA/3MM -I/root/polybenchGpu/CUDA/ADI -I/root/polybenchGpu/CUDA/ATAX -I/root/polybenchGpu/CUDA/BICG -I/root/polybenchGpu/CUDA/CORR -I/root/polybenchGpu/CUDA/COVAR -I/root/polybenchGpu/CUDA/FDTD-2D -I/root/polybenchGpu/CUDA/GEMM -I/root/polybenchGpu/CUDA/GEMVER -I/root/polybenchGpu/CUDA/GESUMMV -I/root/polybenchGpu/CUDA/GRAMSCHM -I/root/polybenchGpu/CUDA/JACOBI1D -I/root/polybenchGpu/CUDA/JACOBI2D -I/root/polybenchGpu/CUDA/LU -I/root/polybenchGpu/CUDA/MVT -I/root/polybenchGpu/CUDA/SYR2K -I/root/polybenchGpu/CUDA/SYRK
+
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:137:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  137 |         hipMalloc(&Agpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:138:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  138 |         hipMalloc(&Bgpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:139:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  139 |         hipMemcpy(Agpu, A, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:140:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  140 |         hipMemcpy(Bgpu, B, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:151:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  151 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:153:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  153 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:161:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  161 |         hipMemcpy(A_outputFromGpu, Agpu, sizeof(DATA_TYPE) * N * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:162:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  162 |         hipMemcpy(B_outputFromGpu, Bgpu, sizeof(DATA_TYPE) * N * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:164:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  164 |         hipFree(Agpu);
+      |         ^~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:165:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  165 |         hipFree(Bgpu);
+      |         ^~~~~~~~~~~~~
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/ocml.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/ockl.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_unsafe_math_off.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_finite_only_off.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_wavefrontsize64_on.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_isa_version_942.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+warning: Linking two modules of different data layouts: '/opt/rocm-6.3.0/amdgcn/bitcode/oclc_abi_version_600.bc' is 'm:e-e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9' whereas '/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp' is 'e-m:e-n32:64-S32-A5-G1-p0:64:64:64:64-p1:64:64:64:64-p2:32:32:32:32-p3:32:32:32:32-p4:64:64:64:64-p5:32:32:32:32-p6:32:32:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-i1:8-i8:8-i16:16-i32:32-f16:16-f64:64-f128:128'
+
+10 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:137:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  137 |         hipMalloc(&Agpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:138:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  138 |         hipMalloc(&Bgpu, N * N * sizeof(DATA_TYPE));
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:139:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  139 |         hipMemcpy(Agpu, A, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:140:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  140 |         hipMemcpy(Bgpu, B, N * N * sizeof(DATA_TYPE), hipMemcpyHostToDevice);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:151:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  151 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:153:3: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  153 |                 hipDeviceSynchronize();
+      |                 ^~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:161:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  161 |         hipMemcpy(A_outputFromGpu, Agpu, sizeof(DATA_TYPE) * N * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:162:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  162 |         hipMemcpy(B_outputFromGpu, Bgpu, sizeof(DATA_TYPE) * N * N, hipMemcpyDeviceToHost);
+      |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:164:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  164 |         hipFree(Agpu);
+      |         ^~~~~~~~~~~~~
+/root/polybenchGpu/HIP/JACOBI2D/jacobi2D.hip.cpp:165:2: warning: ignoring return value of type 'hipError_t' declared with 'nodiscard' attribute [-Wunused-value]
+  165 |         hipFree(Bgpu);
+      |         ^~~~~~~~~~~~~
+10 warnings generated when compiling for host.

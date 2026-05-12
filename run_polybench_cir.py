@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import shlex
 import subprocess
 import sys
@@ -51,12 +52,43 @@ class Result:
     first_error: str = ""
 
 
+# ---------------------------------------------------------------------------
+# Auto-detection helpers
+# ---------------------------------------------------------------------------
+
+def _find_rocm_root() -> Path:
+    """Return the newest versioned ROCm install that has HIP headers, falling back to /opt/rocm."""
+    candidates = sorted(Path("/opt").glob("rocm-[0-9]*"), reverse=True)
+    for c in candidates:
+        if (c / "include/hip/hip_runtime.h").exists():
+            return c
+    return Path("/opt/rocm")
+
+
+def _find_gcc_install() -> Path:
+    """Return the newest GCC multilib dir that contains crtbegin.o."""
+    for crt in sorted(Path("/usr/lib/gcc").rglob("crtbegin.o"), reverse=True):
+        return crt.parent
+    return Path("/usr/lib/gcc/x86_64-linux-gnu/11")
+
+
+def _find_rocm_device_lib(rocm: Path) -> Path:
+    """Prefer a versioned 6.x bitcode dir (needs oclc_abi_version_600.bc)."""
+    v6_candidates = sorted(Path("/opt").glob("rocm-6*/amdgcn/bitcode"), reverse=True)
+    if v6_candidates:
+        return v6_candidates[0]
+    return rocm / "amdgcn/bitcode"
+
+
+# ---------------------------------------------------------------------------
+# Core helpers
+# ---------------------------------------------------------------------------
+
 def path_arg(text: str) -> Path:
     return Path(text).expanduser().resolve()
 
 
 def discover_include_dirs(files: list[Path]) -> list[Path]:
-    """Return the unique parent directories of all headers co-located with the given source files."""
     suffixes = {".h", ".hpp", ".cuh", ".hip"}
     search_dirs = {f.parent for f in files}
     dirs: set[Path] = set()
@@ -108,12 +140,16 @@ def is_hip(file: Path) -> bool:
     return ".hip" in file.suffixes or file.suffix == ".hip"
 
 
+# ---------------------------------------------------------------------------
+# Compilation
+# ---------------------------------------------------------------------------
+
 def compile_one(
     clang: Path,
-    og_clang: Path,
     root: Path,
     cuda_root: Path,
     hip_path: Path,
+    rocm_device_lib_path: Path,
     gcc_install_dir: Path,
     cuda_arch: str,
     hip_arch: str,
@@ -124,21 +160,19 @@ def compile_one(
 ) -> Result:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.log"
     out = Path("/tmp") / f"{safe_name(root, file)}.{pipeline.lower()}.o"
-    # OG uses the ROCm-native clang (compatible with HIP device linking).
-    # CIR uses our clang-23 with -fclangir. clang-linker-wrapper from the CIR
-    # build has a static-init double-registration bug so we can't use it for OG.
-    active_clang = clang if pipeline == "CIR" else og_clang
-    cmd = [str(active_clang)]
+
+    cmd = [str(clang)]
     if pipeline == "CIR":
         cmd.append("-fclangir")
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
+
     if is_hip(file):
-        # HIP .cuh headers live in the corresponding CUDA/ subtree
         cuda_counterpart = Path(str(file.parent).replace("/HIP/", "/CUDA/", 1))
         hip_flags = [
             "-x", "hip",
             f"--hip-path={hip_path}",
             f"--offload-arch={hip_arch}",
+            f"--rocm-device-lib-path={rocm_device_lib_path}",
         ]
         if pipeline == "CIR":
             # __AMDGCN_WAVEFRONT_SIZE was removed in clang-23; ROCm headers still use it
@@ -151,6 +185,7 @@ def compile_one(
             f"--cuda-path={cuda_root}",
             f"--cuda-gpu-arch={cuda_arch}",
         ])
+
     cmd.extend([
         "-std=c++17",
         "-O0",
@@ -165,9 +200,15 @@ def compile_one(
         cmd.append("-v")
     cmd.extend(f"-I{d}" for d in include_dirs)
 
+    # For CIR, prepend our clang bin dir to PATH so clang-linker-wrapper
+    # picks up our lld (LLVM 23) instead of the ROCm system lld (LLVM 17).
+    env = os.environ.copy()
+    if pipeline == "CIR":
+        env["PATH"] = f"{clang.parent}:{env['PATH']}"
+
     start = time.perf_counter()
-    proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    elapsed = time.perf_counter() - start # end
+    proc = subprocess.run(cmd, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, env=env)
+    elapsed = time.perf_counter() - start
 
     log.write_text("COMMAND: " + shlex.join(cmd) + "\n\n" + proc.stdout, encoding="utf-8")
     ok = proc.returncode == 0
@@ -184,6 +225,10 @@ def compile_one(
     )
 
 
+# ---------------------------------------------------------------------------
+# Reporting
+# ---------------------------------------------------------------------------
+
 def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str:
     by_key: dict[tuple[Path, str], Result] = {(r.file, r.pipeline): r for r in results}
     seen: set[Path] = set()
@@ -194,13 +239,13 @@ def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str
             files_ordered.append(r.file)
 
     total = len(files_ordered)
-    cir_passed = sum(1 for f in files_ordered if by_key.get((f, "CIR")) and by_key[(f, "CIR")].ok)
-    og_passed = sum(1 for f in files_ordered if by_key.get((f, "OG")) and by_key[(f, "OG")].ok)
+    cir_passed = sum(1 for f in files_ordered if by_key.get((f, "CIR"), Result("","",f,"",False,0,Path(),[],)).ok)
+    og_passed  = sum(1 for f in files_ordered if by_key.get((f, "OG"),  Result("","",f,"",False,0,Path(),[],)).ok)
 
     lines = [
         "PolyBench CUDA/HIP compile-only results through ClangIR.",
         "",
-        f"- CUDA arch: `{arch}`",
+        f"- arch: `{arch}`",
         f"- PolyBench root: `{root}`",
         f"- Logs: `{log_dir}`",
         f"- CIR result: `{cir_passed}/{total}` passed",
@@ -211,13 +256,13 @@ def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str
     ]
     for file in files_ordered:
         cir = by_key.get((file, "CIR"))
-        og = by_key.get((file, "OG"))
+        og  = by_key.get((file, "OG"))
         ref = cir or og
         assert ref is not None
         cir_status = ("pass" if cir.ok else "fail") if cir else "N/A"
-        og_status = ("pass" if og.ok else "fail") if og else "N/A"
-        cir_time = f"{cir.elapsed:.3f}" if cir else "N/A"
-        og_time = f"{og.elapsed:.3f}" if og else "N/A"
+        og_status  = ("pass" if og.ok  else "fail") if og  else "N/A"
+        cir_time   = f"{cir.elapsed:.3f}" if cir else "N/A"
+        og_time    = f"{og.elapsed:.3f}"  if og  else "N/A"
         lines.append(
             f"| {ref.benchmark} | {ref.source_set} | {cir_status} | {og_status} | {cir_time} | {og_time} |"
         )
@@ -225,89 +270,107 @@ def markdown(results: list[Result], root: Path, arch: str, log_dir: Path) -> str
     failures = [r for r in results if not r.ok]
     if failures:
         lines.extend(["", "Failures:", ""])
-        for result in failures:
-            lines.extend(
-                [
-                    f"- [{result.pipeline}] `{result.file}`",
-                    f"  - log: `{result.log}`",
-                    f"  - error: `{result.first_error or 'unknown error'}`",
-                    f"  - command: `{shlex.join(result.command)}`",
-                ]
-            )
+        for r in failures:
+            lines.extend([
+                f"- [{r.pipeline}] `{r.file}`",
+                f"  - log: `{r.log}`",
+                f"  - error: `{r.first_error or 'unknown error'}`",
+                f"  - command: `{shlex.join(r.command)}`",
+            ])
     return "\n".join(lines)
 
 
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
 def main() -> int:
+    _rocm = _find_rocm_root()
+
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--clang", type=path_arg, default=Path("/workspace/llvm-bin/clang"),
-                        help="ClangIR-enabled clang binary (used for CIR pipeline)")
-    parser.add_argument("--og-clang", type=path_arg, default=Path("/opt/rocm-6.3.0/llvm/bin/clang"),
-                        help="Stock clang binary for OG baseline (default: ROCm 6.3 clang)")
-    parser.add_argument("--polybench-root", type=path_arg, default=Path("~/polybenchGpu"))
-    parser.add_argument("--cuda-root", type=path_arg, default=Path("/usr/local/cuda"))
-    parser.add_argument("--hip-path", type=path_arg, default=Path("/opt/rocm-6.3.0"))
-    parser.add_argument("--gcc-install-dir", type=path_arg, default=Path("/usr/lib/gcc/x86_64-linux-gnu/11"))
-    parser.add_argument("--cuda-arch", default="sm_80", help="CUDA GPU arch (e.g. sm_80)")
-    parser.add_argument("--hip-arch", default="gfx942", help="HIP/AMDGPU arch (e.g. gfx942 for MI300X)")
-    parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/logs/cir-cuda"))
-    parser.add_argument("--limit", type=int, default=0, help="Compile only the first N files.")
-    parser.add_argument(
-        "-j",
-        "--jobs",
-        type=int,
-        default=1,
-        help="Number of compile jobs to run in parallel.",
-    )
+
+    # Source-set filter (mutually exclusive)
+    src_group = parser.add_mutually_exclusive_group()
+    src_group.add_argument("--hip",  action="store_true", help="Run HIP benchmarks only")
+    src_group.add_argument("--cuda", action="store_true", help="Run CUDA benchmarks only (requires CUDA toolkit)")
+
+    # Paths — all auto-detected, override as needed
+    parser.add_argument("--clang",               type=path_arg, default=Path("/workspace/llvm-bin/clang"),
+                        help="clang binary (used for both CIR and OG; OG simply omits -fclangir)")
+    parser.add_argument("--polybench-root",      type=path_arg, default=Path("~/polybenchGpu"))
+    parser.add_argument("--cuda-root",           type=path_arg, default=Path("/usr/local/cuda"))
+    parser.add_argument("--hip-path",            type=path_arg, default=_rocm)
+    parser.add_argument("--rocm-device-lib-path",type=path_arg, default=_find_rocm_device_lib(_rocm),
+                        help="ROCm 6.x bitcode dir (needs oclc_abi_version_600.bc)")
+    parser.add_argument("--gcc-install-dir",     type=path_arg, default=_find_gcc_install())
+    parser.add_argument("--cuda-arch",  default="sm_80",  help="CUDA GPU arch")
+    parser.add_argument("--hip-arch",   default="gfx942", help="HIP/AMDGPU arch")
+    parser.add_argument("--log-dir",    type=path_arg, default=Path("~/polybench-gpu-audit/logs/cir-rocm"))
+    parser.add_argument("--limit", type=int, default=0, help="Cap number of source files (for quick tests)")
+    parser.add_argument("-j", "--jobs", type=int, default=4)
+
     args = parser.parse_args()
 
-    args.clang = args.clang.expanduser().resolve()
-    args.og_clang = args.og_clang.expanduser().resolve()
+    # Resolve remaining unexpanded paths
     args.polybench_root = args.polybench_root.expanduser().resolve()
-    args.cuda_root = args.cuda_root.expanduser().resolve()
-    args.hip_path = args.hip_path.expanduser().resolve()
-    args.gcc_install_dir = args.gcc_install_dir.expanduser().resolve()
-    args.log_dir = args.log_dir.expanduser().resolve()
+    args.cuda_root      = args.cuda_root.expanduser().resolve()
+    args.log_dir        = args.log_dir.expanduser().resolve()
 
+    # Validate
+    errors = []
     if not args.clang.exists():
-        print(f"error: clang not found: {args.clang}", file=sys.stderr)
-        return 2
-    if not args.og_clang.exists():
-        print(f"error: og-clang not found: {args.og_clang}", file=sys.stderr)
-        return 2
+        errors.append(f"--clang not found: {args.clang}")
     if not args.polybench_root.exists():
-        print(f"error: PolyBench root not found: {args.polybench_root}", file=sys.stderr)
+        errors.append(f"--polybench-root not found: {args.polybench_root}")
+    if args.jobs < 1:
+        errors.append("--jobs must be >= 1")
+    if errors:
+        for e in errors:
+            print(f"error: {e}", file=sys.stderr)
         return 2
 
     args.log_dir.mkdir(parents=True, exist_ok=True)
     for old_log in args.log_dir.glob("*.log"):
         old_log.unlink()
 
-    files = sorted(
+    # Discover source files
+    all_files = sorted(
         list(args.polybench_root.rglob("*.cu")) +
         list(args.polybench_root.rglob("*.hip.cpp")),
         key=lambda p: p.name,
     )
+
+    # Apply source-set filter
+    if args.hip:
+        files = [f for f in all_files if is_hip(f)]
+    elif args.cuda:
+        files = [f for f in all_files if not is_hip(f)]
+    else:
+        files = all_files
+
     if args.limit:
         files = files[: args.limit]
-    include_dirs = discover_include_dirs(files)
 
-    if args.jobs < 1:
-        print("error: --jobs must be >= 1", file=sys.stderr)
+    if not files:
+        print("error: no source files found after filtering", file=sys.stderr)
         return 2
 
+    include_dirs = discover_include_dirs(files)
+
     pipelines = ("CIR", "OG")
-    results_by_key: dict[tuple[Path, str], Result] = {}
     total_jobs = len(files) * len(pipelines)
     width = len(str(total_jobs))
+    results_by_key: dict[tuple[Path, str], Result] = {}
+
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         futures = {
             executor.submit(
                 compile_one,
                 args.clang,
-                args.og_clang,
                 args.polybench_root,
                 args.cuda_root,
                 args.hip_path,
+                args.rocm_device_lib_path,
                 args.gcc_install_dir,
                 args.cuda_arch,
                 args.hip_arch,
@@ -328,8 +391,8 @@ def main() -> int:
                 result = future.result()
             except Exception as exc:
                 print(
-                    f"[{completed:0{width}d}/{total_jobs}] {pipeline} fail"
-                    f" {file.relative_to(args.polybench_root)} ({exc})",
+                    f"[{completed:0{width}d}/{total_jobs}] {pipeline} error"
+                    f" {file.relative_to(args.polybench_root)}: {exc}",
                     file=sys.stderr,
                 )
                 raise
@@ -347,7 +410,8 @@ def main() -> int:
         if (file, pipeline) in results_by_key
     ]
 
-    report = markdown(results, args.polybench_root, f"cuda:{args.cuda_arch} hip:{args.hip_arch}", args.log_dir)
+    arch_tag = f"hip:{args.hip_arch}" if args.hip else f"cuda:{args.cuda_arch}" if args.cuda else f"cuda:{args.cuda_arch} hip:{args.hip_arch}"
+    report = markdown(results, args.polybench_root, arch_tag, args.log_dir)
     report_path = args.log_dir / "summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
     print()

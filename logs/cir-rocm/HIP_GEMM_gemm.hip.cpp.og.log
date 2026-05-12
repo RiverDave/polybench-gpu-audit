@@ -1,0 +1,82 @@
+COMMAND: /opt/rocm-5.7.0/llvm/bin/clang-17 --gcc-install-dir=/usr/lib/gcc/x86_64-linux-gnu/11 -x hip --hip-path=/opt/rocm-5.7.0 --offload-arch=gfx942 -I/root/polybenchGpu/CUDA/GEMM -std=c++17 -O0 -c /root/polybenchGpu/HIP/GEMM/gemm.hip.cpp -I/root/polybenchGpu -I/root/polybenchGpu/HIP/GEMM -o /tmp/HIP_GEMM_gemm.hip.cpp.og.o -I/root/polybenchGpu/CUDA/2DCONV -I/root/polybenchGpu/CUDA/2MM -I/root/polybenchGpu/CUDA/3DCONV -I/root/polybenchGpu/CUDA/3MM -I/root/polybenchGpu/CUDA/ADI -I/root/polybenchGpu/CUDA/ATAX -I/root/polybenchGpu/CUDA/BICG -I/root/polybenchGpu/CUDA/CORR -I/root/polybenchGpu/CUDA/COVAR -I/root/polybenchGpu/CUDA/FDTD-2D -I/root/polybenchGpu/CUDA/GEMM -I/root/polybenchGpu/CUDA/GEMVER -I/root/polybenchGpu/CUDA/GESUMMV -I/root/polybenchGpu/CUDA/GRAMSCHM -I/root/polybenchGpu/CUDA/JACOBI1D -I/root/polybenchGpu/CUDA/JACOBI2D -I/root/polybenchGpu/CUDA/LU -I/root/polybenchGpu/CUDA/MVT -I/root/polybenchGpu/CUDA/SYR2K -I/root/polybenchGpu/CUDA/SYRK
+
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:118:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+        ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:120:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipSetDevice( GPU_DEVICE );
+        ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:148:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * NI * NK);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:149:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&B_gpu, sizeof(DATA_TYPE) * NK * NJ);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:150:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&C_gpu, sizeof(DATA_TYPE) * NI * NJ);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:152:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * NI * NK, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:153:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(B_gpu, B, sizeof(DATA_TYPE) * NK * NJ, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:154:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(C_gpu, C, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:163:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipDeviceSynchronize();
+        ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:170:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(C_outputFromGpu, C_gpu, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyDeviceToHost);    
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:172:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(A_gpu);
+        ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:173:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(B_gpu);
+        ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:174:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(C_gpu);
+        ^~~~~~~ ~~~~~
+13 warnings generated when compiling for gfx942.
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:118:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipGetDeviceProperties(&deviceProp, GPU_DEVICE);
+        ^~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:120:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipSetDevice( GPU_DEVICE );
+        ^~~~~~~~~~~~  ~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:148:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&A_gpu, sizeof(DATA_TYPE) * NI * NK);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:149:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&B_gpu, sizeof(DATA_TYPE) * NK * NJ);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:150:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMalloc((void **)&C_gpu, sizeof(DATA_TYPE) * NI * NJ);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:152:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(A_gpu, A, sizeof(DATA_TYPE) * NI * NK, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:153:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(B_gpu, B, sizeof(DATA_TYPE) * NK * NJ, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:154:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(C_gpu, C, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyHostToDevice);
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:163:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipDeviceSynchronize();
+        ^~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:170:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipMemcpy(C_outputFromGpu, C_gpu, sizeof(DATA_TYPE) * NI * NJ, hipMemcpyDeviceToHost);    
+        ^~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:172:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(A_gpu);
+        ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:173:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(B_gpu);
+        ^~~~~~~ ~~~~~
+/root/polybenchGpu/HIP/GEMM/gemm.hip.cpp:174:2: warning: ignoring return value of function declared with 'nodiscard' attribute [-Wunused-result]
+        hipFree(C_gpu);
+        ^~~~~~~ ~~~~~
+13 warnings generated when compiling for host.
