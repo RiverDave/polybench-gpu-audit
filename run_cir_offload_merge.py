@@ -209,10 +209,8 @@ def timing_compile_one(
 ) -> TimingResult:
     log = log_dir / f"{safe_name(root, file)}.cir-{pipeline}.{arch}.log"
 
-    # Both arms use -fclangir.
-    # "merge" uses --clangir-offload-merge (driver flag) which requires the host
-    # compilation kind to be active — i.e. full compile (-c), not device-only.
-    # "no-merge" stays device-only for a fair apples-to-apples timing baseline.
+    # Both arms: full host+device compile (-c, no device-only).
+    # The only variable is --clangir-offload-merge.
     cmd = [str(clang), "-fclangir"]
     if pipeline == "merge":
         cmd.append("--clangir-offload-merge")
@@ -227,21 +225,16 @@ def timing_compile_one(
             f"--rocm-device-lib-path={rocm_device_lib_path}",
             "-D__AMDGCN_WAVEFRONT_SIZE=64",
         ])
-        if pipeline == "no-merge":
-            cmd.append("--offload-device-only")
         if cuda_counterpart.is_dir():
             cmd.append(f"-I{cuda_counterpart}")
     else:
         cmd.extend([
             f"--cuda-path={cuda_root}",
             f"--cuda-gpu-arch={arch}",
+            # Host-side CIR compilation doesn't auto-inject the CUDA include
+            # path for either arm, so add it explicitly.
+            f"-I{cuda_root}/include",
         ])
-        if pipeline == "no-merge":
-            cmd.append("--cuda-device-only")
-        else:
-            # The merge pipeline's host-side CIR compilation doesn't auto-inject
-            # the CUDA include path, so we add it explicitly.
-            cmd.append(f"-I{cuda_root}/include")
 
     cmd.extend([
         "-std=c++17", "-O3",
@@ -251,15 +244,10 @@ def timing_compile_one(
     ])
     cmd.extend(f"-I{d}" for d in include_dirs)
 
-    # merge pipeline produces a fat object — /dev/null won't work
-    tmp_out: "tempfile.NamedTemporaryFile | None" = None
-    if pipeline == "merge":
-        suffix = ".o"
-        tmp_out = tempfile.NamedTemporaryFile(suffix=suffix, delete=False)
-        tmp_out.close()
-        cmd.extend(["-o", tmp_out.name])
-    else:
-        cmd.extend(["-o", "/dev/null"])
+    # Both arms produce a fat object — /dev/null won't work for either.
+    tmp_out = tempfile.NamedTemporaryFile(suffix=".o", delete=False)
+    tmp_out.close()
+    cmd.extend(["-o", tmp_out.name])
 
     env = os.environ.copy()
     env["PATH"] = f"{clang.parent}:{env['PATH']}"
@@ -271,11 +259,10 @@ def timing_compile_one(
     proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
     elapsed = time.perf_counter() - start
 
-    if tmp_out:
-        try:
-            os.unlink(tmp_out.name)
-        except OSError:
-            pass
+    try:
+        os.unlink(tmp_out.name)
+    except OSError:
+        pass
 
     log.write_text(
         "COMMAND: " + shlex.join(cmd) + "\n\nSTDOUT:\n" + proc.stdout + "\nSTDERR:\n" + proc.stderr,
@@ -384,8 +371,7 @@ def markdown(
         f"- PolyBench root: `{root}`",
         f"- Logs: `{log_dir}`",
         "- Base flags (both arms): `-fclangir -O3 -c -ftime-report -mllvm -time-passes -mmlir --mlir-pass-statistics`",
-        "- no-merge arm: device-only (`--cuda-device-only` / `--offload-device-only`)",
-        "- merge arm: full compile (host+device) with `--clangir-offload-merge`",
+        "- Both arms: full host+device compile; only variable is `--clangir-offload-merge`",
         f"- Warmup runs per benchmark: {warmup}",
         f"- no-merge OK: `{nm_ok}/{total}`",
         f"- merge OK:    `{mg_ok}/{total}`",
