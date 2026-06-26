@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""CIR compile-time comparison: no-merge vs --clangir-offload-merge.
+"""CIR compile-time (and optionally runtime) comparison: no-merge vs --clangir-offload-merge.
 
 Both arms use -fclangir. The "merge" arm additionally passes
---clangir-offload-merge through the MLIR layer (-mmlir).
+--clangir-offload-merge.
 
 Examples:
-  # CUDA sm_86
+  # CUDA sm_86 — compile-time only
   python3 run_cir_offload_merge.py --cuda \\
       --clang ~/llvm-project/build/bin/clang++ \\
       --gcc-install-dir /usr/lib/gcc/x86_64-linux-gnu/11 \\
       --arch sm_86 -j $(nproc)
 
-  # CUDA multi-arch
+  # CUDA sm_86 — compile-time + runtime
+  python3 run_cir_offload_merge.py --cuda --runtime \\
+      --clang ~/llvm-project/build/bin/clang++ \\
+      --gcc-install-dir /usr/lib/gcc/x86_64-linux-gnu/11 \\
+      --arch sm_86 -j $(nproc)
+
+  # CUDA multi-arch (compile-time only; runtime uses primary --arch)
   python3 run_cir_offload_merge.py --cuda --multi-arch \\
       --clang ~/llvm-project/build/bin/clang++ \\
       --gcc-install-dir /usr/lib/gcc/x86_64-linux-gnu/11 \\
@@ -27,6 +33,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import re
 import shlex
@@ -35,7 +42,7 @@ import sys
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -54,6 +61,7 @@ _CUDA_MULTI_ARCHES = ["sm_80",  "sm_86",  "sm_89",  "sm_90"]
 
 _SECTION_SEP = re.compile(r"^===-{3,}")
 _EXEC_TIME   = re.compile(r"Total Execution Time:\s*[\d.]+\s*seconds\s*\(([\d.]+)\s*wall")
+_GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
 
 _PHASE_ALIASES = {
     "clang time report":            "Frontend+IRGen",
@@ -67,11 +75,21 @@ _PHASE_ALIASES = {
     "mlir module pass manager":     "MLIR-passes",
 }
 
-# Extra flags added to the "merge" pipeline on top of the shared CIR base
-MERGE_FLAGS = ["-mmlir", "--clangir-offload-merge"]
-
 PIPELINES = ("no-merge", "merge")
 
+_EXTERN_RTCLOCK = re.compile(r"extern\s+double\s+rtclock")
+
+# C++ shim: wraps C-linkage _pb_rtclock (from polybench.o) for kernels that
+# declare `extern double rtclock(void)` in a .cu file (e.g. DOITGEN).
+_POLYBENCH_SHIM = (
+    'extern "C" { double _pb_rtclock(); }\n'
+    'double rtclock() { return _pb_rtclock(); }\n'
+)
+
+
+# ---------------------------------------------------------------------------
+# Data classes
+# ---------------------------------------------------------------------------
 
 @dataclass
 class TimingResult:
@@ -85,6 +103,20 @@ class TimingResult:
     phases:      dict[str, float]
     log:         Path
     command:     list[str]
+    first_error: str = ""
+
+
+@dataclass
+class RuntimeResult:
+    benchmark:   str
+    source_set:  str
+    file:        Path
+    pipeline:    str   # "no-merge" or "merge"
+    arch:        str
+    compile_ok:  bool
+    compile_log: Path
+    binary:      Path | None
+    times:       list[float] = field(default_factory=list)
     first_error: str = ""
 
 
@@ -150,6 +182,30 @@ def _normalize_phase(raw: str) -> str:
             return short
     return raw[:35] if len(raw) > 35 else raw
 
+def _mean_stddev(xs: list[float]) -> tuple[float, float]:
+    if not xs:       return float("nan"), float("nan")
+    m = sum(xs) / len(xs)
+    if len(xs) == 1: return m, 0.0
+    return m, math.sqrt(sum((x - m) ** 2 for x in xs) / (len(xs) - 1))
+
+def _parse_time(stdout: str) -> float | None:
+    for line in reversed(stdout.splitlines()):
+        m = _GPU_RUNTIME.search(line)
+        if m:
+            return float(m.group(1))
+        try:
+            return float(line.strip())
+        except ValueError:
+            continue
+    return None
+
+def _needs_polybench_c(file: Path) -> bool:
+    try:
+        content = file.read_text(errors="ignore")
+        return bool(_EXTERN_RTCLOCK.search(content)) and "polybench.c" not in content
+    except OSError:
+        return False
+
 def parse_phases(stderr: str) -> dict[str, float]:
     phases: dict[str, float] = {}
     lines = stderr.splitlines()
@@ -190,7 +246,7 @@ def discover_include_dirs(files: list[Path]) -> list[Path]:
 
 
 # ---------------------------------------------------------------------------
-# Compilation
+# Compile-time measurement
 # ---------------------------------------------------------------------------
 
 def timing_compile_one(
@@ -286,7 +342,125 @@ def timing_compile_one(
 
 
 # ---------------------------------------------------------------------------
-# Reporting
+# Runtime measurement
+# ---------------------------------------------------------------------------
+
+def _compile_polybench_objs(
+    clang: Path, common_dir: Path, gcc_install_dir: Path, build_dir: Path,
+) -> list[Path]:
+    pb_obj   = build_dir / "polybench.o"
+    shim_src = build_dir / "polybench_shim.cpp"
+    shim_obj = build_dir / "polybench_shim.o"
+
+    cmd = [str(clang), f"--gcc-install-dir={gcc_install_dir}",
+           "-O3", "-DPOLYBENCH_TIME=1", "-Dstatic=", "-Drtclock=_pb_rtclock",
+           "-c", str(common_dir / "polybench.c"), f"-I{common_dir}", "-o", str(pb_obj)]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"polybench.c compile failed:\n{proc.stderr[:500]}")
+
+    shim_src.write_text(_POLYBENCH_SHIM)
+    cmd = [str(clang), f"--gcc-install-dir={gcc_install_dir}",
+           "-O3", "-c", str(shim_src), "-o", str(shim_obj)]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"polybench shim compile failed:\n{proc.stderr[:500]}")
+
+    return [pb_obj, shim_obj]
+
+
+def runtime_compile_one(
+    clang:                Path,
+    root:                 Path,
+    cuda_root:            Path,
+    hip_path:             Path,
+    rocm_device_lib_path: Path,
+    gcc_install_dir:      Path,
+    arch:                 str,
+    pipeline:             str,
+    file:                 Path,
+    common_dir:           Path,
+    polybench_objs:       list[Path],
+    build_dir:            Path,
+    log_dir:              Path,
+) -> RuntimeResult:
+    tag = f"{safe_name(root, file)}.rt-{pipeline}.{arch}"
+    log    = log_dir   / f"{tag}.log"
+    binary = build_dir / tag
+
+    cmd = [str(clang), "-fclangir"]
+    if pipeline == "merge":
+        cmd.append("--clangir-offload-merge")
+    cmd.append(f"--gcc-install-dir={gcc_install_dir}")
+
+    if is_hip(file):
+        cuda_counterpart = Path(str(file.parent).replace("/HIP/", "/CUDA/", 1))
+        cmd.extend([
+            "-x", "hip",
+            f"--hip-path={hip_path}",
+            f"--offload-arch={arch}",
+            f"--rocm-device-lib-path={rocm_device_lib_path}",
+            "-D__AMDGCN_WAVEFRONT_SIZE=64",
+        ])
+        if cuda_counterpart.is_dir():
+            cmd.append(f"-I{cuda_counterpart}")
+        link_flags = [f"-L{hip_path}/lib", "-lamdhip64"]
+    else:
+        cmd.extend([f"--cuda-path={cuda_root}", f"--cuda-gpu-arch={arch}"])
+        link_flags = [f"-L{cuda_root}/lib64", "-lcudart"]
+
+    extra_obj = [str(o) for o in polybench_objs] if _needs_polybench_c(file) else []
+    cmd.extend([
+        "-std=c++17", "-O3", "-DPOLYBENCH_TIME=1",
+        str(file),
+        f"-I{common_dir}", f"-I{file.parent}", f"-I{root}",
+        "-lm", *link_flags, *extra_obj, "-o", str(binary),
+    ])
+
+    env = os.environ.copy()
+    env["PATH"] = f"{clang.parent}:{env['PATH']}"
+
+    proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
+    log.write_text(
+        "COMMAND: " + shlex.join(cmd) + "\n\nSTDOUT:\n" + proc.stdout + "\nSTDERR:\n" + proc.stderr,
+        encoding="utf-8",
+    )
+
+    ok = proc.returncode == 0
+    first_error = ""
+    if not ok:
+        for line in (proc.stdout + proc.stderr).splitlines():
+            if " error:" in line.lower() or "fatal" in line.lower():
+                first_error = line.strip()
+                break
+
+    return RuntimeResult(
+        benchmark=benchmark_name(file), source_set=source_set(root, file),
+        file=file, pipeline=pipeline, arch=arch,
+        compile_ok=ok, compile_log=log,
+        binary=binary if ok else None,
+        first_error=first_error,
+    )
+
+
+def run_binary(result: RuntimeResult, runs: int, warmup: int) -> None:
+    assert result.binary is not None
+    try:
+        for _ in range(warmup):
+            subprocess.run([str(result.binary)], capture_output=True, timeout=300)
+        for _ in range(runs):
+            proc = subprocess.run([str(result.binary)], capture_output=True, text=True, timeout=300)
+            if proc.returncode != 0:
+                break
+            t = _parse_time(proc.stdout)
+            if t is not None:
+                result.times.append(t)
+    except subprocess.TimeoutExpired:
+        pass
+
+
+# ---------------------------------------------------------------------------
+# Reporting — compile-time
 # ---------------------------------------------------------------------------
 
 def _phase_rows(results: list[TimingResult]) -> list[str]:
@@ -348,12 +522,73 @@ def _arch_section(results: list[TimingResult], root: Path, arch: str) -> list[st
     return lines
 
 
+# ---------------------------------------------------------------------------
+# Reporting — runtime
+# ---------------------------------------------------------------------------
+
+def _runtime_section(
+    rt_results: list[RuntimeResult], root: Path, arch: str, runs: int, warmup: int,
+) -> list[str]:
+    by_key        = {(r.file, r.pipeline): r for r in rt_results}
+    files_ordered = list(dict.fromkeys(r.file for r in rt_results))
+
+    def _f(v: float) -> str:
+        return "—" if math.isnan(v) else f"{v:.4f}"
+
+    nm_run_ok = sum(1 for f in files_ordered
+                    if by_key.get((f, "no-merge")) and by_key[(f, "no-merge")].times)
+    mg_run_ok = sum(1 for f in files_ordered
+                    if by_key.get((f, "merge"))    and by_key[(f, "merge")].times)
+
+    lines = [
+        f"### arch: `{arch}`  ({runs} timed runs + {warmup} warmup)", "",
+        f"- no-merge ran OK: `{nm_run_ok}/{len(files_ordered)}`",
+        f"- merge ran OK:    `{mg_run_ok}/{len(files_ordered)}`",
+        "",
+        "| Benchmark | Source set | no-merge mean | no-merge σ | merge mean | merge σ | merge/no-merge |",
+        "|---|---:|---:|---:|---:|---:|---:|",
+    ]
+
+    nm_means, mg_means = [], []
+    for file in files_ordered:
+        nm = by_key.get((file, "no-merge"))
+        mg = by_key.get((file, "merge"))
+        ref = nm or mg
+        assert ref is not None
+        nm_m, nm_s = _mean_stddev(nm.times if nm else [])
+        mg_m, mg_s = _mean_stddev(mg.times if mg else [])
+        if not math.isnan(nm_m): nm_means.append(nm_m)
+        if not math.isnan(mg_m): mg_means.append(mg_m)
+        ratio = f"{mg_m / nm_m:.3f}" if (not math.isnan(nm_m) and not math.isnan(mg_m) and nm_m > 0) else "—"
+        lines.append(
+            f"| {ref.benchmark} | {ref.source_set}"
+            f" | {_f(nm_m)} | {_f(nm_s)} | {_f(mg_m)} | {_f(mg_s)} | {ratio} |"
+        )
+
+    if nm_means and mg_means:
+        avg_nm = sum(nm_means) / len(nm_means)
+        avg_mg = sum(mg_means) / len(mg_means)
+        d = f"+{avg_mg - avg_nm:.4f}" if avg_mg >= avg_nm else f"{avg_mg - avg_nm:.4f}"
+        lines.append(
+            f"| **avg** | — | **{avg_nm:.4f}** | — | **{avg_mg:.4f}** | — | **{d}** |"
+        )
+
+    return lines
+
+
+# ---------------------------------------------------------------------------
+# Full report
+# ---------------------------------------------------------------------------
+
 def markdown(
-    results: list[TimingResult],
-    root: Path,
-    arch_tag: str,
-    log_dir: Path,
-    warmup: int,
+    results:     list[TimingResult],
+    root:        Path,
+    arch_tag:    str,
+    log_dir:     Path,
+    warmup:      int,
+    rt_results:  list[RuntimeResult] | None = None,
+    rt_runs:     int = 5,
+    rt_warmup:   int = 1,
     clangir_rev: str = "unknown",
     scripts_rev: str = "unknown",
 ) -> str:
@@ -389,7 +624,7 @@ def markdown(
 
     failures = [r for r in results if not r.ok]
     if failures:
-        lines += ["## Failures", ""]
+        lines += ["## Compile failures (timing phase)", ""]
         for r in failures:
             tag = f"{r.pipeline}/{r.arch}" if multi else r.pipeline
             lines += [
@@ -397,6 +632,40 @@ def markdown(
                 f"  - error: `{r.first_error or 'see log'}`",
                 f"  - log: `{r.log}`",
             ]
+
+    if rt_results:
+        rt_arches = sorted(set(r.arch for r in rt_results))
+        lines += [
+            "",
+            "---",
+            "",
+            "## Runtime performance (no-merge vs merge)",
+            "",
+            "Polybench wall-clock timer (`POLYBENCH_TIME=1`). "
+            "Both binaries compiled with `-fclangir -O3`; only variable is `--clangir-offload-merge`.",
+            "",
+        ]
+        for arch in rt_arches:
+            lines.extend(
+                _runtime_section(
+                    [r for r in rt_results if r.arch == arch],
+                    root, arch, rt_runs, rt_warmup,
+                )
+            )
+            lines.append("")
+
+        rt_failures = [r for r in rt_results if not r.compile_ok or not r.times]
+        if rt_failures:
+            lines += ["## Runtime failures", ""]
+            for r in rt_failures:
+                reason = "compile failed" if not r.compile_ok else "no timing output"
+                lines += [
+                    f"- [{r.pipeline}/{r.arch}] `{r.file}` — {reason}",
+                    f"  - log: `{r.compile_log}`",
+                ]
+                if r.first_error:
+                    lines[-1:] = lines[-1:] + [f"  - error: `{r.first_error}`"]
+
     return "\n".join(lines)
 
 
@@ -424,22 +693,37 @@ def main() -> int:
     parser.add_argument("--hip-arch",   default="gfx942", help="HIP/AMDGPU arch (default: gfx942)")
     parser.add_argument("--multi-arch", action="store_true",
                         help=f"Compile for all arches per target "
-                             f"(HIP: {_HIP_MULTI_ARCHES}, CUDA: {_CUDA_MULTI_ARCHES})")
-    parser.add_argument("--warmup",  type=int, default=2, help="Warm-up runs before timed run (default: 2)")
+                             f"(HIP: {_HIP_MULTI_ARCHES}, CUDA: {_CUDA_MULTI_ARCHES}); "
+                             f"runtime (if enabled) uses the primary --arch/--hip-arch")
+    parser.add_argument("--warmup",  type=int, default=2,
+                        help="Compile warm-up runs before timed compile (default: 2)")
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/offload-merge"))
     parser.add_argument("--limit",   type=int, default=0, help="Cap number of source files (0 = no cap)")
     parser.add_argument("-j", "--jobs", type=int, default=4)
+
+    # Runtime flags
+    parser.add_argument("--runtime", action="store_true",
+                        help="Also compile to executables and measure runtime performance")
+    parser.add_argument("--runs",           type=int, default=5,
+                        help="Timed execution runs per binary (default: 5)")
+    parser.add_argument("--runtime-warmup", type=int, default=1,
+                        help="Warmup execution runs before timing (default: 1)")
+    parser.add_argument("--build-dir", type=path_arg,
+                        default=Path("~/polybench-gpu-audit/temp/merge-runtime"),
+                        help="Directory for runtime executables")
 
     args = parser.parse_args()
     args.polybench_root = args.polybench_root.expanduser().resolve()
     args.cuda_root      = args.cuda_root.expanduser().resolve()
     args.log_dir        = args.log_dir.expanduser().resolve()
+    args.build_dir      = args.build_dir.expanduser().resolve()
 
     errors = []
     if not args.clang.exists():          errors.append(f"--clang not found: {args.clang}")
     if not args.polybench_root.exists(): errors.append(f"--polybench-root not found: {args.polybench_root}")
     if args.jobs < 1:                    errors.append("--jobs must be >= 1")
     if args.warmup < 0:                  errors.append("--warmup must be >= 0")
+    if args.runtime and args.runs < 1:   errors.append("--runs must be >= 1")
     if errors:
         for e in errors: print(f"error: {e}", file=sys.stderr)
         return 2
@@ -468,15 +752,19 @@ def main() -> int:
     cuda_arches  = _CUDA_MULTI_ARCHES if args.multi_arch else [args.arch]
     include_dirs = discover_include_dirs(files)
 
-    jobs = [
+    # -------------------------------------------------------------------------
+    # Phase 1: compile-time measurement
+    # -------------------------------------------------------------------------
+    ct_jobs = [
         (file, pipeline, arch)
         for file in files
         for pipeline in PIPELINES
         for arch in (hip_arches if is_hip(file) else cuda_arches)
     ]
-    total_jobs = len(jobs)
+    total_jobs = len(ct_jobs)
     width      = len(str(total_jobs))
 
+    print(f"[compile-time] {total_jobs} jobs, -j{args.jobs}, warmup={args.warmup}")
     results_by_key: dict[tuple[Path, str, str], TimingResult] = {}
     with ThreadPoolExecutor(max_workers=args.jobs) as executor:
         futures = {
@@ -487,7 +775,7 @@ def main() -> int:
                 args.gcc_install_dir, arch, pipeline, file,
                 include_dirs, args.log_dir, args.warmup,
             ): (file, pipeline, arch)
-            for file, pipeline, arch in jobs
+            for file, pipeline, arch in ct_jobs
         }
         completed = 0
         for future in as_completed(futures):
@@ -511,12 +799,94 @@ def main() -> int:
                 f" wall={result.elapsed:.3f}s  {phase_summary}"
             )
 
-    results = [
+    ct_results = [
         results_by_key[(file, pipeline, arch)]
-        for file, pipeline, arch in jobs
+        for file, pipeline, arch in ct_jobs
         if (file, pipeline, arch) in results_by_key
     ]
 
+    # -------------------------------------------------------------------------
+    # Phase 2 (optional): runtime measurement
+    # -------------------------------------------------------------------------
+    rt_results: list[RuntimeResult] | None = None
+
+    if args.runtime:
+        common_dir = args.polybench_root / "common"
+        if not common_dir.is_dir():
+            print(f"error: common dir not found: {common_dir}", file=sys.stderr)
+            return 2
+
+        args.build_dir.mkdir(parents=True, exist_ok=True)
+
+        try:
+            pb_objs = _compile_polybench_objs(
+                args.clang, common_dir, args.gcc_install_dir, args.build_dir,
+            )
+        except RuntimeError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+
+        # Runtime uses a single arch per file (the primary arch), even with --multi-arch.
+        rt_jobs = [
+            (file, pipeline, args.hip_arch if is_hip(file) else args.arch)
+            for file in files
+            for pipeline in PIPELINES
+        ]
+        rt_total = len(rt_jobs)
+        rt_width = len(str(rt_total))
+
+        print(f"\n[runtime compile] {rt_total} binaries, -j{args.jobs}")
+        rt_by_key: dict[tuple[Path, str, str], RuntimeResult] = {}
+        with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+            futures = {
+                executor.submit(
+                    runtime_compile_one,
+                    args.clang, args.polybench_root,
+                    args.cuda_root, args.hip_path, args.rocm_device_lib_path,
+                    args.gcc_install_dir, arch, pipeline, file,
+                    common_dir, pb_objs, args.build_dir, args.log_dir,
+                ): (file, pipeline, arch)
+                for file, pipeline, arch in rt_jobs
+            }
+            done = 0
+            for future in as_completed(futures):
+                file, pipeline, arch = futures[future]
+                done += 1
+                try:
+                    r = future.result()
+                except Exception as exc:
+                    print(f"[{done:0{rt_width}d}/{rt_total}] {pipeline}/{arch} ERROR"
+                          f" {file.name}: {exc}", file=sys.stderr)
+                    raise
+                rt_by_key[(file, pipeline, arch)] = r
+                print(f"[{done:0{rt_width}d}/{rt_total}] {pipeline}/{arch}"
+                      f" {'ok' if r.compile_ok else 'FAIL'}"
+                      f" {file.relative_to(args.polybench_root)}")
+
+        runnable = [rt_by_key[k] for k in rt_jobs if k in rt_by_key and rt_by_key[k].compile_ok]
+        rw = len(str(len(runnable)))
+        print(f"\n[runtime run] {len(runnable)} binaries,"
+              f" {args.runtime_warmup} warmup + {args.runs} timed, -j{args.jobs}")
+        done = 0
+        with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+            futures2 = {
+                executor.submit(run_binary, r, args.runs, args.runtime_warmup): r
+                for r in runnable
+            }
+            for future in as_completed(futures2):
+                future.result()
+                r = futures2[future]
+                done += 1
+                m, s = _mean_stddev(r.times)
+                status = f"mean={m:.4f}s σ={s:.4f}s" if r.times else "no timing output"
+                print(f"[{done:0{rw}d}/{len(runnable)}] {r.pipeline}/{r.arch}"
+                      f" {r.benchmark}  {status}")
+
+        rt_results = [rt_by_key[k] for k in rt_jobs if k in rt_by_key]
+
+    # -------------------------------------------------------------------------
+    # Report
+    # -------------------------------------------------------------------------
     if args.multi_arch:
         active_hip  = ",".join(_HIP_MULTI_ARCHES)
         active_cuda = ",".join(_CUDA_MULTI_ARCHES)
@@ -530,8 +900,11 @@ def main() -> int:
 
     clangir_rev = _git_rev(args.clang.parent.parent.parent)
     scripts_rev = _git_rev(Path(__file__).parent)
-    report      = markdown(results, args.polybench_root, arch_tag, args.log_dir, args.warmup,
-                           clangir_rev=clangir_rev, scripts_rev=scripts_rev)
+    report = markdown(
+        ct_results, args.polybench_root, arch_tag, args.log_dir, args.warmup,
+        rt_results=rt_results, rt_runs=args.runs, rt_warmup=args.runtime_warmup,
+        clangir_rev=clangir_rev, scripts_rev=scripts_rev,
+    )
     report_path = args.log_dir / "offload_merge_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
     print()
