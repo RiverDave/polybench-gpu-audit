@@ -1,0 +1,895 @@
+{
+  "meta": {
+    "date": "2026-06-29T06:20:07.529321+00:00",
+    "clangir_rev": "5a4ff7f475c2",
+    "scripts_rev": "0a21632",
+    "warmup": 3,
+    "target": "cuda"
+  },
+  "arches_pool": [
+    "sm_80",
+    "sm_86",
+    "sm_89",
+    "sm_90"
+  ],
+  "datapoints": [
+    {
+      "n_arches": 1,
+      "arches": [
+        "sm_80"
+      ],
+      "benchmarks": {
+        "2dconv": {
+          "no-merge": {
+            "elapsed": 1.7946550150008989,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.1113314920003177,
+            "ok": true
+          }
+        },
+        "2mm": {
+          "no-merge": {
+            "elapsed": 2.3134281170005124,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.207274256999881,
+            "ok": true
+          }
+        },
+        "3dconv": {
+          "no-merge": {
+            "elapsed": 2.180196187000547,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.3798591430004308,
+            "ok": true
+          }
+        },
+        "3mm": {
+          "no-merge": {
+            "elapsed": 2.3097826480006916,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.696964138000112,
+            "ok": true
+          }
+        },
+        "adi": {
+          "no-merge": {
+            "elapsed": 2.0690636849994917,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.5712331909999193,
+            "ok": true
+          }
+        },
+        "atax": {
+          "no-merge": {
+            "elapsed": 2.384449149998545,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.2020200159986416,
+            "ok": true
+          }
+        },
+        "bicg": {
+          "no-merge": {
+            "elapsed": 2.0867882349994034,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.477701222998803,
+            "ok": true
+          }
+        },
+        "corr": {
+          "no-merge": {
+            "elapsed": 2.8777678980004566,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.1105260419990373,
+            "ok": true
+          }
+        },
+        "covar": {
+          "no-merge": {
+            "elapsed": 2.342358121999496,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.0468492669988336,
+            "ok": true
+          }
+        },
+        "doitgen": {
+          "no-merge": {
+            "elapsed": 1.885932250001133,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.290100958000039,
+            "ok": true
+          }
+        },
+        "fdtd-2d": {
+          "no-merge": {
+            "elapsed": 1.9649624839985336,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 1.919152540000141,
+            "ok": true
+          }
+        },
+        "gemm": {
+          "no-merge": {
+            "elapsed": 2.045241260999319,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.1534619690010004,
+            "ok": true
+          }
+        },
+        "gemver": {
+          "no-merge": {
+            "elapsed": 1.8488593399997626,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.364399283998864,
+            "ok": true
+          }
+        },
+        "gesummv": {
+          "no-merge": {
+            "elapsed": 1.8948785019983916,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.68408657100008,
+            "ok": true
+          }
+        },
+        "gramschmidt": {
+          "no-merge": {
+            "elapsed": 2.494805082998937,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.256014259000949,
+            "ok": true
+          }
+        },
+        "jacobi1d": {
+          "no-merge": {
+            "elapsed": 1.7645115679988521,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.415947450999738,
+            "ok": true
+          }
+        },
+        "jacobi2d": {
+          "no-merge": {
+            "elapsed": 2.096389218000695,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 1.794381767998857,
+            "ok": true
+          }
+        },
+        "lu": {
+          "no-merge": {
+            "elapsed": 2.117952904000049,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 1.947562277000543,
+            "ok": true
+          }
+        },
+        "mvt": {
+          "no-merge": {
+            "elapsed": 2.2989670780007145,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.6231349440004124,
+            "ok": true
+          }
+        },
+        "syr2k": {
+          "no-merge": {
+            "elapsed": 1.881454690999817,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.2102326479998737,
+            "ok": true
+          }
+        },
+        "syrk": {
+          "no-merge": {
+            "elapsed": 1.9539072940006008,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.393933058001494,
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "n_arches": 2,
+      "arches": [
+        "sm_80",
+        "sm_86"
+      ],
+      "benchmarks": {
+        "2dconv": {
+          "no-merge": {
+            "elapsed": 2.5136554569999134,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.4039130629989813,
+            "ok": true
+          }
+        },
+        "2mm": {
+          "no-merge": {
+            "elapsed": 3.8910716290010896,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.9270860209999228,
+            "ok": true
+          }
+        },
+        "3dconv": {
+          "no-merge": {
+            "elapsed": 3.2841268649990525,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.384541597999487,
+            "ok": true
+          }
+        },
+        "3mm": {
+          "no-merge": {
+            "elapsed": 2.709996317000332,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.406825160000153,
+            "ok": true
+          }
+        },
+        "adi": {
+          "no-merge": {
+            "elapsed": 3.3906395110006997,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.1403731209993566,
+            "ok": true
+          }
+        },
+        "atax": {
+          "no-merge": {
+            "elapsed": 3.886547029000212,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.4302912420007488,
+            "ok": true
+          }
+        },
+        "bicg": {
+          "no-merge": {
+            "elapsed": 3.3429139840009157,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.248940606999895,
+            "ok": true
+          }
+        },
+        "corr": {
+          "no-merge": {
+            "elapsed": 3.0003260479988967,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.9133402650004427,
+            "ok": true
+          }
+        },
+        "covar": {
+          "no-merge": {
+            "elapsed": 3.25554401699992,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.1752093190007145,
+            "ok": true
+          }
+        },
+        "doitgen": {
+          "no-merge": {
+            "elapsed": 2.853490558998601,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.8395976040010282,
+            "ok": true
+          }
+        },
+        "fdtd-2d": {
+          "no-merge": {
+            "elapsed": 2.975429305999569,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.778156158999991,
+            "ok": true
+          }
+        },
+        "gemm": {
+          "no-merge": {
+            "elapsed": 3.7295536910005467,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.6968461650012614,
+            "ok": true
+          }
+        },
+        "gemver": {
+          "no-merge": {
+            "elapsed": 2.7230228450007417,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.927507571001115,
+            "ok": true
+          }
+        },
+        "gesummv": {
+          "no-merge": {
+            "elapsed": 3.1498163100004604,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.6308211519990436,
+            "ok": true
+          }
+        },
+        "gramschmidt": {
+          "no-merge": {
+            "elapsed": 2.9604496040010417,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.3199067349996767,
+            "ok": true
+          }
+        },
+        "jacobi1d": {
+          "no-merge": {
+            "elapsed": 3.608351376000428,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.1915162300010707,
+            "ok": true
+          }
+        },
+        "jacobi2d": {
+          "no-merge": {
+            "elapsed": 2.7284199749992695,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.7175847319995228,
+            "ok": true
+          }
+        },
+        "lu": {
+          "no-merge": {
+            "elapsed": 3.0116568819994427,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.7058434579994355,
+            "ok": true
+          }
+        },
+        "mvt": {
+          "no-merge": {
+            "elapsed": 3.059873731999687,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.6826086719993327,
+            "ok": true
+          }
+        },
+        "syr2k": {
+          "no-merge": {
+            "elapsed": 2.5827514690008684,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 2.650199153000358,
+            "ok": true
+          }
+        },
+        "syrk": {
+          "no-merge": {
+            "elapsed": 2.9698879299994587,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.782171759999983,
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "n_arches": 3,
+      "arches": [
+        "sm_80",
+        "sm_86",
+        "sm_89"
+      ],
+      "benchmarks": {
+        "2dconv": {
+          "no-merge": {
+            "elapsed": 4.0527975970017,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.346492245000263,
+            "ok": true
+          }
+        },
+        "2mm": {
+          "no-merge": {
+            "elapsed": 4.365549434998684,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.145217156999934,
+            "ok": true
+          }
+        },
+        "3dconv": {
+          "no-merge": {
+            "elapsed": 3.5819315619992267,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.62926576099926,
+            "ok": true
+          }
+        },
+        "3mm": {
+          "no-merge": {
+            "elapsed": 4.936595846000273,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 5.103421099000116,
+            "ok": true
+          }
+        },
+        "adi": {
+          "no-merge": {
+            "elapsed": 4.704647248001493,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.417639468998459,
+            "ok": true
+          }
+        },
+        "atax": {
+          "no-merge": {
+            "elapsed": 3.9671385749988985,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.5574886149988743,
+            "ok": true
+          }
+        },
+        "bicg": {
+          "no-merge": {
+            "elapsed": 4.128599140000006,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.486636860001454,
+            "ok": true
+          }
+        },
+        "corr": {
+          "no-merge": {
+            "elapsed": 3.4307295710004837,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.391018004000216,
+            "ok": true
+          }
+        },
+        "covar": {
+          "no-merge": {
+            "elapsed": 4.224446401998648,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.5819396680017235,
+            "ok": true
+          }
+        },
+        "doitgen": {
+          "no-merge": {
+            "elapsed": 4.495674965000944,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.750208596000448,
+            "ok": true
+          }
+        },
+        "fdtd-2d": {
+          "no-merge": {
+            "elapsed": 3.812115729000652,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.9113154630013014,
+            "ok": true
+          }
+        },
+        "gemm": {
+          "no-merge": {
+            "elapsed": 4.41396887799965,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.8765082850004546,
+            "ok": true
+          }
+        },
+        "gemver": {
+          "no-merge": {
+            "elapsed": 3.7469809419999365,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.396008765999795,
+            "ok": true
+          }
+        },
+        "gesummv": {
+          "no-merge": {
+            "elapsed": 3.8138891109992983,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.786987830000726,
+            "ok": true
+          }
+        },
+        "gramschmidt": {
+          "no-merge": {
+            "elapsed": 3.9294835820001026,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.391655689998515,
+            "ok": true
+          }
+        },
+        "jacobi1d": {
+          "no-merge": {
+            "elapsed": 3.9341543779992207,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.848734497998521,
+            "ok": true
+          }
+        },
+        "jacobi2d": {
+          "no-merge": {
+            "elapsed": 4.071713895000357,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.329788471999564,
+            "ok": true
+          }
+        },
+        "lu": {
+          "no-merge": {
+            "elapsed": 4.558039166000526,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.203625303998706,
+            "ok": true
+          }
+        },
+        "mvt": {
+          "no-merge": {
+            "elapsed": 4.443936601001042,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.301829929001542,
+            "ok": true
+          }
+        },
+        "syr2k": {
+          "no-merge": {
+            "elapsed": 4.582938817000468,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.524057657999947,
+            "ok": true
+          }
+        },
+        "syrk": {
+          "no-merge": {
+            "elapsed": 4.402228221999394,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.482579079000061,
+            "ok": true
+          }
+        }
+      }
+    },
+    {
+      "n_arches": 4,
+      "arches": [
+        "sm_80",
+        "sm_86",
+        "sm_89",
+        "sm_90"
+      ],
+      "benchmarks": {
+        "2dconv": {
+          "no-merge": {
+            "elapsed": 3.677446730000156,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.8285145290010405,
+            "ok": true
+          }
+        },
+        "2mm": {
+          "no-merge": {
+            "elapsed": 3.8618342640002083,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.149872582000171,
+            "ok": true
+          }
+        },
+        "3dconv": {
+          "no-merge": {
+            "elapsed": 3.761340435999955,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.8997416109996266,
+            "ok": true
+          }
+        },
+        "3mm": {
+          "no-merge": {
+            "elapsed": 4.037870837999435,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.0839114080008585,
+            "ok": true
+          }
+        },
+        "adi": {
+          "no-merge": {
+            "elapsed": 4.0472612229987135,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.575003853000453,
+            "ok": true
+          }
+        },
+        "atax": {
+          "no-merge": {
+            "elapsed": 3.7504478940008994,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.221757310000612,
+            "ok": true
+          }
+        },
+        "bicg": {
+          "no-merge": {
+            "elapsed": 5.076607877999777,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 5.49346856900047,
+            "ok": true
+          }
+        },
+        "corr": {
+          "no-merge": {
+            "elapsed": 5.04982027799997,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.645745845999045,
+            "ok": true
+          }
+        },
+        "covar": {
+          "no-merge": {
+            "elapsed": 4.274964891001218,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.553580746998705,
+            "ok": true
+          }
+        },
+        "doitgen": {
+          "no-merge": {
+            "elapsed": 3.858067248000225,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.535484428000927,
+            "ok": true
+          }
+        },
+        "fdtd-2d": {
+          "no-merge": {
+            "elapsed": 4.293850480000401,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.9335971740001696,
+            "ok": true
+          }
+        },
+        "gemm": {
+          "no-merge": {
+            "elapsed": 3.760058175999802,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.851957273998778,
+            "ok": true
+          }
+        },
+        "gemver": {
+          "no-merge": {
+            "elapsed": 3.837226234998525,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.016142022001077,
+            "ok": true
+          }
+        },
+        "gesummv": {
+          "no-merge": {
+            "elapsed": 3.7310640790001344,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.7747362179998163,
+            "ok": true
+          }
+        },
+        "gramschmidt": {
+          "no-merge": {
+            "elapsed": 3.8979665890001343,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 4.050804659000278,
+            "ok": true
+          }
+        },
+        "jacobi1d": {
+          "no-merge": {
+            "elapsed": 3.703276902999278,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.9129115949999687,
+            "ok": true
+          }
+        },
+        "jacobi2d": {
+          "no-merge": {
+            "elapsed": 3.7450116889995115,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.9957867920002172,
+            "ok": true
+          }
+        },
+        "lu": {
+          "no-merge": {
+            "elapsed": 3.7228694860004907,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.8384774000005564,
+            "ok": true
+          }
+        },
+        "mvt": {
+          "no-merge": {
+            "elapsed": 3.7558453700003156,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.894025548001082,
+            "ok": true
+          }
+        },
+        "syr2k": {
+          "no-merge": {
+            "elapsed": 3.7168415430005552,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 3.791521629998897,
+            "ok": true
+          }
+        },
+        "syrk": {
+          "no-merge": {
+            "elapsed": 3.9207397689988284,
+            "ok": true
+          },
+          "merge": {
+            "elapsed": 5.869016409000324,
+            "ok": true
+          }
+        }
+      }
+    }
+  ]
+}

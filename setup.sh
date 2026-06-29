@@ -98,6 +98,7 @@ cmake -G Ninja \
     -DCMAKE_CXX_COMPILER=/usr/bin/g++-11 \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+    -DCLANG_ENABLE_CIR=ON \
     -DLLVM_ENABLE_LLD=ON \
     -DLLVM_ENABLE_PROJECTS="clang;mlir" \
     -DLLVM_TARGETS_TO_BUILD="X86;NVPTX" \
@@ -122,7 +123,13 @@ else
     "$LLVM_BUILD/bin/clang++" --version
 fi
 
+
 # ---------------------------------------------------------------------------
+# 6. Claude
+# ---------------------------------------------------------------------------
+
+curl -fsSL https://claude.ai/install.sh | bash
+
 echo ""
 echo "=== Done ==="
 echo ""

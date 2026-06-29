@@ -142,8 +142,11 @@ def _find_rocm_root() -> Path:
     return Path("/opt/rocm")
 
 def _find_gcc_install() -> Path:
+    # Prefer the newest GCC that ships C++ headers (g++ installed, not just gcc).
     for crt in sorted(Path("/usr/lib/gcc").glob("*/*/crtbegin.o"), reverse=True):
-        return crt.parent
+        ver = crt.parent.name
+        if Path(f"/usr/include/c++/{ver}").is_dir():
+            return crt.parent
     return Path("/usr/lib/gcc/x86_64-linux-gnu/11")
 
 def _find_rocm_device_lib(rocm: Path) -> Path:
