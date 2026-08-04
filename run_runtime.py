@@ -22,6 +22,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import json
 import math
 import os
 import re
@@ -32,16 +33,22 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
-
-BENCHMARK_NAMES = {
-    "2DCONV": "convolution-2d", "2MM": "2mm", "3DCONV": "convolution-3d",
-    "3MM": "3mm", "ADI": "adi", "ATAX": "atax", "BICG": "bicg",
-    "CORR": "correlation", "COVAR": "covariance", "DOITGEN": "doitgen",
-    "FDTD-2D": "fdtd-2d", "GEMM": "gemm", "GEMVER": "gemver",
-    "GESUMMV": "gesummv", "GRAMSCHM": "gramschmidt",
-    "JACOBI1D": "jacobi-1d-imper", "JACOBI2D": "jacobi-2d-imper",
-    "LU": "lu", "MVT": "mvt", "SYR2K": "syr2k", "SYRK": "syrk",
-}
+from polybench_common import (
+    benchmark_name,
+    find_clang,
+    find_gcc_install,
+    find_rocm_device_lib,
+    find_rocm_root,
+    git_rev,
+    provenance,
+    provenance_lines,
+    is_hip,
+    mean_stddev,
+    median,
+    path_arg,
+    safe_name,
+    source_set,
+)
 
 
 @dataclass
@@ -54,66 +61,14 @@ class PerfResult:
     compile_ok:  bool
     compile_log: Path
     binary:      Path | None  # None if compilation failed
+    size:        int | None   # linked binary size in bytes, None if compilation failed
     times:       list[float]  # polybench wall-clock samples (seconds)
     first_error: str = ""
 
 
 # ---------------------------------------------------------------------------
-# Auto-detection + helpers
+# Helpers
 # ---------------------------------------------------------------------------
-
-def path_arg(s: str) -> Path:
-    return Path(s).expanduser().resolve()
-
-def safe_name(root: Path, file: Path) -> str:
-    return "_".join(file.relative_to(root).parts)
-
-def benchmark_name(file: Path) -> str:
-    return BENCHMARK_NAMES.get(file.parent.name.upper(), file.stem.lower())
-
-def is_hip(file: Path) -> bool:
-    return ".hip" in file.suffixes or file.suffix == ".hip"
-
-def source_set(root: Path, file: Path) -> str:
-    parts = file.relative_to(root).parts
-    if parts[:1] == ("HIP",):   return "HIP"
-    if parts[:1] == ("CUDA",):  return "CUDA"
-    if len(parts) >= 2 and parts[0] == "polybenchCodesCudaOpenClHMPPOpenAcc":
-        return "CUDA duplicate"
-    return parts[0] if parts else "unknown"
-
-def _find_gcc_install() -> Path:
-    for crt in sorted(Path("/usr/lib/gcc").glob("*/*/crtbegin.o"), reverse=True):
-        return crt.parent
-    return Path("/usr/lib/gcc/x86_64-linux-gnu/11")
-
-def _git_rev(repo: Path) -> str:
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, timeout=5,
-        )
-        return out.stdout.strip() if out.returncode == 0 else "unknown"
-    except Exception:
-        return "unknown"
-
-
-def _find_rocm_root() -> Path:
-    candidates = sorted(Path("/opt").glob("rocm-[0-9]*"), reverse=True)
-    for c in candidates:
-        if (c / "include/hip/hip_runtime.h").exists():
-            return c
-    return Path("/opt/rocm")
-
-def _find_rocm_device_lib(rocm: Path) -> Path:
-    v6 = sorted(Path("/opt").glob("rocm-6*/amdgcn/bitcode"), reverse=True)
-    return v6[0] if v6 else rocm / "amdgcn/bitcode"
-
-def _mean_stddev(xs: list[float]) -> tuple[float, float]:
-    if not xs:       return float("nan"), float("nan")
-    m = sum(xs) / len(xs)
-    if len(xs) == 1: return m, 0.0
-    return m, math.sqrt(sum((x - m) ** 2 for x in xs) / (len(xs) - 1))
 
 _GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
 
@@ -258,6 +213,7 @@ def compile_one(
         file=file, pipeline=pipeline, arch=arch,
         compile_ok=ok, compile_log=log,
         binary=binary if ok else None,
+        size=binary.stat().st_size if ok else None,
         times=[], first_error=first_error,
     )
 
@@ -297,6 +253,9 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
     def fmt(v: float) -> str:
         return "—" if math.isnan(v) else f"{v:.4f}"
 
+    def fmt_size(n: int | None) -> str:
+        return "—" if n is None else f"{n / 1024:.1f} KiB"
+
     lines = [
         "PolyBench runtime performance: CIR vs OG.", "",
         f"- ClangIR commit: `{clangir_rev}`",
@@ -308,22 +267,33 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         f"- Compiled OK: `{compile_ok}/{len(results)}`",
         f"- Ran OK: `{run_ok}/{len(results)}`",
         "",
+        "## Environment",
+        "",
+        *provenance_lines(provenance()),
+        "",
         "## Results (wall seconds, polybench timer)",
         "",
-        "| Benchmark | Source set | CIR mean | CIR σ | OG mean | OG σ | CIR/OG |",
-        "|---|---:|---:|---:|---:|---:|---:|",
+        "| Benchmark | Source set | CIR mean | CIR σ | CIR med | OG mean | OG σ | OG med | CIR/OG | CIR size | OG size | size ratio |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for file in files_ordered:
         cir = by_key.get((file, "CIR"))
         og  = by_key.get((file, "OG"))
         ref = cir or og
         assert ref is not None
-        cir_m, cir_s = _mean_stddev(cir.times if cir else [])
-        og_m,  og_s  = _mean_stddev(og.times  if og  else [])
+        cir_m, cir_s = mean_stddev(cir.times if cir else [])
+        og_m,  og_s  = mean_stddev(og.times  if og  else [])
         ratio = f"{cir_m / og_m:.3f}" if (not math.isnan(cir_m) and not math.isnan(og_m) and og_m > 0) else "—"
+        cir_sz = cir.size if cir else None
+        og_sz  = og.size  if og  else None
+        size_ratio = f"{cir_sz / og_sz:.3f}" if (cir_sz is not None and og_sz not in (None, 0)) else "—"
+        cir_md = median(cir.times) if cir and cir.times else float("nan")
+        og_md  = median(og.times)  if og  and og.times  else float("nan")
         lines.append(
             f"| {ref.benchmark} | {ref.source_set} |"
-            f" {fmt(cir_m)} | {fmt(cir_s)} | {fmt(og_m)} | {fmt(og_s)} | {ratio} |"
+            f" {fmt(cir_m)} | {fmt(cir_s)} | {fmt(cir_md)} |"
+            f" {fmt(og_m)} | {fmt(og_s)} | {fmt(og_md)} | {ratio} |"
+            f" {fmt_size(cir_sz)} | {fmt_size(og_sz)} | {size_ratio} |"
         )
 
     failures = [r for r in results if not r.compile_ok or not r.times]
@@ -343,8 +313,8 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main() -> int:
-    _rocm = _find_rocm_root()
+def main(argv: list[str] | None = None) -> int:
+    _rocm = find_rocm_root()
 
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -352,12 +322,12 @@ def main() -> int:
     src.add_argument("--hip",  action="store_true", help="Run HIP benchmarks only")
     src.add_argument("--cuda", action="store_true", help="Run CUDA benchmarks only")
 
-    parser.add_argument("--clang",                type=path_arg, default=Path("~/polybench-gpu-audit/llvm-project/build/bin/clang++"))
+    parser.add_argument("--clang",                type=path_arg, default=find_clang())
     parser.add_argument("--polybench-root",       type=path_arg, default=Path("~/polybenchGpu"))
     parser.add_argument("--cuda-root",            type=path_arg, default=Path("/usr/local/cuda"))
     parser.add_argument("--hip-path",             type=path_arg, default=_rocm)
-    parser.add_argument("--rocm-device-lib-path", type=path_arg, default=_find_rocm_device_lib(_rocm))
-    parser.add_argument("--gcc-install-dir",      type=path_arg, default=_find_gcc_install())
+    parser.add_argument("--rocm-device-lib-path", type=path_arg, default=find_rocm_device_lib(_rocm))
+    parser.add_argument("--gcc-install-dir",      type=path_arg, default=find_gcc_install())
     parser.add_argument("--merge",      type=bool, default=False)
     parser.add_argument("--arch",      default="sm_86",  help="GPU arch (default: sm_86)")
     parser.add_argument("--runs",      type=int, default=5, help="Timed runs per benchmark (default: 5)")
@@ -367,7 +337,7 @@ def main() -> int:
     parser.add_argument("--limit",     type=int, default=0, help="Cap number of source files")
     parser.add_argument("-j", "--jobs", type=int, default=4, help="Parallel compile jobs (default: 4)")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     args.polybench_root = args.polybench_root.expanduser().resolve()
     args.cuda_root      = args.cuda_root.expanduser().resolve()
     args.log_dir        = args.log_dir.expanduser().resolve()
@@ -456,20 +426,47 @@ def main() -> int:
             future.result()
             r = futures[future]
             done += 1
-            m, s = _mean_stddev(r.times)
+            m, s = mean_stddev(r.times)
             status = f"mean={m:.4f}s σ={s:.4f}s" if r.times else "no timing output"
             print(f"[{done:0{rw}d}/{len(runnable)}] {r.pipeline}/{r.arch} {r.benchmark} {status}")
 
     results     = [results_map[(f, p)] for f, p in jobs if (f, p) in results_map]
-    clangir_rev = _git_rev(args.clang.parent.parent.parent)
-    scripts_rev = _git_rev(Path(__file__).parent)
+    clangir_rev = git_rev(args.clang.parent.parent.parent)
+    scripts_rev = git_rev(Path(__file__).parent)
     report      = markdown(results, args.polybench_root, args.arch, args.log_dir, args.runs, args.warmup,
                            clangir_rev=clangir_rev, scripts_rev=scripts_rev)
     report_path = args.log_dir / "runtime_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
+
+    # Raw per-run samples, so plots / CIs / significance tests can be redone offline.
+    json_path = args.log_dir / "runtime_results.json"
+    json_path.write_text(json.dumps({
+        "kind":           "runtime",
+        "arch":           args.arch,
+        "runs":           args.runs,
+        "warmup":         args.warmup,
+        "jobs":           args.jobs,
+        "clangir_commit": clangir_rev,
+        "scripts_commit": scripts_rev,
+        "polybench_root": str(args.polybench_root),
+        "environment":    provenance(),
+        "results": [{
+            "benchmark":    r.benchmark,
+            "source_set":   r.source_set,
+            "file":         str(r.file),
+            "pipeline":     r.pipeline,
+            "arch":         r.arch,
+            "compile_ok":   r.compile_ok,
+            "binary_bytes": r.size,
+            "times":        r.times,
+            "first_error":  r.first_error,
+        } for r in results],
+    }, indent=2) + "\n", encoding="utf-8")
+
     print()
     print(report)
     print(f"\nReport written to {report_path}")
+    print(f"Raw samples written to {json_path}")
     return 0
 
 

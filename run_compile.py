@@ -37,6 +37,7 @@ Examples:
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shlex
@@ -47,19 +48,24 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 
-
-BENCHMARK_NAMES = {
-    "2DCONV": "convolution-2d", "2MM": "2mm", "3DCONV": "convolution-3d",
-    "3MM": "3mm", "ADI": "adi", "ATAX": "atax", "BICG": "bicg",
-    "CORR": "correlation", "COVAR": "covariance", "DOITGEN": "doitgen",
-    "FDTD-2D": "fdtd-2d", "GEMM": "gemm", "GEMVER": "gemver",
-    "GESUMMV": "gesummv", "GRAMSCHM": "gramschmidt",
-    "JACOBI1D": "jacobi-1d-imper", "JACOBI2D": "jacobi-2d-imper",
-    "LU": "lu", "MVT": "mvt", "SYR2K": "syr2k", "SYRK": "syrk",
-}
-
-_HIP_MULTI_ARCHES  = ["gfx906", "gfx908", "gfx90a", "gfx942"]
-_CUDA_MULTI_ARCHES = ["sm_80",  "sm_86",  "sm_89",  "sm_90"]
+from polybench_common import (
+    CUDA_MULTI_ARCHES,
+    HIP_MULTI_ARCHES,
+    benchmark_name,
+    find_clang,
+    find_gcc_install,
+    find_rocm_device_lib,
+    find_rocm_root,
+    git_rev,
+    provenance,
+    provenance_lines,
+    is_hip,
+    mean_stddev,
+    median,
+    path_arg,
+    safe_name,
+    source_set,
+)
 
 _SECTION_SEP = re.compile(r"^===-{3,}")
 _EXEC_TIME   = re.compile(r"Total Execution Time:\s*[\d.]+\s*seconds\s*\(([\d.]+)\s*wall")
@@ -79,74 +85,30 @@ _PHASE_ALIASES = {
 
 @dataclass
 class TimingResult:
-    benchmark:   str
-    source_set:  str
-    file:        Path
-    pipeline:    str   # "CIR" or "OG"
-    arch:        str
-    ok:          bool
-    elapsed:     float
-    phases:      dict[str, float]
-    log:         Path
-    command:     list[str]
-    first_error: str = ""
-
-
-# ---------------------------------------------------------------------------
-# Auto-detection
-# ---------------------------------------------------------------------------
-
-def _git_rev(repo: Path) -> str:
-    try:
-        out = subprocess.run(
-            ["git", "-C", str(repo), "rev-parse", "--short", "HEAD"],
-            capture_output=True, text=True, timeout=5,
-        )
-        return out.stdout.strip() if out.returncode == 0 else "unknown"
-    except Exception:
-        return "unknown"
-
-
-def _find_rocm_root() -> Path:
-    candidates = sorted(Path("/opt").glob("rocm-[0-9]*"), reverse=True)
-    for c in candidates:
-        if (c / "include/hip/hip_runtime.h").exists():
-            return c
-    return Path("/opt/rocm")
-
-def _find_gcc_install() -> Path:
-    for crt in sorted(Path("/usr/lib/gcc").glob("*/*/crtbegin.o"), reverse=True):
-        return crt.parent
-    return Path("/usr/lib/gcc/x86_64-linux-gnu/11")
-
-def _find_rocm_device_lib(rocm: Path) -> Path:
-    v6 = sorted(Path("/opt").glob("rocm-6*/amdgcn/bitcode"), reverse=True)
-    return v6[0] if v6 else rocm / "amdgcn/bitcode"
+    benchmark:      str
+    source_set:     str
+    file:           Path
+    pipeline:       str   # "CIR" or "OG"
+    arch:           str
+    ok:             bool
+    elapsed:         float   # mean wall time across timed samples
+    elapsed_stddev:  float
+    elapsed_median:  float
+    elapsed_samples: list[float]   # every timed sample, for offline stats
+    samples:         int
+    phases:         dict[str, float]   # mean per-phase time across timed samples
+    log:            Path
+    command:        list[str]
+    first_error:    str = ""
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def path_arg(s: str) -> Path:
-    return Path(s).expanduser().resolve()
-
-def safe_name(root: Path, file: Path) -> str:
-    return "_".join(file.relative_to(root).parts)
-
-def benchmark_name(file: Path) -> str:
-    return BENCHMARK_NAMES.get(file.parent.name.upper(), file.stem.lower())
-
-def is_hip(file: Path) -> bool:
-    return ".hip" in file.suffixes or file.suffix == ".hip"
-
-def source_set(root: Path, file: Path) -> str:
-    parts = file.relative_to(root).parts
-    if parts[:1] == ("HIP",):   return "HIP"
-    if parts[:1] == ("CUDA",):  return "CUDA"
-    if len(parts) >= 2 and parts[0] == "polybenchCodesCudaOpenClHMPPOpenAcc":
-        return "CUDA duplicate"
-    return parts[0] if parts else "unknown"
+def _mean_phases(samples: list[dict[str, float]]) -> dict[str, float]:
+    keys = {k for s in samples for k in s}
+    return {k: sum(s[k] for s in samples if k in s) / sum(1 for s in samples if k in s) for k in keys}
 
 def _normalize_phase(raw: str) -> str:
     key = raw.lower().strip()
@@ -211,6 +173,7 @@ def timing_compile_one(
     include_dirs:         list[Path],
     log_dir:              Path,
     warmup:               int = 2,
+    samples:              int = 1,
 ) -> TimingResult:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.log"
     cmd = [str(clang)]
@@ -250,17 +213,21 @@ def timing_compile_one(
     for _ in range(warmup):
         subprocess.run(cmd, capture_output=True, env=env)
 
-    start = time.perf_counter()
-    proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
-    elapsed = time.perf_counter() - start
+    elapsed_samples: list[float] = []
+    phase_samples: list[dict[str, float]] = []
+    proc = None
+    for _ in range(samples):
+        start = time.perf_counter()
+        proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
+        elapsed_samples.append(time.perf_counter() - start)
+        if proc.returncode != 0:
+            break
+        phase_samples.append(parse_phases(proc.stderr))
 
-    log.write_text(
-        "COMMAND: " + shlex.join(cmd) + "\n\nSTDOUT:\n" + proc.stdout + "\nSTDERR:\n" + proc.stderr,
-        encoding="utf-8",
-    )
-
+    assert proc is not None
     ok = proc.returncode == 0
-    phases = parse_phases(proc.stderr) if ok else {}
+    elapsed, elapsed_stddev = mean_stddev(elapsed_samples) if ok else (elapsed_samples[-1], 0.0)
+    phases = _mean_phases(phase_samples) if phase_samples else {}
     first_error = ""
     if not ok:
         for line in (proc.stdout + proc.stderr).splitlines():
@@ -268,9 +235,19 @@ def timing_compile_one(
                 first_error = line.strip()
                 break
 
+    log.write_text(
+        "COMMAND: " + shlex.join(cmd)
+        + f"\n\nSAMPLES (wall seconds): {[f'{t:.4f}' for t in elapsed_samples]}"
+        + "\n\nSTDOUT (last sample):\n" + proc.stdout + "\nSTDERR (last sample):\n" + proc.stderr,
+        encoding="utf-8",
+    )
+
     return TimingResult(
         benchmark=benchmark_name(file), source_set=source_set(root, file),
-        file=file, pipeline=pipeline, arch=arch, ok=ok, elapsed=elapsed,
+        file=file, pipeline=pipeline, arch=arch, ok=ok,
+        elapsed=elapsed, elapsed_stddev=elapsed_stddev,
+        elapsed_median=median(elapsed_samples) if ok else float("nan"),
+        elapsed_samples=elapsed_samples, samples=len(elapsed_samples),
         phases=phases, log=log, command=cmd, first_error=first_error,
     )
 
@@ -309,8 +286,8 @@ def _arch_section(results: list[TimingResult], root: Path, arch: str) -> list[st
     og_ok  = sum(1 for f in files_ordered if by_key.get((f, "OG"))  and by_key[(f, "OG")].ok)
 
     all_phases = sorted({p for r in results for p in r.phases})
-    header = "| Benchmark | Source set |" + "".join(f" CIR {ph} | OG {ph} |" for ph in all_phases) + " CIR total | OG total | CIR/OG |"
-    sep    = "|---|---:|" + "---:|---:|" * len(all_phases) + "---:|---:|---:|"
+    header = "| Benchmark | Source set |" + "".join(f" CIR {ph} | OG {ph} |" for ph in all_phases) + " CIR total | CIR σ | CIR med | OG total | OG σ | OG med | CIR/OG |"
+    sep    = "|---|---:|" + "---:|---:|" * len(all_phases) + "---:|---:|---:|---:|---:|---:|---:|"
 
     lines = [
         f"### arch: `{arch}`", "",
@@ -327,15 +304,27 @@ def _arch_section(results: list[TimingResult], root: Path, arch: str) -> list[st
         for ph in all_phases:
             row += f" {f'{cir.phases[ph]:.3f}' if cir and cir.ok and ph in cir.phases else '—'}"
             row += f" | {f'{og.phases[ph]:.3f}' if og  and og.ok  and ph in og.phases  else '—'} |"
-        cir_t = cir.elapsed if cir and cir.ok else None
-        og_t  = og.elapsed  if og  and og.ok  else None
+        cir_t  = cir.elapsed        if cir and cir.ok else None
+        cir_sd = cir.elapsed_stddev if cir and cir.ok else None
+        og_t   = og.elapsed         if og  and og.ok  else None
+        og_sd  = og.elapsed_stddev  if og  and og.ok  else None
         ratio = f"{cir_t / og_t:.3f}" if (cir_t is not None and og_t is not None and og_t > 0) else "—"
-        row += f" {f'{cir_t:.3f}' if cir_t is not None else '—'} | {f'{og_t:.3f}' if og_t is not None else '—'} | {ratio} |"
+        cir_md = cir.elapsed_median if cir and cir.ok else None
+        og_md  = og.elapsed_median  if og  and og.ok  else None
+        row += (
+            f" {f'{cir_t:.3f}' if cir_t is not None else '—'} |"
+            f" {f'{cir_sd:.3f}' if cir_sd is not None else '—'} |"
+            f" {f'{cir_md:.3f}' if cir_md is not None else '—'} |"
+            f" {f'{og_t:.3f}' if og_t is not None else '—'} |"
+            f" {f'{og_sd:.3f}' if og_sd is not None else '—'} |"
+            f" {f'{og_md:.3f}' if og_md is not None else '—'} |"
+            f" {ratio} |"
+        )
         lines.append(row)
     return lines
 
 
-def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Path, warmup: int,
+def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Path, warmup: int, samples: int,
              clangir_rev: str = "unknown", scripts_rev: str = "unknown") -> str:
     arches    = sorted(set(r.arch for r in results))
     multi     = len(arches) > 1
@@ -353,8 +342,13 @@ def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Pa
         f"- Logs: `{log_dir}`",
         "- Flags: `-O3 device-only -ftime-report -mllvm -time-passes` (CIR adds `--mlir-pass-statistics`)",
         f"- Warmup runs per benchmark: {warmup}",
+        f"- Timed samples per benchmark: {samples}",
         f"- CIR compiled OK: `{cir_ok}/{total_cir}`",
         f"- OG compiled OK: `{og_ok}/{total_og}`",
+        "",
+        "## Environment",
+        "",
+        *provenance_lines(provenance()),
         "",
         "## Phase averages (wall seconds, over successful compilations)",
         *(["_(averaged across all architectures)_", ""] if multi else [""]),
@@ -384,8 +378,8 @@ def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Pa
 # Entry point
 # ---------------------------------------------------------------------------
 
-def main() -> int:
-    _rocm = _find_rocm_root()
+def main(argv: list[str] | None = None) -> int:
+    _rocm = find_rocm_root()
 
     parser = argparse.ArgumentParser(description=__doc__)
 
@@ -393,23 +387,25 @@ def main() -> int:
     src.add_argument("--hip",  action="store_true", help="Time HIP benchmarks only")
     src.add_argument("--cuda", action="store_true", help="Time CUDA benchmarks only")
 
-    parser.add_argument("--clang",                type=path_arg, default=Path("~/polybench-gpu-audit/llvm-project/build/bin/clang++"))
+    parser.add_argument("--clang",                type=path_arg, default=find_clang())
     parser.add_argument("--polybench-root",       type=path_arg, default=Path("~/polybenchGpu"))
     parser.add_argument("--cuda-root",            type=path_arg, default=Path("/usr/local/cuda"))
     parser.add_argument("--hip-path",             type=path_arg, default=_rocm)
-    parser.add_argument("--rocm-device-lib-path", type=path_arg, default=_find_rocm_device_lib(_rocm))
-    parser.add_argument("--gcc-install-dir",      type=path_arg, default=_find_gcc_install())
+    parser.add_argument("--rocm-device-lib-path", type=path_arg, default=find_rocm_device_lib(_rocm))
+    parser.add_argument("--gcc-install-dir",      type=path_arg, default=find_gcc_install())
     parser.add_argument("--cuda-arch",   default="sm_86",  help="CUDA GPU arch (single-arch mode)")
     parser.add_argument("--hip-arch",    default="gfx942", help="HIP/AMDGPU arch (single-arch mode)")
     parser.add_argument("--multi-arch",  action="store_true",
                         help=f"Compile for all arches per target "
-                             f"(HIP: {_HIP_MULTI_ARCHES}, CUDA: {_CUDA_MULTI_ARCHES})")
-    parser.add_argument("--warmup",  type=int, default=2,  help="Warm-up runs before timed run (default: 2)")
+                             f"(HIP: {HIP_MULTI_ARCHES}, CUDA: {CUDA_MULTI_ARCHES})")
+    parser.add_argument("--arches", help="Comma-separated arch list overriding the --multi-arch defaults")
+    parser.add_argument("--warmup",  type=int, default=2,  help="Warm-up runs before timed samples (default: 2)")
+    parser.add_argument("--samples", type=int, default=5,  help="Timed compile repetitions per benchmark, reported as mean +/- stddev (default: 5)")
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/compile"))
     parser.add_argument("--limit",   type=int, default=0,  help="Cap number of source files")
     parser.add_argument("-j", "--jobs", type=int, default=4)
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     args.polybench_root = args.polybench_root.expanduser().resolve()
     args.cuda_root      = args.cuda_root.expanduser().resolve()
     args.log_dir        = args.log_dir.expanduser().resolve()
@@ -419,6 +415,7 @@ def main() -> int:
     if not args.polybench_root.exists(): errors.append(f"--polybench-root not found: {args.polybench_root}")
     if args.jobs < 1:                    errors.append("--jobs must be >= 1")
     if args.warmup < 0:                  errors.append("--warmup must be >= 0")
+    if args.samples < 1:                 errors.append("--samples must be >= 1")
     if errors:
         for e in errors: print(f"error: {e}", file=sys.stderr)
         return 2
@@ -443,8 +440,9 @@ def main() -> int:
         print("error: no source files found", file=sys.stderr)
         return 2
 
-    hip_arches  = _HIP_MULTI_ARCHES  if args.multi_arch else [args.hip_arch]
-    cuda_arches = _CUDA_MULTI_ARCHES if args.multi_arch else [args.cuda_arch]
+    override    = [a.strip() for a in args.arches.split(",") if a.strip()] if args.arches else None
+    hip_arches  = (override or HIP_MULTI_ARCHES)  if args.multi_arch else [args.hip_arch]
+    cuda_arches = (override or CUDA_MULTI_ARCHES) if args.multi_arch else [args.cuda_arch]
     include_dirs = discover_include_dirs(files)
 
     jobs = [
@@ -464,7 +462,7 @@ def main() -> int:
                 args.clang, args.polybench_root,
                 args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                 args.gcc_install_dir, arch, pipeline, file,
-                include_dirs, args.log_dir, args.warmup,
+                include_dirs, args.log_dir, args.warmup, args.samples,
             ): (file, pipeline, arch)
             for file, pipeline, arch in jobs
         }
@@ -487,7 +485,7 @@ def main() -> int:
             print(
                 f"[{completed:0{width}d}/{total_jobs}] {pipeline}/{arch} {status}"
                 f" {file.relative_to(args.polybench_root)}"
-                f" wall={result.elapsed:.3f}s  {phase_summary}"
+                f" wall={result.elapsed:.3f}s+/-{result.elapsed_stddev:.3f}s  {phase_summary}"
             )
 
     results = [
@@ -497,7 +495,7 @@ def main() -> int:
     ]
 
     if args.multi_arch:
-        active_hip, active_cuda = ",".join(_HIP_MULTI_ARCHES), ",".join(_CUDA_MULTI_ARCHES)
+        active_hip, active_cuda = ",".join(hip_arches), ",".join(cuda_arches)
     else:
         active_hip, active_cuda = args.hip_arch, args.cuda_arch
     arch_tag = (
@@ -506,15 +504,45 @@ def main() -> int:
         f"cuda:{active_cuda} hip:{active_hip}"
     )
 
-    clangir_rev = _git_rev(args.clang.parent.parent.parent)
-    scripts_rev = _git_rev(Path(__file__).parent)
-    report      = markdown(results, args.polybench_root, arch_tag, args.log_dir, args.warmup,
+    clangir_rev = git_rev(args.clang.parent.parent.parent)
+    scripts_rev = git_rev(Path(__file__).parent)
+    report      = markdown(results, args.polybench_root, arch_tag, args.log_dir, args.warmup, args.samples,
                            clangir_rev=clangir_rev, scripts_rev=scripts_rev)
     report_path = args.log_dir / "compile_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
+
+    # Raw per-sample data, so plots / CIs / significance tests can be redone offline.
+    json_path = args.log_dir / "compile_results.json"
+    json_path.write_text(json.dumps({
+        "kind":          "compile",
+        "arch_tag":      arch_tag,
+        "warmup":        args.warmup,
+        "samples":       args.samples,
+        "jobs":          args.jobs,
+        "clangir_commit": clangir_rev,
+        "scripts_commit": scripts_rev,
+        "polybench_root": str(args.polybench_root),
+        "environment":   provenance(),
+        "results": [{
+            "benchmark":       r.benchmark,
+            "source_set":      r.source_set,
+            "file":            str(r.file),
+            "pipeline":        r.pipeline,
+            "arch":            r.arch,
+            "ok":              r.ok,
+            "elapsed_mean":    r.elapsed,
+            "elapsed_stddev":  r.elapsed_stddev,
+            "elapsed_median":  r.elapsed_median,
+            "elapsed_samples": r.elapsed_samples,
+            "phases_mean":     r.phases,
+            "first_error":     r.first_error,
+        } for r in results],
+    }, indent=2) + "\n", encoding="utf-8")
+
     print()
     print(report)
     print(f"\nReport written to {report_path}")
+    print(f"Raw samples written to {json_path}")
     return 0
 
 

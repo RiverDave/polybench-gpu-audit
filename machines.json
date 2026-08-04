@@ -1,0 +1,23 @@
+{
+  "amd-mi300x": {
+    "hostname_patterns": ["*mi300x*", "*devcloud*"],
+    "target": "hip",
+    "clang": "~/llvm-project/build/bin/clang++",
+    "polybench_root": "~/polybenchGpu",
+    "hip_path": "/opt/rocm-7.0.2",
+    "rocm_device_lib_path": "/opt/rocm-7.0.2/amdgcn/bitcode",
+    "gcc_install_dir": "/usr/lib/gcc/x86_64-linux-gnu/13",
+    "arch": "gfx942",
+    "multi_arches": ["gfx906", "gfx908", "gfx90a", "gfx942"]
+  },
+
+  "nvidia": {
+    "hostname_patterns": ["ubuntu"],
+    "target": "cuda",
+    "clang": "~/llvm-project/build/bin/clang++",
+    "polybench_root": "~/polybenchGpu",
+    "cuda_root": "/usr/local/cuda",
+    "arch": null,
+    "multi_arches": ["sm_80", "sm_86", "sm_89", "sm_90"]
+  }
+}
