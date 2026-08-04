@@ -122,10 +122,12 @@ def _compile_polybench_objs(clang: Path, common_dir: Path, gcc_install_dir: Path
     shim_obj = build_dir / "polybench_shim.o"
 
     # Compile polybench.c as plain C; rename rtclock → _pb_rtclock to avoid
-    # clashing with the C++ symbol the shim will provide.
+    # clashing with the C++ symbol the shim will provide. -x c is required, not
+    # cosmetic: `clang` here is clang++, which would otherwise treat the .c
+    # input as C++ and mangle _pb_rtclock, breaking the shim's extern "C" link.
     cmd = [str(clang), f"--gcc-install-dir={gcc_install_dir}",
            "-O3", "-DPOLYBENCH_TIME=1", "-Dstatic=", "-Drtclock=_pb_rtclock",
-           "-c", str(common_dir / "polybench.c"), f"-I{common_dir}", "-o", str(pb_obj)]
+           "-x", "c", "-c", str(common_dir / "polybench.c"), f"-I{common_dir}", "-o", str(pb_obj)]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
         raise RuntimeError(f"polybench.c compile failed:\n{proc.stderr[:500]}")

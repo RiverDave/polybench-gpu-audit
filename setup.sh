@@ -8,7 +8,7 @@
 
 set -euo pipefail
 
-LLVM_FORK="https://github.com/llvm-project/llvm"
+LLVM_FORK="https://github.com/llvm/llvm-project"
 POLYBENCH_FORK="https://github.com/RiverDave/polybenchGpu"
 JOBS="$(nproc)"
 SKIP_BUILD=0
@@ -105,6 +105,16 @@ fi
 echo ""
 echo "=== [4/6] CMake configure ==="
 
+# NOTE: the LLVM/clang/MLIR dylib options must stay OFF. With them ON, clang
+# ends up with two independent copies of LLVM (one statically linked into the
+# clang binary, one in libLLVM.so). Each copy has its own cl::opt registry and
+# its own LLVMContext, so most -mllvm options silently vanish — including
+# -enable-memcpyopt-without-libcalls, which the CUDA driver injects into *every*
+# device-side compile — and IRGen fails with "Attribute list does not match
+# Module context!". Linking statically keeps a single copy. (MLIR's dylib flag
+# must be turned off too, or the clang link fails with "unable to find -lMLIR"
+# once the LLVM side goes static.)
+
 mkdir -p "$LLVM_BUILD"
 
 cmake -G Ninja \
@@ -122,8 +132,11 @@ cmake -G Ninja \
     -DLLVM_ENABLE_ASSERTIONS=ON \
     -DLLVM_USE_SPLIT_DWARF=ON \
     -DLLVM_OPTIMIZED_TABLEGEN=ON \
-    -DLLVM_BUILD_LLVM_DYLIB=ON \
-    -DLLVM_LINK_LLVM_DYLIB=ON \
+    -DLLVM_BUILD_LLVM_DYLIB=OFF \
+    -DLLVM_LINK_LLVM_DYLIB=OFF \
+    -DCLANG_LINK_CLANG_DYLIB=OFF \
+    -DMLIR_BUILD_MLIR_DYLIB=OFF \
+    -DMLIR_LINK_MLIR_DYLIB=OFF \
     -DLLVM_PARALLEL_LINK_JOBS=4 \
     -DLLVM_BUILD_TESTS=OFF \
     -DLLVM_BUILD_EXAMPLES=OFF \
@@ -150,7 +163,6 @@ else
     ninja -C "$LLVM_BUILD" -j"$JOBS" \
         clang \
         clang-linker-wrapper \
-        # cir-offload-merge \
         lld \
         llvm-offload-binary \
         clang-offload-bundler \
@@ -199,5 +211,5 @@ Run benchmarks (HIP / gfx942):
       --bench ${POLYBENCH_DIR}/HIP/2DCONV/2DConvolution.hip.cpp
 
 Rebuild:
-  ninja -C ${LLVM_BUILD} clang cir-offload-merge -j\$(nproc)
+  ninja -C ${LLVM_BUILD} clang -j\$(nproc)
 EOF

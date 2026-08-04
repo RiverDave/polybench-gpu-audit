@@ -130,15 +130,41 @@ def find_clang() -> Path:
     return Path(found) if found else candidates[0]
 
 
+def _has_libdevice(root: Path) -> bool:
+    """True if `root` has the device-compile bitcode clang hardcodes as
+    <cuda-path>/nvvm/libdevice/libdevice*.bc.
+
+    This is the check that matters, not cuda_runtime.h: on Debian-family
+    systems clang always additionally searches /usr/include regardless of
+    --cuda-path, so a root missing headers still compiles fine (host headers
+    resolve from the system path). A root missing libdevice does not fail
+    until a kernel calls a math builtin (expf, sqrtf, ...), at which point
+    clang errors with "cannot find libdevice for <arch>" — silent until then.
+    """
+    return any(root.glob("nvvm/libdevice/libdevice*.bc"))
+
+
 def find_cuda_root() -> Path:
-    """Locate the CUDA toolkit, preferring the versioned install over the symlink."""
+    """Locate a CUDA toolkit root with libdevice bitcode.
+
+    Prefers the nvcc-derived root, then falls back to well-known locations —
+    but only among roots that actually have libdevice; a root missing it is
+    never preferred over one that has it, even if found first (some distros
+    split the install: headers under /usr/include, libdevice under
+    /usr/local/cuda, with nvcc itself resolving to neither).
+    """
+    candidates = []
     if (nvcc := shutil.which("nvcc")):
-        root = Path(nvcc).resolve().parent.parent
-        if (root / "include/cuda_runtime.h").exists():
-            return root
-    candidates = [Path("/usr/local/cuda")]
+        candidates.append(Path(nvcc).resolve().parent.parent)
+    candidates.append(Path("/usr/local/cuda"))
     candidates += sorted(Path("/usr/local").glob("cuda-[0-9]*"), reverse=True)
     candidates.append(Path("/opt/cuda"))
+
+    for c in candidates:
+        if _has_libdevice(c):
+            return c
+    # Nothing had libdevice; fall back to the first with at least headers,
+    # so callers can still compile host-only code or pass -nocudalib.
     for c in candidates:
         if (c / "include/cuda_runtime.h").exists():
             return c
