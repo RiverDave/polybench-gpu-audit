@@ -19,5 +19,15 @@
     "cuda_root": "/usr/local/cuda",
     "arch": null,
     "multi_arches": ["sm_80", "sm_86", "sm_89", "sm_90"]
+  },
+
+  "nvidia-h100": {
+    "hostname_patterns": ["68-209-*"],
+    "target": "cuda",
+    "clang": "~/llvm-project/build/bin/clang++",
+    "polybench_root": "~/polybenchGpu",
+    "cuda_root": "/usr/local/cuda",
+    "arch": "sm_90",
+    "multi_arches": ["sm_80", "sm_86", "sm_89", "sm_90"]
   }
 }
