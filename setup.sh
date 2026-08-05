@@ -21,6 +21,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
@@ -28,14 +29,14 @@ LLVM_SRC="$HOME/llvm-project"
 LLVM_BUILD="$LLVM_SRC/build"
 BIN_DIR="$LLVM_BUILD/bin"
 POLYBENCH_DIR="$HOME/polybenchGpu"
-ROCM_ROOT="$(ls -d /opt/rocm-[0-9]* 2>/dev/null | sort -V | tail -1)"
-ROCM_ROOT="${ROCM_ROOT:-/opt/rocm}"
+# ROCM_ROOT="$(ls -d /opt/rocm-[0-9]* 2>/dev/null | sort -V | tail -1)"
+# ROCM_ROOT="${ROCM_ROOT:-/opt/rocm}"
 
 echo "=== [0/6] Machine profile: AMD Devcloud ==="
 echo "  LLVM source : ${LLVM_SRC}"
 echo "  LLVM build  : ${LLVM_BUILD}"
 echo "  Build bins  : ${BIN_DIR}"
-echo "  ROCm root   : ${ROCM_ROOT}"
+# echo "  ROCm root   : ${ROCM_ROOT}"
 echo "  PolyBench   : ${POLYBENCH_DIR}"
 
 # ---------------------------------------------------------------------------
@@ -187,29 +188,3 @@ curl -fsSL https://claude.ai/install.sh | bash
 echo ""
 echo "=== Setup complete ==="
 echo ""
-
-cat <<EOF
-Run benchmarks (HIP / gfx942):
-  python3 run_cir_offload_merge.py --hip \\
-      --clang ${BIN_DIR}/clang++ \\
-      --polybench-root ${POLYBENCH_DIR} \\
-      --hip-path ${ROCM_ROOT} \\
-      --rocm-device-lib-path ${ROCM_ROOT}/amdgcn/bitcode \\
-      --hip-arch gfx942 \\
-      -j \$(nproc)
-
-  # Multi-arch scaling + plot:
-  python3 measure_multiarch_scaling.py --hip \\
-      --clang ${BIN_DIR}/clang++ \\
-      --polybench-root ${POLYBENCH_DIR} \\
-      --hip-path ${ROCM_ROOT} \\
-      --rocm-device-lib ${ROCM_ROOT}/amdgcn/bitcode \\
-      --warmup 3 -j \$(nproc) --plot
-
-  # Step-by-step pipeline overhead for a single benchmark:
-  python3 measure_merge_overhead.py \\
-      --bench ${POLYBENCH_DIR}/HIP/2DCONV/2DConvolution.hip.cpp
-
-Rebuild:
-  ninja -C ${LLVM_BUILD} clang -j\$(nproc)
-EOF

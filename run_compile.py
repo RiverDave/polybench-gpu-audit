@@ -179,6 +179,7 @@ def timing_compile_one(
     cmd = [str(clang)]
     if pipeline == "CIR":
         cmd.append("-fclangir")
+        cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
 
     if is_hip(file):

@@ -73,9 +73,12 @@ class PerfResult:
 _GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
 
 def _parse_time(stdout: str) -> float | None:
-    # polybenchCodesCudaOpenClHMPPOpenAcc kernels: "GPU Runtime: 0.000481s"
-    # CUDA/ kernels (polybench_timer_print): bare float on its own line
-    for line in reversed(stdout.splitlines()):
+    # CUDA/ kernels print two values: "GPU Time in seconds:" (kernel launch
+    # through cudaThreadSynchronize) then "CPU Time in seconds:" (the serial
+    # CPU reference implementation).  The GPU time is the one that reflects the
+    # compiled kernel, so take the first bare float on its own line.  Kernels
+    # from polybenchCodesCudaOpenClHMPPOpenAcc only print "GPU Runtime: 0.000481s".
+    for line in stdout.splitlines():
         m = _GPU_RUNTIME.search(line)
         if m:
             return float(m.group(1))
@@ -165,6 +168,7 @@ def compile_one(
     cmd = [str(clang)]
     if pipeline == "CIR":
         cmd.append("-fclangir")
+        cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
     if merge != False:
         cmd.append(f"--clangir-offload-merge")
