@@ -189,12 +189,14 @@ def compile_one(
         link_flags = [f"-L{cuda_root}/lib64", "-lcudart"]
 
     # DOITGEN-style kernels declare `extern rtclock()` without including polybench.c.
+    # `-x hip` above is sticky in the driver, so reset to extension-based language
+    # detection before the object files or they'd be compiled as HIP source.
     extra_obj = [str(o) for o in polybench_objs] if _needs_polybench_c(file) else []
     cmd.extend([
         "-std=c++17", "-O3",
         str(file),
         f"-I{common_dir}", f"-I{file.parent}", f"-I{root}",
-        "-lm", *link_flags, *extra_obj, "-o", str(binary),
+        "-lm", *link_flags, "-x", "none", *extra_obj, "-o", str(binary),
     ])
 
     env = os.environ.copy()
