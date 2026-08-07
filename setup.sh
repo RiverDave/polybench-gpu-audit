@@ -10,6 +10,8 @@ set -euo pipefail
 
 LLVM_FORK="https://github.com/llvm/llvm-project"
 POLYBENCH_FORK="https://github.com/RiverDave/polybenchGpu"
+POLYBENCH_RESULTS_FORK="git@github.com:RiverDave/polybench-results.git"
+INTERCOMMS_FORK="git@github.com:RiverDave/intercomms.git"
 JOBS="$(nproc)"
 SKIP_BUILD=0
 
@@ -29,6 +31,8 @@ LLVM_SRC="$HOME/llvm-project"
 LLVM_BUILD="$LLVM_SRC/build"
 BIN_DIR="$LLVM_BUILD/bin"
 POLYBENCH_DIR="$HOME/polybenchGpu"
+POLYBENCH_RESULTS_DIR="$HOME/polybench-results"
+INTERCOMMS_DIR="$HOME/intercomms"
 # ROCM_ROOT="$(ls -d /opt/rocm-[0-9]* 2>/dev/null | sort -V | tail -1)"
 # ROCM_ROOT="${ROCM_ROOT:-/opt/rocm}"
 
@@ -38,6 +42,8 @@ echo "  LLVM build  : ${LLVM_BUILD}"
 echo "  Build bins  : ${BIN_DIR}"
 # echo "  ROCm root   : ${ROCM_ROOT}"
 echo "  PolyBench   : ${POLYBENCH_DIR}"
+echo "  Results     : ${POLYBENCH_RESULTS_DIR}"
+echo "  Intercomms  : ${INTERCOMMS_DIR}"
 
 # ---------------------------------------------------------------------------
 # 1. SSH key — generate if absent, always show public key
@@ -98,6 +104,20 @@ if [[ ! -d "$POLYBENCH_DIR/.git" ]]; then
     git clone "$POLYBENCH_FORK" "$POLYBENCH_DIR"
 else
     echo "polybenchGpu: already present, skipping clone."
+fi
+
+if [[ ! -d "$POLYBENCH_RESULTS_DIR/.git" ]]; then
+    echo "Cloning polybench-results…"
+    git clone "$POLYBENCH_RESULTS_FORK" "$POLYBENCH_RESULTS_DIR"
+else
+    echo "polybench-results: already present, skipping clone."
+fi
+
+if [[ ! -d "$INTERCOMMS_DIR/.git" ]]; then
+    echo "Cloning intercomms…"
+    git clone "$INTERCOMMS_FORK" "$INTERCOMMS_DIR"
+else
+    echo "intercomms: already present, skipping clone."
 fi
 
 # ---------------------------------------------------------------------------
@@ -176,11 +196,16 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 6. Claude Code
+# 6. AI coding agents
 # ---------------------------------------------------------------------------
 echo ""
-echo "=== [6/6] Claude Code ==="
+echo "=== [6/6] AI coding agents ==="
+
+echo "Installing Claude Code…"
 curl -fsSL https://claude.ai/install.sh | bash
+
+echo "Installing opencode…"
+curl -fsSL https://opencode.ai/install | bash
 
 # ---------------------------------------------------------------------------
 # Done
