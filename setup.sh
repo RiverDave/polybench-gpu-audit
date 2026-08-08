@@ -93,8 +93,8 @@ echo ""
 echo "=== [3/6] Repos ==="
 
 if [[ ! -d "$LLVM_SRC/.git" ]]; then
-    echo "Cloning llvm-project fork (shallow)…"
-    git clone --depth=1 --branch main "$LLVM_FORK" "$LLVM_SRC"
+    echo "Cloning llvm-project"
+    git clone "$LLVM_FORK" "$LLVM_SRC"
 else
     echo "llvm-project: already present, skipping clone."
 fi
