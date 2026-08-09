@@ -29,6 +29,7 @@ import re
 import shlex
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
@@ -63,6 +64,8 @@ class PerfResult:
     binary:      Path | None  # None if compilation failed
     size:        int | None   # linked binary size in bytes, None if compilation failed
     times:       list[float]  # polybench wall-clock samples (seconds)
+    wall_times:  list[float]  # process wall-time samples from perf_counter
+    misses:      int | None = None   # validation mismatch count, None = not validated
     first_error: str = ""
 
 
@@ -73,6 +76,7 @@ class PerfResult:
 _GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
 # Lines that signal the next bare float line is a GPU timing value.
 _TIMING_MARKER = re.compile(r"GPU\s+(?:Time|Runtime|elapsed)", re.IGNORECASE)
+_MISSES = re.compile(r"Number of misses:\s*(\d+)")
 
 def _parse_time(stdout: str) -> float | None:
     """Return the first GPU-time float from a polybench kernel's stdout.
@@ -113,6 +117,15 @@ def _parse_time(stdout: str) -> float | None:
 # ---------------------------------------------------------------------------
 
 _EXTERN_RTCLOCK = re.compile(r"extern\s+double\s+rtclock")
+
+# Guard the serial CPU reference in DOITGEN, which is the only benchmark
+# without a RUN_ON_CPU guard (the other 20 have it pre-patched in the source).
+# The print_array function in the RUN_ON_CPU #else branch has been
+# checksummed by the source patcher to avoid per-element fprintf overhead.
+_CPU_REF_PATCHES = [
+    ("doitgenCPU(sum, A, C4);",
+     "#ifndef NO_CPU_REF\ndoitgenCPU(sum, A, C4);\n#endif"),
+]
 
 def _needs_polybench_c(file: Path) -> bool:
     """True if the file forward-declares rtclock() as extern without including polybench.c.
@@ -178,11 +191,29 @@ def compile_one(
     polybench_objs:       list[Path],
     build_dir:            Path,
     log_dir:              Path,
-    merge: bool
+    merge: bool,
+    no_cpu_ref: bool = True,
 ) -> PerfResult:
-    tag    = f"{safe_name(root, file)}.{pipeline.lower()}.{arch}"
+    suffix = "" if no_cpu_ref else "-validate"
+    tag    = f"{safe_name(root, file)}.{pipeline.lower()}.{arch}{suffix}"
     log    = log_dir   / f"{tag}.log"
     binary = build_dir / tag
+
+    source_file = file
+    if no_cpu_ref:
+        try:
+            content = file.read_text()
+            patched = False
+            for old, new in _CPU_REF_PATCHES:
+                if old in content:
+                    content = content.replace(old, new)
+                    patched = True
+            if patched:
+                patched_path = build_dir / f"{tag}.cu"
+                patched_path.write_text(content)
+                source_file = patched_path
+        except OSError:
+            pass
 
     cmd = [str(clang)]
     if pipeline == "CIR":
@@ -211,9 +242,10 @@ def compile_one(
     # `-x hip` above is sticky in the driver, so reset to extension-based language
     # detection before the object files or they'd be compiled as HIP source.
     extra_obj = [str(o) for o in polybench_objs] if _needs_polybench_c(file) else []
+    flag = ["-DNO_CPU_REF"] if no_cpu_ref else []
     cmd.extend([
-        "-std=c++17", "-O3",
-        str(file),
+        "-std=c++17", "-O3", *flag,
+        str(source_file),
         f"-I{common_dir}", f"-I{file.parent}", f"-I{root}",
         "-lm", *link_flags, "-x", "none", *extra_obj, "-o", str(binary),
     ])
@@ -241,7 +273,7 @@ def compile_one(
         compile_ok=ok, compile_log=log,
         binary=binary if ok else None,
         size=binary.stat().st_size if ok else None,
-        times=[], first_error=first_error,
+        times=[], wall_times=[], first_error=first_error,
     )
 
 
@@ -250,13 +282,15 @@ def compile_one(
 # ---------------------------------------------------------------------------
 
 def run_binary(result: PerfResult, runs: int, warmup: int) -> None:
-    """Run the binary in-place, filling result.times. Mutates result."""
+    """Run the binary in-place, filling result.times and result.wall_times. Mutates result."""
     assert result.binary is not None
     try:
         for _ in range(warmup):
             subprocess.run([str(result.binary)], capture_output=True, timeout=300)
         for _ in range(runs):
+            start = time.perf_counter()
             proc = subprocess.run([str(result.binary)], capture_output=True, text=True, timeout=300)
+            result.wall_times.append(time.perf_counter() - start)
             if proc.returncode != 0:
                 break
             t = _parse_time(proc.stdout)
@@ -271,7 +305,8 @@ def run_binary(result: PerfResult, runs: int, warmup: int) -> None:
 # ---------------------------------------------------------------------------
 
 def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
-             runs: int, warmup: int, clangir_rev: str = "unknown", scripts_rev: str = "unknown") -> str:
+             runs: int, warmup: int, clangir_rev: str = "unknown", scripts_rev: str = "unknown",
+             validate: bool = False) -> str:
     by_key        = {(r.file, r.pipeline): r for r in results}
     files_ordered = list(dict.fromkeys(r.file for r in results))
     compile_ok    = sum(1 for r in results if r.compile_ok)
@@ -293,15 +328,16 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         f"- Runs: {runs} timed + {warmup} warmup",
         f"- Compiled OK: `{compile_ok}/{len(results)}`",
         f"- Ran OK: `{run_ok}/{len(results)}`",
+        *(["- **Validation: correctness check enabled**", ""] if validate else []),
         "",
         "## Environment",
         "",
         *provenance_lines(provenance()),
         "",
-        "## Results (wall seconds, polybench timer)",
+        "## Results (wall + GPU split, seconds)",
         "",
-        "| Benchmark | Source set | CIR mean | CIR σ | CIR med | OG mean | OG σ | OG med | CIR/OG | CIR size | OG size | size ratio |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Benchmark | Source set | CIR wall | CIR GPU | CIR host | OG wall | OG GPU | OG host | GPU CIR/OG | CIR size | OG size |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for file in files_ordered:
         cir = by_key.get((file, "CIR"))
@@ -311,17 +347,30 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         cir_m, cir_s = mean_stddev(cir.times if cir else [])
         og_m,  og_s  = mean_stddev(og.times  if og  else [])
         ratio = f"{cir_m / og_m:.3f}" if (not math.isnan(cir_m) and not math.isnan(og_m) and og_m > 0) else "—"
+        cir_wm, _ = mean_stddev(cir.wall_times if cir else [])
+        og_wm,  _ = mean_stddev(og.wall_times  if og  else [])
+        cir_host = f"{cir_wm - cir_m:.4f}" if (not math.isnan(cir_wm) and not math.isnan(cir_m)) else "—"
+        og_host  = f"{og_wm - og_m:.4f}" if (not math.isnan(og_wm) and not math.isnan(og_m)) else "—"
         cir_sz = cir.size if cir else None
         og_sz  = og.size  if og  else None
-        size_ratio = f"{cir_sz / og_sz:.3f}" if (cir_sz is not None and og_sz not in (None, 0)) else "—"
-        cir_md = median(cir.times) if cir and cir.times else float("nan")
-        og_md  = median(og.times)  if og  and og.times  else float("nan")
         lines.append(
             f"| {ref.benchmark} | {ref.source_set} |"
-            f" {fmt(cir_m)} | {fmt(cir_s)} | {fmt(cir_md)} |"
-            f" {fmt(og_m)} | {fmt(og_s)} | {fmt(og_md)} | {ratio} |"
-            f" {fmt_size(cir_sz)} | {fmt_size(og_sz)} | {size_ratio} |"
+            f" {fmt(cir_wm)} | {fmt(cir_m)} | {cir_host} |"
+            f" {fmt(og_wm)} | {fmt(og_m)} | {og_host} | {ratio} |"
+            f" {fmt_size(cir_sz)} | {fmt_size(og_sz)} |"
         )
+
+    ratios = []
+    for file in files_ordered:
+        cir = by_key.get((file, "CIR")); og = by_key.get((file, "OG"))
+        cir_m, _ = mean_stddev(cir.times if cir else [])
+        og_m,  _ = mean_stddev(og.times  if og  else [])
+        if not math.isnan(cir_m) and not math.isnan(og_m) and cir_m > 0 and og_m > 0:
+            ratios.append(cir_m / og_m)
+    if ratios:
+        from statistics import geometric_mean
+        gm = geometric_mean(ratios)
+        lines += ["", f"**Total GPU CIR/OG (geomean):** `{gm:.4f}`", ""]
 
     failures = [r for r in results if not r.compile_ok or not r.times]
     if failures:
@@ -332,6 +381,12 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
             if r.first_error:
                 lines += [f"  - error: `{r.first_error}`"]
             lines += [f"  - log: `{r.compile_log}`"]
+
+    val_failures = [r for r in results if r.misses is not None and r.misses != 0]
+    if val_failures:
+        lines += ["", "## Correctness failures (validation builds)", ""]
+        for r in val_failures:
+            lines += [f"- [{r.pipeline}] `{r.benchmark}` — {r.misses} mismatches / `{r.file}`"]
 
     return "\n".join(lines)
 
@@ -362,6 +417,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--log-dir",   type=path_arg, default=Path("~/polybench-gpu-audit/temp/runtime"))
     parser.add_argument("--build-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/runtime/build"))
     parser.add_argument("--limit",     type=int, default=0, help="Cap number of source files")
+    parser.add_argument("--validate",  action="store_true", help="Build once without NO_CPU_REF and check correctness")
     parser.add_argument("-j", "--jobs", type=int, default=4, help="Parallel compile jobs (default: 4)")
 
     args = parser.parse_args(argv)
@@ -454,14 +510,51 @@ def main(argv: list[str] | None = None) -> int:
             r = futures[future]
             done += 1
             m, s = mean_stddev(r.times)
-            status = f"mean={m:.4f}s σ={s:.4f}s" if r.times else "no timing output"
+            wm, _ = mean_stddev(r.wall_times) if r.wall_times else (float("nan"), float("nan"))
+            status = f"gpu={m:.4f}s wall={wm:.4f}s" if r.times else "no timing output"
             print(f"[{done:0{rw}d}/{len(runnable)}] {r.pipeline}/{r.arch} {r.benchmark} {status}")
 
     results     = [results_map[(f, p)] for f, p in jobs if (f, p) in results_map]
+
+    # Phase 3: validation — compile without NO_CPU_REF, run once, check mismatches
+    if args.validate:
+        print(f"\nValidating {total_jobs} binaries (correctness check, no CPU ref exclusion)...")
+        with ThreadPoolExecutor(max_workers=args.jobs) as executor:
+            v_futures = {
+                executor.submit(
+                    compile_one,
+                    args.clang, args.polybench_root,
+                    args.cuda_root, args.hip_path, args.rocm_device_lib_path,
+                    args.gcc_install_dir, args.arch, pipeline, file,
+                    common_dir, pb_objs, args.build_dir, args.log_dir, args.merge,
+                    no_cpu_ref=False,
+                ): (file, pipeline)
+                for file, pipeline in jobs
+            }
+            v_done = 0
+            for future in as_completed(v_futures):
+                file, pipeline = v_futures[future]
+                v_done += 1
+                try:
+                    vr = future.result()
+                except Exception as exc:
+                    print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} ERROR {file.name}: {exc}", file=sys.stderr)
+                    raise
+                if vr.compile_ok:
+                    proc = subprocess.run([str(vr.binary)], capture_output=True, text=True, timeout=600)
+                    m = _MISSES.search(proc.stdout)
+                    misses = int(m.group(1)) if m else 0
+                    trim = results_map[(file, pipeline)]
+                    trim.misses = misses
+                    print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} misses={misses}", end="")
+                    print(" FAIL" if misses != 0 else " ok")
+                else:
+                    print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} compile FAIL {file.relative_to(args.polybench_root)}")
+
     clangir_rev = git_rev(args.clang.parent.parent.parent)
     scripts_rev = git_rev(Path(__file__).parent)
     report      = markdown(results, args.polybench_root, args.arch, args.log_dir, args.runs, args.warmup,
-                           clangir_rev=clangir_rev, scripts_rev=scripts_rev)
+                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, validate=args.validate)
     report_path = args.log_dir / "runtime_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
 
@@ -477,6 +570,8 @@ def main(argv: list[str] | None = None) -> int:
         "scripts_commit": scripts_rev,
         "polybench_root": str(args.polybench_root),
         "environment":    provenance(),
+        "no_cpu_ref":     True,   # timing mode: CPU reference disabled
+        "validate":       args.validate,
         "results": [{
             "benchmark":    r.benchmark,
             "source_set":   r.source_set,
@@ -486,6 +581,8 @@ def main(argv: list[str] | None = None) -> int:
             "compile_ok":   r.compile_ok,
             "binary_bytes": r.size,
             "times":        r.times,
+            "wall_times":   r.wall_times,
+            "misses":       r.misses,
             "first_error":  r.first_error,
         } for r in results],
     }, indent=2) + "\n", encoding="utf-8")

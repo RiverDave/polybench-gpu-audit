@@ -1,35 +1,37 @@
 #!/usr/bin/env python3
 """CIR vs OG compile-phase timing breakdown for PolyBench CUDA/HIP benchmarks.
 
-Compiles each benchmark with -O3, device-only, and timing flags:
-  CIR: -fclangir -ftime-report -mllvm -time-passes -mmlir --mlir-pass-statistics
+Compiles each benchmark with -O3, host+device, and timing flags:
+  CIR: -fclangir -ftime-report -mllvm -time-passes
   OG:  -ftime-report -mllvm -time-passes
+
+Pass --device-only to restore the old device-only compilation mode.
 
 Each benchmark is compiled --warmup times (default 2) before the timed run
 to avoid cold-cache noise.
 
 Examples:
-  # CUDA single-arch (A10, sm_86)
+  # CUDA single-arch (H100, sm_90), full host+device compilation
   python3 run_compile.py --cuda \\
-      --clang ~/polybench-gpu-audit/llvm-project/build/bin/clang++ \\
+      --clang ~/llvm-project/build/bin/clang++ \\
       --gcc-install-dir /usr/lib/gcc/x86_64-linux-gnu/11 \\
-      -j $(nproc)
+      -j 1
 
   # CUDA multi-arch (sm_80, sm_86, sm_89, sm_90)
   python3 run_compile.py --cuda --multi-arch \\
-      --clang ~/polybench-gpu-audit/llvm-project/build/bin/clang++ \\
+      --clang ~/llvm-project/build/bin/clang++ \\
       --gcc-install-dir /usr/lib/gcc/x86_64-linux-gnu/11 \\
       -j $(nproc)
 
   # HIP single-arch (gfx942)
   python3 run_compile.py --hip \\
-      --clang ~/polybench-gpu-audit/llvm-project/build/bin/clang++ \\
+      --clang ~/llvm-project/build/bin/clang++ \\
       --hip-path /opt/rocm --rocm-device-lib-path /opt/rocm/amdgcn/bitcode \\
       -j $(nproc)
 
   # HIP multi-arch (gfx906, gfx908, gfx90a, gfx942)
   python3 run_compile.py --hip --multi-arch \\
-      --clang ~/polybench-gpu-audit/llvm-project/build/bin/clang++ \\
+      --clang ~/llvm-project/build/bin/clang++ \\
       --hip-path /opt/rocm --rocm-device-lib-path /opt/rocm/amdgcn/bitcode \\
       -j $(nproc)
 """
@@ -118,8 +120,32 @@ def _normalize_phase(raw: str) -> str:
     return raw[:35] if len(raw) > 35 else raw
 
 def parse_phases(stderr: str) -> dict[str, float]:
+    """Extract per-phase wall times from -ftime-report / -time-passes output.
+
+    A full CUDA/HIP compilation runs two cc1 invocations (device + host), each
+    emitting its own complete block of reports ending with its "Clang time
+    report". The LLVM pass/analysis/ISel/RegAlloc sections are sub-intervals of
+    the same cc1's clang report (its Optimizer + Machine codegen lines), so
+    summing them with the clang total would double-count. Per cc1 block we
+    instead attribute Frontend+IRGen as clang_total minus the LLVM sections in
+    that block, giving a complete, non-overlapping partition of the reported
+    time. Anything still unaccounted (ptxas, fatbinary, driver) shows up as
+    unattributed.
+    """
     phases: dict[str, float] = {}
     lines = stderr.splitlines()
+    block: list[tuple[str, float]] = []
+
+    def flush() -> None:
+        clang_total = sum(v for n, v in block if n == "Frontend+IRGen")
+        llvm_sum    = sum(v for n, v in block if n != "Frontend+IRGen")
+        for n, v in block:
+            if n != "Frontend+IRGen":
+                phases[n] = phases.get(n, 0.0) + v
+        if clang_total:
+            phases["Frontend+IRGen"] = phases.get("Frontend+IRGen", 0.0) + max(0.0, clang_total - llvm_sum)
+        block.clear()
+
     i = 0
     while i < len(lines):
         if _SECTION_SEP.match(lines[i].strip()):
@@ -136,13 +162,16 @@ def parse_phases(stderr: str) -> dict[str, float]:
             for k in range(k_start, min(k_start + 200, len(lines))):
                 m = _EXEC_TIME.search(lines[k])
                 if m:
-                    phases.setdefault(name, float(m.group(1)))
+                    block.append((name, float(m.group(1))))
+                    if name == "Frontend+IRGen":
+                        flush()  # clang report ends this cc1's block
                     break
                 if _SECTION_SEP.match(lines[k].strip()):
                     break
             i = j + 1
         else:
             i += 1
+    flush()
     return phases
 
 def discover_include_dirs(files: list[Path]) -> list[Path]:
@@ -174,6 +203,7 @@ def timing_compile_one(
     log_dir:              Path,
     warmup:               int = 2,
     samples:              int = 1,
+    device_only:          bool = False,
 ) -> TimingResult:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.log"
     cmd = [str(clang)]
@@ -182,29 +212,30 @@ def timing_compile_one(
         cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
 
+    obj_path = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.o"
     if is_hip(file):
         cuda_counterpart = Path(str(file.parent).replace("/HIP/", "/CUDA/", 1))
         cmd.extend([
             "-x", "hip",
             f"--hip-path={hip_path}",
             f"--offload-arch={arch}",
-            "--offload-device-only",
             f"--rocm-device-lib-path={rocm_device_lib_path}",
             "-D__AMDGCN_WAVEFRONT_SIZE=64",
         ])
+        if device_only:
+            cmd.append("--offload-device-only")
         if cuda_counterpart.is_dir():
             cmd.append(f"-I{cuda_counterpart}")
     else:
         cmd.extend([
             f"--cuda-path={cuda_root}",
             f"--cuda-gpu-arch={arch}",
-            "--cuda-device-only",
         ])
+        if device_only:
+            cmd.append("--cuda-device-only")
 
     cmd.extend(["-std=c++17", "-O3", "-ftime-report", "-mllvm", "-time-passes"])
-    if pipeline == "CIR":
-        cmd.extend(["-mmlir", "--mlir-pass-statistics"])
-    cmd.extend(["-c", str(file), f"-I{root}", f"-I{file.parent}", "-o", "/dev/null"])
+    cmd.extend(["-c", str(file), f"-I{root}", f"-I{file.parent}", "-o", str(obj_path)])
     cmd.extend(f"-I{d}" for d in include_dirs)
 
     env = os.environ.copy()
@@ -242,6 +273,11 @@ def timing_compile_one(
         + "\n\nSTDOUT (last sample):\n" + proc.stdout + "\nSTDERR (last sample):\n" + proc.stderr,
         encoding="utf-8",
     )
+
+    try:
+        obj_path.unlink(missing_ok=True)
+    except OSError:
+        pass
 
     return TimingResult(
         benchmark=benchmark_name(file), source_set=source_set(root, file),
@@ -341,7 +377,7 @@ def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Pa
         f"- arch: `{arch_tag}`",
         f"- PolyBench root: `{root}`",
         f"- Logs: `{log_dir}`",
-        "- Flags: `-O3 device-only -ftime-report -mllvm -time-passes` (CIR adds `--mlir-pass-statistics`)",
+        "- Flags: `-O3 host+device -ftime-report -mllvm -time-passes`",
         f"- Warmup runs per benchmark: {warmup}",
         f"- Timed samples per benchmark: {samples}",
         f"- CIR compiled OK: `{cir_ok}/{total_cir}`",
@@ -404,6 +440,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--samples", type=int, default=5,  help="Timed compile repetitions per benchmark, reported as mean +/- stddev (default: 5)")
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/compile"))
     parser.add_argument("--limit",   type=int, default=0,  help="Cap number of source files")
+    parser.add_argument("--device-only", action="store_true", help="Device-only compilation (old default)")
     parser.add_argument("-j", "--jobs", type=int, default=4)
 
     args = parser.parse_args(argv)
@@ -424,6 +461,8 @@ def main(argv: list[str] | None = None) -> int:
     args.log_dir.mkdir(parents=True, exist_ok=True)
     for old in args.log_dir.glob("*.log"):
         old.unlink()
+    for old in args.log_dir.glob("*.o"):
+        old.unlink(missing_ok=True)
 
     all_files = sorted(
         (f for pattern in ("*.cu", "*.hip.cpp")
@@ -464,6 +503,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                 args.gcc_install_dir, arch, pipeline, file,
                 include_dirs, args.log_dir, args.warmup, args.samples,
+                args.device_only,
             ): (file, pipeline, arch)
             for file, pipeline, arch in jobs
         }
@@ -520,6 +560,7 @@ def main(argv: list[str] | None = None) -> int:
         "warmup":        args.warmup,
         "samples":       args.samples,
         "jobs":          args.jobs,
+        "device_only":   args.device_only,
         "clangir_commit": clangir_rev,
         "scripts_commit": scripts_rev,
         "polybench_root": str(args.polybench_root),
@@ -536,6 +577,7 @@ def main(argv: list[str] | None = None) -> int:
             "elapsed_median":  r.elapsed_median,
             "elapsed_samples": r.elapsed_samples,
             "phases_mean":     r.phases,
+            "command":         r.command,
             "first_error":     r.first_error,
         } for r in results],
     }, indent=2) + "\n", encoding="utf-8")

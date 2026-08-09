@@ -22,6 +22,7 @@
   },
 
   "nvidia-h100": {
+    "name": "nvidia-h100",
     "hostname_patterns": ["68-209-*"],
     "target": "cuda",
     "clang": "~/llvm-project/build/bin/clang++",

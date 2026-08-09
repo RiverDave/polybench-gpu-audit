@@ -241,22 +241,46 @@ def provenance() -> dict[str, str]:
                 cuda_ver = line.split("release")[-1].strip().split(",")[0].strip()
                 break
 
+    driver_ver = ""
+    if shutil.which("nvidia-smi"):
+        lines = _run(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"]).splitlines()
+        driver_ver = lines[0].strip() if lines else ""
+    elif (rsmi := shutil.which("rocm-smi")):
+        for line in _run([rsmi, "--showdriverversion"]).splitlines():
+            if ":" in line:
+                driver_ver = line.split(":", 1)[-1].strip()
+                break
+        if not driver_ver:
+            driver_ver = _run(["cat", "/sys/module/amdgpu/version"])
+
+    ptxas_ver = ""
+    if (ptxas := shutil.which("ptxas")):
+        first_line = _run([ptxas, "--version"]).splitlines()
+        if first_line:
+            ptxas_ver = first_line[0].strip()
+
+    os_release = _run(["lsb_release", "-ds"]) or platform.version() or ""
+
     return {
-        "hostname":      socket.gethostname(),
-        "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "cpu":           cpu,
-        "cpu_count":     str(len(os.sched_getaffinity(0))),
-        "kernel":        platform.release(),
-        "gpu":           gpu,
-        "rocm_version":  rocm_ver,
-        "cuda_version":  cuda_ver,
+        "hostname":       socket.gethostname(),
+        "timestamp_utc":  datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "cpu":            cpu,
+        "cpu_count":      str(len(os.sched_getaffinity(0))),
+        "kernel":         platform.release(),
+        "gpu":            gpu,
+        "rocm_version":   rocm_ver,
+        "cuda_version":   cuda_ver,
+        "driver_version": driver_ver,
+        "ptxas_version":  ptxas_ver,
+        "os_release":     os_release,
     }
 
 
 def provenance_lines(prov: dict[str, str]) -> list[str]:
     """Provenance rendered as markdown bullets for a report header."""
     order = ["hostname", "cpu", "cpu_count", "gpu", "kernel",
-             "rocm_version", "cuda_version", "timestamp_utc"]
+             "rocm_version", "cuda_version", "driver_version",
+             "ptxas_version", "os_release", "timestamp_utc"]
     return [f"- {k.replace('_', ' ')}: `{prov[k]}`" for k in order if prov.get(k)]
 
 

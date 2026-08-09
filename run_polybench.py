@@ -84,7 +84,10 @@ def build_argv(mode: str, args, arch: str) -> tuple[list[str], str]:
     if mode == "runtime":
         argv += ["--arch", arch,
                  "--runs", str(args.samples),
+                 "--warmup", str(args.warmup),
                  "--build-dir", f"{log_dir}/build"]
+        if args.validate:
+            argv += ["--validate"]
     else:
         argv += ["--hip-arch" if args.hip else "--cuda-arch", arch,
                  "--samples", str(args.samples)]
@@ -176,6 +179,8 @@ def main() -> int:
     parser.add_argument("--config",  default=str(Path(__file__).parent / "machines.json"))
     parser.add_argument("--publish", action="store_true",
                         help=f"Push summaries + raw JSON to {RESULTS_REPO}")
+    parser.add_argument("--validate", action="store_true",
+                        help="Runtime: build without DNO_CPU_REF and check correctness")
 
     parser.add_argument("--arch",            help="Override the detected GPU arch")
     parser.add_argument("--clang",           help="Override the detected clang++")
