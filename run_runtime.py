@@ -71,21 +71,40 @@ class PerfResult:
 # ---------------------------------------------------------------------------
 
 _GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
+# Lines that signal the next bare float line is a GPU timing value.
+_TIMING_MARKER = re.compile(r"GPU\s+(?:Time|Runtime|elapsed)", re.IGNORECASE)
 
 def _parse_time(stdout: str) -> float | None:
-    # CUDA/ kernels print two values: "GPU Time in seconds:" (kernel launch
-    # through cudaThreadSynchronize) then "CPU Time in seconds:" (the serial
-    # CPU reference implementation).  The GPU time is the one that reflects the
-    # compiled kernel, so take the first bare float on its own line.  Kernels
-    # from polybenchCodesCudaOpenClHMPPOpenAcc only print "GPU Runtime: 0.000481s".
-    for line in stdout.splitlines():
+    """Return the first GPU-time float from a polybench kernel's stdout.
+
+    Two output conventions exist across the suite:
+
+    1. ``GPU Runtime: 0.000481s`` – DOITGEN and the
+       polybenchCodesCudaOpenClHMPPOpenAcc copies.
+
+    2. ``GPU Time in seconds:\\n0.004241`` – GEMVER and other kernels that use
+       the polybench timer macros (``polybench_start_instruments`` /
+       ``polybench_stop_instruments`` / ``polybench_timer_print``).  The label
+       is printed by the kernel, then the bare float by ``polybench_timer_print``.
+
+    Both conventions print the GPU measurement *before* the CPU reference, so
+    the function stops at the first GPU-related float.
+    """
+    lines = stdout.splitlines()
+    for i, line in enumerate(lines):
         m = _GPU_RUNTIME.search(line)
         if m:
             return float(m.group(1))
-        try:
-            return float(line.strip())
-        except ValueError:
-            continue
+        if _TIMING_MARKER.search(line):
+            # The next non-empty line should be the bare float.
+            for j in range(i + 1, len(lines)):
+                candidate = lines[j].strip()
+                if not candidate:
+                    continue
+                try:
+                    return float(candidate)
+                except ValueError:
+                    break  # not a float – maybe a multi-line label, keep scanning
     return None
 
 
