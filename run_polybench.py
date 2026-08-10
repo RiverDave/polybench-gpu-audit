@@ -98,6 +98,8 @@ def build_argv(mode: str, args, arch: str) -> tuple[list[str], str]:
 
     if args.limit:
         argv += ["--limit", str(args.limit)]
+    if args.clang_flags:
+        argv += ["--clang-flags", args.clang_flags]
     return argv, log_dir
 
 
@@ -193,6 +195,7 @@ def main() -> int:
     parser.add_argument("--warmup",  type=int, help="Warmup iterations")
     parser.add_argument("--samples", type=int, help="Timed repetitions per benchmark")
     parser.add_argument("--limit",   type=int, default=0, help="Cap benchmarks (smoke tests)")
+    parser.add_argument("--clang-flags", default="", help="Extra flags forwarded to every clang compile line")
     parser.add_argument("-j", "--jobs", type=int, help="Parallel jobs (accurate-mode forces 1)")
     parser.add_argument("--dry-run", action="store_true", help="Print commands without running")
 

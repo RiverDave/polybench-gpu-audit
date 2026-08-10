@@ -193,6 +193,7 @@ def compile_one(
     log_dir:              Path,
     merge: bool,
     no_cpu_ref: bool = True,
+    clang_flags: str = "",
 ) -> PerfResult:
     suffix = "" if no_cpu_ref else "-validate"
     tag    = f"{safe_name(root, file)}.{pipeline.lower()}.{arch}{suffix}"
@@ -243,8 +244,9 @@ def compile_one(
     # detection before the object files or they'd be compiled as HIP source.
     extra_obj = [str(o) for o in polybench_objs] if _needs_polybench_c(file) else []
     flag = ["-DNO_CPU_REF"] if no_cpu_ref else []
+    xflags = shlex.split(clang_flags) if clang_flags else []
     cmd.extend([
-        "-std=c++17", "-O3", *flag,
+        "-std=c++17", "-O3", *flag, *xflags,
         str(source_file),
         f"-I{common_dir}", f"-I{file.parent}", f"-I{root}",
         "-lm", *link_flags, "-x", "none", *extra_obj, "-o", str(binary),
@@ -418,6 +420,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--build-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/runtime/build"))
     parser.add_argument("--limit",     type=int, default=0, help="Cap number of source files")
     parser.add_argument("--validate",  action="store_true", help="Build once without NO_CPU_REF and check correctness")
+    parser.add_argument("--clang-flags", default="", help="Extra flags forwarded to every clang compile line")
     parser.add_argument("-j", "--jobs", type=int, default=4, help="Parallel compile jobs (default: 4)")
 
     args = parser.parse_args(argv)
@@ -481,7 +484,8 @@ def main(argv: list[str] | None = None) -> int:
                 args.clang, args.polybench_root,
                 args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                 args.gcc_install_dir, args.arch, pipeline, file,
-                common_dir, pb_objs, args.build_dir, args.log_dir, args.merge
+                common_dir, pb_objs, args.build_dir, args.log_dir, args.merge,
+                clang_flags=args.clang_flags,
             ): (file, pipeline)
             for file, pipeline in jobs
         }
@@ -527,7 +531,7 @@ def main(argv: list[str] | None = None) -> int:
                     args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                     args.gcc_install_dir, args.arch, pipeline, file,
                     common_dir, pb_objs, args.build_dir, args.log_dir, args.merge,
-                    no_cpu_ref=False,
+                    no_cpu_ref=False, clang_flags=args.clang_flags,
                 ): (file, pipeline)
                 for file, pipeline in jobs
             }

@@ -204,6 +204,7 @@ def timing_compile_one(
     warmup:               int = 2,
     samples:              int = 1,
     device_only:          bool = False,
+    clang_flags:          str = "",
 ) -> TimingResult:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.log"
     cmd = [str(clang)]
@@ -235,6 +236,8 @@ def timing_compile_one(
             cmd.append("--cuda-device-only")
 
     cmd.extend(["-std=c++17", "-O3", "-ftime-report", "-mllvm", "-time-passes"])
+    if clang_flags:
+        cmd.extend(shlex.split(clang_flags))
     cmd.extend(["-c", str(file), f"-I{root}", f"-I{file.parent}", "-o", str(obj_path)])
     cmd.extend(f"-I{d}" for d in include_dirs)
 
@@ -441,6 +444,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/compile"))
     parser.add_argument("--limit",   type=int, default=0,  help="Cap number of source files")
     parser.add_argument("--device-only", action="store_true", help="Device-only compilation (old default)")
+    parser.add_argument("--clang-flags", default="", help="Extra flags forwarded to every clang compile line")
     parser.add_argument("-j", "--jobs", type=int, default=4)
 
     args = parser.parse_args(argv)
@@ -503,7 +507,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                 args.gcc_install_dir, arch, pipeline, file,
                 include_dirs, args.log_dir, args.warmup, args.samples,
-                args.device_only,
+                args.device_only, args.clang_flags,
             ): (file, pipeline, arch)
             for file, pipeline, arch in jobs
         }
