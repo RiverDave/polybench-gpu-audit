@@ -99,7 +99,7 @@ def build_argv(mode: str, args, arch: str) -> tuple[list[str], str]:
     if args.limit:
         argv += ["--limit", str(args.limit)]
     if args.clang_flags:
-        argv += ["--clang-flags", args.clang_flags]
+        argv += [f"--clang-flags={args.clang_flags}"]
     return argv, log_dir
 
 
