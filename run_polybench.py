@@ -122,6 +122,13 @@ def publish(log_dirs: list[str], machine: str, prov: dict, suffix: str = "") -> 
             for f in Path(d).glob(pattern):
                 shutil.copy2(f, dest / f"{Path(d).name}__{f.name}")
                 copied += 1
+        artifacts_src = Path(d) / "artifacts"
+        if artifacts_src.is_dir():
+            artifacts_dst = dest / "artifacts" / Path(d).name
+            artifacts_dst.mkdir(parents=True, exist_ok=True)
+            for a in artifacts_src.iterdir():
+                shutil.copy2(a, artifacts_dst / a.name)
+                copied += 1
     (dest / "provenance.json").write_text(
         json.dumps(prov, indent=2) + "\n")
 

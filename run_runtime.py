@@ -27,6 +27,7 @@ import math
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -595,6 +596,15 @@ def main(argv: list[str] | None = None) -> int:
     print(report)
     print(f"\nReport written to {report_path}")
     print(f"Raw samples written to {json_path}")
+
+    artifacts = args.log_dir / "artifacts"
+    artifacts.mkdir(exist_ok=True)
+    binary_count = 0
+    for r in results:
+        if r.compile_ok and r.binary and r.binary.exists():
+            shutil.copy2(r.binary, artifacts / r.binary.name)
+            binary_count += 1
+    print(f"Artifacts ({binary_count} binaries) saved to {artifacts}")
     return 0
 
 

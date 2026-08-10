@@ -43,6 +43,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 import time
@@ -276,11 +277,6 @@ def timing_compile_one(
         + "\n\nSTDOUT (last sample):\n" + proc.stdout + "\nSTDERR (last sample):\n" + proc.stderr,
         encoding="utf-8",
     )
-
-    try:
-        obj_path.unlink(missing_ok=True)
-    except OSError:
-        pass
 
     return TimingResult(
         benchmark=benchmark_name(file), source_set=source_set(root, file),
@@ -590,6 +586,12 @@ def main(argv: list[str] | None = None) -> int:
     print(report)
     print(f"\nReport written to {report_path}")
     print(f"Raw samples written to {json_path}")
+
+    artifacts = args.log_dir / "artifacts"
+    artifacts.mkdir(exist_ok=True)
+    for obj in args.log_dir.glob("*.o"):
+        shutil.copy2(obj, artifacts / obj.name)
+    print(f"Artifacts ({sum(1 for _ in args.log_dir.glob('*.o'))} .o files) saved to {artifacts}")
     return 0
 
 
