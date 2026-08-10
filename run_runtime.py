@@ -66,7 +66,8 @@ class PerfResult:
     size:        int | None   # linked binary size in bytes, None if compilation failed
     times:       list[float]  # polybench wall-clock samples (seconds)
     wall_times:  list[float]  # process wall-time samples from perf_counter
-    misses:      int | None = None   # validation mismatch count, None = not validated
+    misses:      int | None = None        # validation mismatch count, None = not validated
+    validation_status: str | None = None  # "passed" | "mismatches" | "compile_failed" | "exec_failed" | "missing_output"
     first_error: str = ""
 
 
@@ -77,7 +78,33 @@ class PerfResult:
 _GPU_RUNTIME = re.compile(r"GPU Runtime:\s*([\d.]+)s")
 # Lines that signal the next bare float line is a GPU timing value.
 _TIMING_MARKER = re.compile(r"GPU\s+(?:Time|Runtime|elapsed)", re.IGNORECASE)
-_MISSES = re.compile(r"Number of misses:\s*(\d+)")
+_MISSES_RE = re.compile(
+    r"(?:Number of misses:\s*(\d+)|"
+    r"Non-Matching CPU-GPU Outputs Beyond Error Threshold of\s+[\d.]+\s+Percent:\s*(\d+))",
+    re.IGNORECASE,
+)
+_MISMATCH_LINE_RE = re.compile(
+    r"(?:Number of misses:|Non-Matching CPU-GPU Outputs Beyond Error Threshold)",
+    re.IGNORECASE,
+)
+
+
+def _parse_validation_misses(stdout: str) -> int | None:
+    """Return the mismatch count, or None if no recognised mismatch line was found.
+
+    Two conventions exist across the suite:
+
+    1. ``Number of misses: 3`` — DOITGEN and related.
+    2. ``Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.050000 Percent: 3``
+       — the 20 RUN_ON_CPU benchmarks (print_array compareResults pattern).
+
+    None means the validation run was *not* successful — either the binary did
+    not run or its output did not contain a supported mismatch line.
+    """
+    m = _MISSES_RE.search(stdout)
+    if m:
+        return int(m.group(1) or m.group(2))
+    return None
 
 def _parse_time(stdout: str) -> float | None:
     """Return the first GPU-time float from a polybench kernel's stdout.
@@ -309,7 +336,7 @@ def run_binary(result: PerfResult, runs: int, warmup: int) -> None:
 
 def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
              runs: int, warmup: int, clangir_rev: str = "unknown", scripts_rev: str = "unknown",
-             validate: bool = False) -> str:
+             validate: bool = False, prov: dict | None = None) -> str:
     by_key        = {(r.file, r.pipeline): r for r in results}
     files_ordered = list(dict.fromkeys(r.file for r in results))
     compile_ok    = sum(1 for r in results if r.compile_ok)
@@ -335,7 +362,7 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         "",
         "## Environment",
         "",
-        *provenance_lines(provenance()),
+        *provenance_lines(prov if prov else provenance()),
         "",
         "## Results (wall + GPU split, seconds)",
         "",
@@ -385,11 +412,21 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
                 lines += [f"  - error: `{r.first_error}`"]
             lines += [f"  - log: `{r.compile_log}`"]
 
-    val_failures = [r for r in results if r.misses is not None and r.misses != 0]
-    if val_failures:
-        lines += ["", "## Correctness failures (validation builds)", ""]
-        for r in val_failures:
-            lines += [f"- [{r.pipeline}] `{r.benchmark}` — {r.misses} mismatches / `{r.file}`"]
+    val_failures = [r for r in results if r.validation_status is not None and r.validation_status != "passed"]
+    val_ok       = sum(1 for r in results if r.validation_status == "passed")
+    if validate:
+        lines += [
+            f"- Validation: `{val_ok}/{sum(1 for r in results if r.validation_status is not None)}` passed",
+            *([""] if val_failures else []),
+        ]
+        if val_failures:
+            lines += ["## Validation failures", ""]
+            for r in val_failures:
+                desc = {"mismatches": f"{r.misses} mismatches",
+                        "compile_failed": "compile failed",
+                        "exec_failed": "execution failed",
+                        "missing_output": "no mismatch line in output"}.get(r.validation_status, r.validation_status)
+                lines += [f"- [{r.pipeline}] `{r.benchmark}` — {desc} / `{r.file}`"]
 
     return "\n".join(lines)
 
@@ -546,20 +583,57 @@ def main(argv: list[str] | None = None) -> int:
                     print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} ERROR {file.name}: {exc}", file=sys.stderr)
                     raise
                 if vr.compile_ok:
-                    proc = subprocess.run([str(vr.binary)], capture_output=True, text=True, timeout=600)
-                    m = _MISSES.search(proc.stdout)
-                    misses = int(m.group(1)) if m else 0
+                    try:
+                        proc = subprocess.run([str(vr.binary)], capture_output=True, text=True, timeout=600)
+                    except subprocess.TimeoutExpired:
+                        trim = results_map[(file, pipeline)]
+                        trim.validation_status = "exec_failed"
+                        trim.misses = None
+                        print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} TIMEOUT {benchmark_name(file)}")
+                        continue
+                    if proc.returncode != 0:
+                        trim = results_map[(file, pipeline)]
+                        trim.validation_status = "exec_failed"
+                        trim.misses = None
+                        print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} exit={proc.returncode} {benchmark_name(file)}")
+                        continue
+                    misses = _parse_validation_misses(proc.stdout)
                     trim = results_map[(file, pipeline)]
-                    trim.misses = misses
-                    print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} misses={misses}", end="")
-                    print(" FAIL" if misses != 0 else " ok")
+                    if misses is None:
+                        trim.validation_status = "missing_output"
+                        trim.misses = None
+                        print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} NO_MISMATCH_LINE {benchmark_name(file)}")
+                    elif misses != 0:
+                        trim.validation_status = "mismatches"
+                        trim.misses = misses
+                        print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} MISMATCHES={misses} FAIL {benchmark_name(file)}")
+                    else:
+                        trim.validation_status = "passed"
+                        trim.misses = 0
+                        print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} ok")
                 else:
+                    trim = results_map[(file, pipeline)]
+                    trim.validation_status = "compile_failed"
+                    trim.misses = None
                     print(f"[{v_done:0{width}d}/{total_jobs}] v/{pipeline} compile FAIL {file.relative_to(args.polybench_root)}")
 
     clangir_rev = git_rev(args.clang.parent.parent.parent)
     scripts_rev = git_rev(Path(__file__).parent)
+    polybench_rev = git_rev(args.polybench_root)
+
+    comp_ver = ""
+    try:
+        out = subprocess.run([str(args.clang), "--version"], capture_output=True, text=True, timeout=10)
+        comp_ver = out.stdout.strip().splitlines()[0] if out.stdout else ""
+    except (OSError, subprocess.SubprocessError):
+        pass
+
+    prov = provenance()
+    prov["polybench_commit"] = polybench_rev
+    prov["compiler_version"] = comp_ver
+
     report      = markdown(results, args.polybench_root, args.arch, args.log_dir, args.runs, args.warmup,
-                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, validate=args.validate)
+                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, validate=args.validate, prov=prov)
     report_path = args.log_dir / "runtime_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
 
@@ -574,7 +648,7 @@ def main(argv: list[str] | None = None) -> int:
         "clangir_commit": clangir_rev,
         "scripts_commit": scripts_rev,
         "polybench_root": str(args.polybench_root),
-        "environment":    provenance(),
+        "environment":    prov,
         "no_cpu_ref":     True,   # timing mode: CPU reference disabled
         "validate":       args.validate,
         "results": [{
@@ -587,8 +661,9 @@ def main(argv: list[str] | None = None) -> int:
             "binary_bytes": r.size,
             "times":        r.times,
             "wall_times":   r.wall_times,
-            "misses":       r.misses,
-            "first_error":  r.first_error,
+            "misses":            r.misses,
+            "validation_status": r.validation_status,
+            "first_error":       r.first_error,
         } for r in results],
     }, indent=2) + "\n", encoding="utf-8")
 
@@ -606,6 +681,47 @@ def main(argv: list[str] | None = None) -> int:
             binary_count += 1
     print(f"Artifacts ({binary_count} binaries) saved to {artifacts}")
     return 0
+
+
+def _test_parser() -> None:
+    """Deterministic smoke-tests for _parse_time and _parse_validation_misses."""
+    import sys as _sys
+    fails = 0
+
+    # _parse_time
+    assert _parse_time("GPU Runtime: 0.000481s\nCPU Runtime: 1.0s\n") == 0.000481
+    assert _parse_time("GPU Time in seconds:\n0.004241\nCPU Time in seconds:\n") == 0.004241
+    assert _parse_time("something else\n") is None
+    assert _parse_time("GPU Time in seconds:\nnot-a-float\n") is None
+
+    # _parse_validation_misses — good cases
+    assert _parse_validation_misses("Number of misses: 0\n") == 0
+    assert _parse_validation_misses("Number of misses: 3\n") == 3
+    assert _parse_validation_misses("Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.050000 Percent: 0\n") == 0
+    assert _parse_validation_misses("Non-Matching CPU-GPU Outputs Beyond Error Threshold of 0.050000 Percent: 3\n") == 3
+    assert _parse_validation_misses("Non-Matching CPU-GPU Outputs Beyond Error Threshold of 5.000000 Percent: 1\n") == 1
+    assert _parse_validation_misses("Number of misses: 0\nand more\n") == 0
+
+    # _parse_validation_misses — bad/missing/empty
+    assert _parse_validation_misses("unrelated output") is None
+    assert _parse_validation_misses("") is None
+    assert _parse_validation_misses("Number of misses: ABC\n") is None
+    assert _parse_validation_misses("Non-Matching CPU-GPU Outputs Beyond Error Threshold of abc Percent: 0\n") is None
+    assert _parse_validation_misses("Non-Matching CPU-GPU: 0\n") is None   # malformed
+    assert _parse_validation_misses("Number of misses:\n") is None
+
+    for msg in (
+        "Number of misses: 0",
+        "Number of misses: 3",
+        "Non-Matching ... Percent: 0",
+        "Non-Matching ... Percent: 3",
+        "unrelated/missing output",
+        "malformed output",
+    ):
+        # These are just labelled test probes — actual asserts above
+        pass
+
+    print("_test_parser: all OK", file=_sys.stderr)
 
 
 if __name__ == "__main__":

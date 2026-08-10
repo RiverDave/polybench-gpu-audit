@@ -280,7 +280,8 @@ def provenance_lines(prov: dict[str, str]) -> list[str]:
     """Provenance rendered as markdown bullets for a report header."""
     order = ["hostname", "cpu", "cpu_count", "gpu", "kernel",
              "rocm_version", "cuda_version", "driver_version",
-             "ptxas_version", "os_release", "timestamp_utc"]
+             "ptxas_version", "os_release",
+             "polybench_commit", "compiler_version", "timestamp_utc"]
     return [f"- {k.replace('_', ' ')}: `{prov[k]}`" for k in order if prov.get(k)]
 
 
