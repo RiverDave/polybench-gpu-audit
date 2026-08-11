@@ -3,3 +3,8 @@ __pycache__/
 llvm-project/
 logs/
 build/
+.ipynb_checkpoints/
+.claude/
+*.swp
+.DS_Store
+*.pyc

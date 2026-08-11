@@ -1,36 +1,51 @@
 # polybench-gpu-audit
 
-Audit of `@llvm.nvvm.*` and `@llvm.amdgcn.*` intrinsics emitted by the upstream
-Clang frontend across the 21-kernel [Polybench/GPU](https://github.com/RiverDave/polybenchGpu)
-suite, to define the builtin surface ClangIR must support for end-to-end GPU
-compilation ([llvm/llvm-project#179278](https://github.com/llvm/llvm-project/issues/179278)).
+CIR vs Classic CodeGen measurement harness for the 21-kernel
+[Polybench/GPU](https://github.com/RiverDave/polybenchGpu) suite (CUDA + HIP).
+This is the staging area for all combine/timing metrics feeding the
+[polybench-results](https://github.com/RiverDave/polybench-results) artifact
+repo and the LLVM-HPC paper.
 
-This may also be used to explore and identify potential heterogeneous optimizations
-as part of the GSOC project [CIR Combine: Cross-Boundary Analysis for Heterogeneous CUDA/HIP Compilation](https://summerofcode.withgoogle.com/programs/2026/projects/DtnfQpPD).
+## What's here
 
-## Reproduce
+| File | Purpose |
+|---|---|
+| `run_polybench.py` | Single entry point; resolves the toolchain from `machines.json` and drives the other scripts (`--compile`, `--runtime`, `--all`, `--publish`). |
+| `run_compile.py` | CIR vs OG compile-phase timing breakdown (host+device, `-ftime-report` / `-time-passes`). |
+| `run_runtime.py` | CIR vs OG GPU runtime + executable size per benchmark. |
+| `polybench_common.py` | Shared benchmark table, path/name helpers, toolchain auto-detection. |
+| `run_cir_offload_merge.py` | no-merge vs `--clangir-offload-merge` comparison (combine work). |
+| `measure_merge_overhead.py` | Step-by-step pipeline timing for the merge overhead (single benchmark). |
+| `measure_multiarch_scaling.py` | Merge compile-time overhead vs number of target architectures. |
+| `machines.json` | Toolchain profiles per machine (CUDA/ROCm paths, archs). |
+| `setup.sh` / `build_polybench_cir.sh` | VM provisioning + ClangIR build. |
+| `cir-offload-merge-analysis.md`, `results.json`, `multiarch_scaling*.json/png` | Prior analysis outputs. |
+
+## Typical usage
 
 ```bash
-# Prerequisites: Ubuntu 22.04, CUDA headers, clang-20, ROCm 6.3.4
-wget -qO- https://apt.llvm.org/llvm.sh | sudo bash -s 20 all
-sudo apt install -y hip-dev hipify-clang rocm-device-libs=1.0.0.60304-76~22.04
+# Everything, one machine, auto-detected toolchain:
+./run_polybench.py --all --accurate-mode
 
-KERNELS="2DCONV 2MM 3DCONV 3MM ADI ATAX BICG CORR COVAR DOITGEN \
-         FDTD-2D GEMM GEMVER GESUMMV GRAMSCHM JACOBI1D JACOBI2D LU MVT SYR2K SYRK"
+# One axis:
+./run_polybench.py --hip --compile --accurate-mode
 
-# CUDA -> IR
-cd polybenchGpu/CUDA
-for k in $KERNELS; do
-  clang-20 -x cuda --cuda-device-only --cuda-gpu-arch=sm_80 \
-    --cuda-path=/usr/local/cuda -I /usr/include -O0 -emit-llvm -S \
-    -I ../common -I "$k" $(ls "$k"/*.cu | head -1) -o cuda-ir/"$k".ll
-done
+# Merge-specific overhead, single benchmark:
+python3 measure_merge_overhead.py --cuda --benchmark adi --clang .../bin/clang++
 
-# HIP -> IR
-for k in $KERNELS; do
-  clang-20 -x hip --offload-device-only --offload-arch=gfx90a \
-    --rocm-path=/opt/rocm-6.3.4 \
-    --rocm-device-lib-path=/opt/rocm-6.3.4/lib/llvm/lib/clang/18/lib/amdgcn/bitcode \
-    -O0 -emit-llvm -S -I ../common -I "$k" hip-src/"$k".hip.cpp -o hip-ir/"$k".ll
-done
+# Multi-arch scaling:
+python3 measure_multiarch_scaling.py --cuda -j8 --out results.json --plot
 ```
+
+## Output convention
+
+Runs produce `provenance.json` + `*__{compile,runtime}_results.json` /
+`*_summary.md` directories (named `<machine>/<ISO-timestamp>`), matching what
+`polybench-results` consumes. `--publish` commits them to
+`RiverDave/polybench-results` directly.
+
+## Reproducing the paper data
+
+The canonical paper runs (LLVM `c45e6b9e4d95`, scripts commit `acc8640`,
+8 samples) live in `polybench-results`: `nvidia-h100/2026-08-10T00-06Z`
+and `amd-mi300x/2026-08-10T01-19Z`. See that repo's README.
