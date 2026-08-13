@@ -384,7 +384,7 @@ def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Pa
         f"- arch: `{arch_tag}`",
         f"- PolyBench root: `{root}`",
         f"- Logs: `{log_dir}`",
-        "  - Flags: `-O3 host+device -ftime-report -mllvm -time-passes`"
+        "- Flags: `-O3 host+device -ftime-report -mllvm -time-passes`"
         + ("; merge arm adds `--clangir-offload-merge`" if p1 == "CIR-merge" else ""),
         f"- Warmup runs per benchmark: {warmup}",
         f"- Timed samples per benchmark: {samples}",
