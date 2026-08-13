@@ -1,6 +1,9 @@
 {
   "amd-mi300x": {
-    "hostname_patterns": ["*mi300x*", "*devcloud*"],
+    "hostname_patterns": [
+      "*mi300x*",
+      "*devcloud*"
+    ],
     "target": "hip",
     "clang": "~/llvm-project/build/bin/clang++",
     "polybench_root": "~/polybenchGpu",
@@ -8,27 +11,46 @@
     "rocm_device_lib_path": "/opt/rocm-7.0.2/amdgcn/bitcode",
     "gcc_install_dir": "/usr/lib/gcc/x86_64-linux-gnu/13",
     "arch": "gfx942",
-    "multi_arches": ["gfx906", "gfx908", "gfx90a", "gfx942"]
+    "multi_arches": [
+      "gfx906",
+      "gfx908",
+      "gfx90a",
+      "gfx942"
+    ]
   },
-
   "nvidia": {
-    "hostname_patterns": ["ubuntu", "129-153-*"],
+    "hostname_patterns": [
+      "ubuntu",
+      "129-153-*",
+      "[0-9]*-[0-9]*-[0-9]*-[0-9]*"
+    ],
     "target": "cuda",
     "clang": "~/llvm-project/build/bin/clang++",
     "polybench_root": "~/polybenchGpu",
     "cuda_root": "/usr/local/cuda",
     "arch": null,
-    "multi_arches": ["sm_80", "sm_86", "sm_89", "sm_90"]
+    "multi_arches": [
+      "sm_80",
+      "sm_86",
+      "sm_89",
+      "sm_90"
+    ]
   },
-
   "nvidia-h100": {
     "name": "nvidia-h100",
-    "hostname_patterns": ["68-209-*"],
+    "hostname_patterns": [
+      "68-209-*"
+    ],
     "target": "cuda",
     "clang": "~/llvm-project/build/bin/clang++",
     "polybench_root": "~/polybenchGpu",
     "cuda_root": "/usr/local/cuda",
     "arch": "sm_90",
-    "multi_arches": ["sm_80", "sm_86", "sm_89", "sm_90"]
+    "multi_arches": [
+      "sm_80",
+      "sm_86",
+      "sm_89",
+      "sm_90"
+    ]
   }
 }
