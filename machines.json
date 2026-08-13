@@ -12,7 +12,7 @@
   },
 
   "nvidia": {
-    "hostname_patterns": ["ubuntu"],
+    "hostname_patterns": ["ubuntu", "129-153-*"],
     "target": "cuda",
     "clang": "~/llvm-project/build/bin/clang++",
     "polybench_root": "~/polybenchGpu",

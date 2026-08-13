@@ -250,7 +250,6 @@ def compile_one(
     cmd = [str(clang)]
     if pipeline in ("CIR", "CIR-merge"):
         cmd.append("-fclangir")
-        cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
         if pipeline == "CIR-merge":
             cmd.append("--clangir-offload-merge")
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
