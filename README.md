@@ -10,11 +10,10 @@ repo and the LLVM-HPC paper.
 
 | File | Purpose |
 |---|---|
-| `run_polybench.py` | Single entry point; resolves the toolchain from `machines.json` and drives the other scripts (`--compile`, `--runtime`, `--all`, `--publish`). |
-| `run_compile.py` | CIR vs OG compile-phase timing breakdown (host+device, `-ftime-report` / `-time-passes`). |
-| `run_runtime.py` | CIR vs OG GPU runtime + executable size per benchmark. |
+| `run_polybench.py` | Single entry point; resolves the toolchain from `machines.json` and drives the other scripts (`--compile`, `--runtime`, `--all`, `--offload-merge`, `--publish`). |
+| `run_compile.py` | CIR vs OG compile-phase timing breakdown (host+device, `-ftime-report` / `-time-passes`); `--merge` swaps the pair to CIR vs CIR-merge. |
+| `run_runtime.py` | CIR vs OG GPU runtime + executable size per benchmark; `--merge` swaps the pair to CIR vs CIR-merge. |
 | `polybench_common.py` | Shared benchmark table, path/name helpers, toolchain auto-detection. |
-| `run_cir_offload_merge.py` | no-merge vs `--clangir-offload-merge` comparison (combine work). |
 | `measure_merge_overhead.py` | Step-by-step pipeline timing for the merge overhead (single benchmark). |
 | `measure_multiarch_scaling.py` | Merge compile-time overhead vs number of target architectures. |
 | `machines.json` | Toolchain profiles per machine (CUDA/ROCm paths, archs). |
@@ -29,6 +28,9 @@ repo and the LLVM-HPC paper.
 
 # One axis:
 ./run_polybench.py --hip --compile --accurate-mode
+
+# Offload-merge comparison (combine work): CIR no-merge vs CIR-merge
+./run_polybench.py --cuda --runtime --accurate-mode --offload-merge --publish
 
 # Merge-specific overhead, single benchmark:
 python3 measure_merge_overhead.py --cuda --benchmark adi --clang .../bin/clang++

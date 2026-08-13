@@ -7,6 +7,7 @@ case needs no paths:
   ./run_polybench.py --all --accurate-mode                 # every axis
   ./run_polybench.py --hip --compile --accurate-mode       # one axis
   ./run_polybench.py --all --accurate-mode --publish       # + push results
+  ./run_polybench.py --cuda --compile --offload-merge      # CIR no-merge vs CIR-merge
 
 Axes:
   --compile     CIR vs OG compile-time breakdown, single arch
@@ -14,6 +15,11 @@ Axes:
   --multi-arch  compile-time breakdown per target arch (compile-only: you can
                 only execute on the GPU actually present)
   --all         all three, in that order
+
+--offload-merge swaps the compared pair of every axis from CIR vs OG to
+CIR (no-merge) vs CIR-merge, where the merge arm adds --clangir-offload-merge.
+That is the combine-work comparison (compile-time merge overhead + runtime
+parity), formerly `run_cir_offload_merge.py`.
 
 --accurate-mode is the paper-grade profile: fully serialized (-j 1) to remove
 CPU and GPU contention, 3 warmups, 8 timed samples, run-tagged log dirs, and
@@ -76,7 +82,12 @@ def build_argv(mode: str, args, arch: str) -> tuple[list[str], str]:
     else:
         argv += ["--cuda-root", str(args.cuda_root)]
 
+    if args.offload_merge:
+        argv += ["--merge"]
+
     slug = f"{mode}-{tag}-{'multi' if mode == 'multiarch' else arch}-j{args.jobs}"
+    if args.offload_merge:
+        slug += "-merge"
     log_dir = str(Path(args.log_root) / slug)
     argv += ["--log-dir", log_dir]
 
@@ -190,6 +201,8 @@ def main() -> int:
                         help=f"Push summaries + raw JSON to {RESULTS_REPO}")
     parser.add_argument("--validate", action="store_true",
                         help="Runtime: build without DNO_CPU_REF and check correctness")
+    parser.add_argument("--offload-merge", action="store_true",
+                        help="Compare CIR no-merge vs CIR-merge (--clangir-offload-merge) instead of CIR vs OG")
 
     parser.add_argument("--arch",            help="Override the detected GPU arch")
     parser.add_argument("--clang",           help="Override the detected clang++")
@@ -275,6 +288,8 @@ def main() -> int:
     print(f"gpu    : {prov['gpu'] or '?'}   cpu={prov['cpu_count']} threads")
     print(f"profile: -j{args.jobs}  warmup={args.warmup}  samples={args.samples}"
           f"{'  [accurate-mode]' if args.accurate_mode else ''}")
+    if args.offload_merge:
+        print("compare: CIR no-merge vs CIR-merge (--clangir-offload-merge)")
     if args.test:
         print(f"*** SMOKE TEST: {args.limit} benchmarks, {args.samples} samples, "
               f"results in {args.log_root}/ — NOT publication data ***")

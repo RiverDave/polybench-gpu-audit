@@ -5,6 +5,10 @@ Compiles each kernel to a full host+device executable and runs it --runs times,
 recording the polybench wall-clock timer printed to stdout (%0.6lf).
 Reports mean ± stddev and CIR/OG ratio per benchmark.
 
+--merge swaps the compared pair from CIR vs OG to CIR (no-merge) vs CIR-merge
+(the merge arm adds --clangir-offload-merge), i.e. the runtime parity check
+for the offload-merge pipeline.
+
 Examples:
   # CUDA (A10, sm_86)
   python3 run_runtime.py --cuda \\
@@ -219,7 +223,6 @@ def compile_one(
     polybench_objs:       list[Path],
     build_dir:            Path,
     log_dir:              Path,
-    merge: bool,
     no_cpu_ref: bool = True,
     clang_flags: str = "",
 ) -> PerfResult:
@@ -245,12 +248,12 @@ def compile_one(
             pass
 
     cmd = [str(clang)]
-    if pipeline == "CIR":
+    if pipeline in ("CIR", "CIR-merge"):
         cmd.append("-fclangir")
         cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
+        if pipeline == "CIR-merge":
+            cmd.append("--clangir-offload-merge")
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
-    if merge != False:
-        cmd.append(f"--clangir-offload-merge")
     if is_hip(file):
         cuda_counterpart = Path(str(file.parent).replace("/HIP/", "/CUDA/", 1))
         cmd.extend([
@@ -281,7 +284,7 @@ def compile_one(
     ])
 
     env = os.environ.copy()
-    if pipeline == "CIR":
+    if pipeline.startswith("CIR"):
         env["PATH"] = f"{clang.parent}:{env['PATH']}"
 
     proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
@@ -336,7 +339,9 @@ def run_binary(result: PerfResult, runs: int, warmup: int) -> None:
 
 def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
              runs: int, warmup: int, clangir_rev: str = "unknown", scripts_rev: str = "unknown",
-             validate: bool = False, prov: dict | None = None) -> str:
+             validate: bool = False, prov: dict | None = None,
+             pipelines: tuple[str, str] = ("CIR", "OG")) -> str:
+    p0, p1 = pipelines
     by_key        = {(r.file, r.pipeline): r for r in results}
     files_ordered = list(dict.fromkeys(r.file for r in results))
     compile_ok    = sum(1 for r in results if r.compile_ok)
@@ -349,7 +354,7 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         return "—" if n is None else f"{n / 1024:.1f} KiB"
 
     lines = [
-        "PolyBench runtime performance: CIR vs OG.", "",
+        f"PolyBench runtime performance: {p0} vs {p1}.", "",
         f"- ClangIR commit: `{clangir_rev}`",
         f"- Scripts commit: `{scripts_rev}`",
         f"- arch: `{arch}`",
@@ -366,41 +371,41 @@ def markdown(results: list[PerfResult], root: Path, arch: str, log_dir: Path,
         "",
         "## Results (wall + GPU split, seconds)",
         "",
-        "| Benchmark | Source set | CIR wall | CIR GPU | CIR host | OG wall | OG GPU | OG host | GPU CIR/OG | CIR size | OG size |",
+        f"| Benchmark | Source set | {p0} wall | {p0} GPU | {p0} host | {p1} wall | {p1} GPU | {p1} host | GPU {p1}/{p0} | {p0} size | {p1} size |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for file in files_ordered:
-        cir = by_key.get((file, "CIR"))
-        og  = by_key.get((file, "OG"))
-        ref = cir or og
+        r0 = by_key.get((file, p0))
+        r1 = by_key.get((file, p1))
+        ref = r0 or r1
         assert ref is not None
-        cir_m, cir_s = mean_stddev(cir.times if cir else [])
-        og_m,  og_s  = mean_stddev(og.times  if og  else [])
-        ratio = f"{cir_m / og_m:.3f}" if (not math.isnan(cir_m) and not math.isnan(og_m) and og_m > 0) else "—"
-        cir_wm, _ = mean_stddev(cir.wall_times if cir else [])
-        og_wm,  _ = mean_stddev(og.wall_times  if og  else [])
-        cir_host = f"{cir_wm - cir_m:.4f}" if (not math.isnan(cir_wm) and not math.isnan(cir_m)) else "—"
-        og_host  = f"{og_wm - og_m:.4f}" if (not math.isnan(og_wm) and not math.isnan(og_m)) else "—"
-        cir_sz = cir.size if cir else None
-        og_sz  = og.size  if og  else None
+        m0, _ = mean_stddev(r0.times if r0 else [])
+        m1, _ = mean_stddev(r1.times if r1 else [])
+        ratio = f"{m1 / m0:.3f}" if (not math.isnan(m0) and not math.isnan(m1) and m0 > 0) else "—"
+        w0, _ = mean_stddev(r0.wall_times if r0 else [])
+        w1, _ = mean_stddev(r1.wall_times if r1 else [])
+        h0 = f"{w0 - m0:.4f}" if (not math.isnan(w0) and not math.isnan(m0)) else "—"
+        h1 = f"{w1 - m1:.4f}" if (not math.isnan(w1) and not math.isnan(m1)) else "—"
+        s0 = r0.size if r0 else None
+        s1 = r1.size if r1 else None
         lines.append(
             f"| {ref.benchmark} | {ref.source_set} |"
-            f" {fmt(cir_wm)} | {fmt(cir_m)} | {cir_host} |"
-            f" {fmt(og_wm)} | {fmt(og_m)} | {og_host} | {ratio} |"
-            f" {fmt_size(cir_sz)} | {fmt_size(og_sz)} |"
+            f" {fmt(w0)} | {fmt(m0)} | {h0} |"
+            f" {fmt(w1)} | {fmt(m1)} | {h1} | {ratio} |"
+            f" {fmt_size(s0)} | {fmt_size(s1)} |"
         )
 
     ratios = []
     for file in files_ordered:
-        cir = by_key.get((file, "CIR")); og = by_key.get((file, "OG"))
-        cir_m, _ = mean_stddev(cir.times if cir else [])
-        og_m,  _ = mean_stddev(og.times  if og  else [])
-        if not math.isnan(cir_m) and not math.isnan(og_m) and cir_m > 0 and og_m > 0:
-            ratios.append(cir_m / og_m)
+        r0 = by_key.get((file, p0)); r1 = by_key.get((file, p1))
+        m0, _ = mean_stddev(r0.times if r0 else [])
+        m1, _ = mean_stddev(r1.times if r1 else [])
+        if not math.isnan(m0) and not math.isnan(m1) and m0 > 0 and m1 > 0:
+            ratios.append(m1 / m0)
     if ratios:
         from statistics import geometric_mean
         gm = geometric_mean(ratios)
-        lines += ["", f"**Total GPU CIR/OG (geomean):** `{gm:.4f}`", ""]
+        lines += ["", f"**Total GPU {p1}/{p0} (geomean):** `{gm:.4f}`", ""]
 
     failures = [r for r in results if not r.compile_ok or not r.times]
     if failures:
@@ -450,7 +455,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--hip-path",             type=path_arg, default=_rocm)
     parser.add_argument("--rocm-device-lib-path", type=path_arg, default=find_rocm_device_lib(_rocm))
     parser.add_argument("--gcc-install-dir",      type=path_arg, default=find_gcc_install())
-    parser.add_argument("--merge",      type=bool, default=False)
+    parser.add_argument("--merge", action="store_true",
+                        help="Compare CIR (no-merge) vs CIR-merge (--clangir-offload-merge) instead of CIR vs OG")
     parser.add_argument("--arch",      default="sm_86",  help="GPU arch (default: sm_86)")
     parser.add_argument("--runs",      type=int, default=5, help="Timed runs per benchmark (default: 5)")
     parser.add_argument("--warmup",    type=int, default=1, help="Warmup runs before timing (default: 1)")
@@ -508,7 +514,8 @@ def main(argv: list[str] | None = None) -> int:
         print("error: no source files found", file=sys.stderr)
         return 2
 
-    jobs       = [(f, p) for f in files for p in ("CIR", "OG")]
+    pipelines = ("CIR", "CIR-merge") if args.merge else ("CIR", "OG")
+    jobs       = [(f, p) for f in files for p in pipelines]
     total_jobs = len(jobs)
     width      = len(str(total_jobs))
 
@@ -522,7 +529,7 @@ def main(argv: list[str] | None = None) -> int:
                 args.clang, args.polybench_root,
                 args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                 args.gcc_install_dir, args.arch, pipeline, file,
-                common_dir, pb_objs, args.build_dir, args.log_dir, args.merge,
+                common_dir, pb_objs, args.build_dir, args.log_dir,
                 clang_flags=args.clang_flags,
             ): (file, pipeline)
             for file, pipeline in jobs
@@ -568,7 +575,7 @@ def main(argv: list[str] | None = None) -> int:
                     args.clang, args.polybench_root,
                     args.cuda_root, args.hip_path, args.rocm_device_lib_path,
                     args.gcc_install_dir, args.arch, pipeline, file,
-                    common_dir, pb_objs, args.build_dir, args.log_dir, args.merge,
+                    common_dir, pb_objs, args.build_dir, args.log_dir,
                     no_cpu_ref=False, clang_flags=args.clang_flags,
                 ): (file, pipeline)
                 for file, pipeline in jobs
@@ -633,7 +640,8 @@ def main(argv: list[str] | None = None) -> int:
     prov["compiler_version"] = comp_ver
 
     report      = markdown(results, args.polybench_root, args.arch, args.log_dir, args.runs, args.warmup,
-                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, validate=args.validate, prov=prov)
+                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, validate=args.validate, prov=prov,
+                           pipelines=pipelines)
     report_path = args.log_dir / "runtime_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
 
@@ -645,6 +653,8 @@ def main(argv: list[str] | None = None) -> int:
         "runs":           args.runs,
         "warmup":         args.warmup,
         "jobs":           args.jobs,
+        "merge":          args.merge,
+        "pipelines":      list(pipelines),
         "clangir_commit": clangir_rev,
         "scripts_commit": scripts_rev,
         "polybench_root": str(args.polybench_root),

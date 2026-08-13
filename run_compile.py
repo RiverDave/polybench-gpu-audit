@@ -2,8 +2,12 @@
 """CIR vs OG compile-phase timing breakdown for PolyBench CUDA/HIP benchmarks.
 
 Compiles each benchmark with -O3, host+device, and timing flags:
-  CIR: -fclangir -ftime-report -mllvm -time-passes
-  OG:  -ftime-report -mllvm -time-passes
+  CIR:       -fclangir -ftime-report -mllvm -time-passes
+  CIR-merge: -fclangir --clangir-offload-merge -ftime-report -mllvm -time-passes
+  OG:        -ftime-report -mllvm -time-passes
+
+--merge swaps the compared pair from CIR vs OG to CIR (no-merge) vs CIR-merge:
+the only variable between the two arms is --clangir-offload-merge.
 
 Pass --device-only to restore the old device-only compilation mode.
 
@@ -209,9 +213,11 @@ def timing_compile_one(
 ) -> TimingResult:
     log = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.log"
     cmd = [str(clang)]
-    if pipeline == "CIR":
+    if pipeline in ("CIR", "CIR-merge"):
         cmd.append("-fclangir")
         cmd.extend(["-Xclang", "-clangir-enable-call-conv-lowering"])
+        if pipeline == "CIR-merge":
+            cmd.append("--clangir-offload-merge")
     cmd.append(f"--gcc-install-dir={gcc_install_dir}")
 
     obj_path = log_dir / f"{safe_name(root, file)}.{pipeline.lower()}.{arch}.o"
@@ -243,7 +249,7 @@ def timing_compile_one(
     cmd.extend(f"-I{d}" for d in include_dirs)
 
     env = os.environ.copy()
-    if pipeline == "CIR":
+    if pipeline.startswith("CIR"):
         env["PATH"] = f"{clang.parent}:{env['PATH']}"
 
     for _ in range(warmup):
@@ -292,68 +298,68 @@ def timing_compile_one(
 # Reporting
 # ---------------------------------------------------------------------------
 
-def _phase_rows(results: list[TimingResult]) -> list[str]:
+def _phase_rows(results: list[TimingResult], p0: str, p1: str) -> list[str]:
     """Phase averages table (header + rows) over the given result set."""
     all_phases = sorted({p for r in results for p in r.phases})
-    lines = ["| Phase | CIR avg | OG avg | delta |", "|---|---:|---:|---:|"]
+    lines = [f"| Phase | {p0} avg | {p1} avg | delta |", "|---|---:|---:|---:|"]
     for phase in all_phases:
-        ct = [r.phases[phase] for r in results if r.pipeline == "CIR" and r.ok and phase in r.phases]
-        ot = [r.phases[phase] for r in results if r.pipeline == "OG"  and r.ok and phase in r.phases]
-        ca = sum(ct) / len(ct) if ct else None
-        oa = sum(ot) / len(ot) if ot else None
-        d  = (f"+{ca-oa:.3f}" if ca >= oa else f"{ca-oa:.3f}") if (ca is not None and oa is not None) else "—"
+        a0 = [r.phases[phase] for r in results if r.pipeline == p0 and r.ok and phase in r.phases]
+        a1 = [r.phases[phase] for r in results if r.pipeline == p1 and r.ok and phase in r.phases]
+        m0 = sum(a0) / len(a0) if a0 else None
+        m1 = sum(a1) / len(a1) if a1 else None
+        d  = (f"+{m1-m0:.3f}" if m1 >= m0 else f"{m1-m0:.3f}") if (m0 is not None and m1 is not None) else "—"
         lines.append(
-            f"| {phase} | {f'{ca:.3f}' if ca is not None else '—'} | {f'{oa:.3f}' if oa is not None else '—'} | {d} |"
+            f"| {phase} | {f'{m0:.3f}' if m0 is not None else '—'} | {f'{m1:.3f}' if m1 is not None else '—'} | {d} |"
         )
-    ct = [r.elapsed for r in results if r.pipeline == "CIR" and r.ok]
-    ot = [r.elapsed for r in results if r.pipeline == "OG"  and r.ok]
-    if ct and ot:
-        ca, oa = sum(ct) / len(ct), sum(ot) / len(ot)
-        d = f"+{ca-oa:.3f}" if ca >= oa else f"{ca-oa:.3f}"
-        lines.append(f"| **Total (wall)** | **{ca:.3f}** | **{oa:.3f}** | **{d}** |")
+    t0 = [r.elapsed for r in results if r.pipeline == p0 and r.ok]
+    t1 = [r.elapsed for r in results if r.pipeline == p1 and r.ok]
+    if t0 and t1:
+        m0, m1 = sum(t0) / len(t0), sum(t1) / len(t1)
+        d = f"+{m1-m0:.3f}" if m1 >= m0 else f"{m1-m0:.3f}"
+        lines.append(f"| **Total (wall)** | **{m0:.3f}** | **{m1:.3f}** | **{d}** |")
     return lines
 
 
-def _arch_section(results: list[TimingResult], root: Path, arch: str) -> list[str]:
+def _arch_section(results: list[TimingResult], root: Path, arch: str, p0: str, p1: str) -> list[str]:
     """Full markdown section for one arch: pass/fail counts, phase table, per-benchmark table."""
     by_key       = {(r.file, r.pipeline): r for r in results}
     files_ordered: list[Path] = list(dict.fromkeys(r.file for r in results))
-    cir_ok = sum(1 for f in files_ordered if by_key.get((f, "CIR")) and by_key[(f, "CIR")].ok)
-    og_ok  = sum(1 for f in files_ordered if by_key.get((f, "OG"))  and by_key[(f, "OG")].ok)
+    ok0 = sum(1 for f in files_ordered if by_key.get((f, p0)) and by_key[(f, p0)].ok)
+    ok1 = sum(1 for f in files_ordered if by_key.get((f, p1)) and by_key[(f, p1)].ok)
 
     all_phases = sorted({p for r in results for p in r.phases})
-    header = "| Benchmark | Source set |" + "".join(f" CIR {ph} | OG {ph} |" for ph in all_phases) + " CIR total | CIR σ | CIR med | OG total | OG σ | OG med | CIR/OG |"
+    header = "| Benchmark | Source set |" + "".join(f" {p0} {ph} | {p1} {ph} |" for ph in all_phases) + f" {p0} total | {p0} σ | {p0} med | {p1} total | {p1} σ | {p1} med | {p1}/{p0} |"
     sep    = "|---|---:|" + "---:|---:|" * len(all_phases) + "---:|---:|---:|---:|---:|---:|---:|"
 
     lines = [
         f"### arch: `{arch}`", "",
-        f"- CIR compiled OK: `{cir_ok}/{len(files_ordered)}`",
-        f"- OG compiled OK: `{og_ok}/{len(files_ordered)}`",
-        "", *_phase_rows(results), "", header, sep,
+        f"- {p0} compiled OK: `{ok0}/{len(files_ordered)}`",
+        f"- {p1} compiled OK: `{ok1}/{len(files_ordered)}`",
+        "", *_phase_rows(results, p0, p1), "", header, sep,
     ]
     for file in files_ordered:
-        cir = by_key.get((file, "CIR"))
-        og  = by_key.get((file, "OG"))
-        ref = cir or og
+        r0 = by_key.get((file, p0))
+        r1 = by_key.get((file, p1))
+        ref = r0 or r1
         assert ref is not None
         row = f"| {ref.benchmark} | {ref.source_set} |"
         for ph in all_phases:
-            row += f" {f'{cir.phases[ph]:.3f}' if cir and cir.ok and ph in cir.phases else '—'}"
-            row += f" | {f'{og.phases[ph]:.3f}' if og  and og.ok  and ph in og.phases  else '—'} |"
-        cir_t  = cir.elapsed        if cir and cir.ok else None
-        cir_sd = cir.elapsed_stddev if cir and cir.ok else None
-        og_t   = og.elapsed         if og  and og.ok  else None
-        og_sd  = og.elapsed_stddev  if og  and og.ok  else None
-        ratio = f"{cir_t / og_t:.3f}" if (cir_t is not None and og_t is not None and og_t > 0) else "—"
-        cir_md = cir.elapsed_median if cir and cir.ok else None
-        og_md  = og.elapsed_median  if og  and og.ok  else None
+            row += f" {f'{r0.phases[ph]:.3f}' if r0 and r0.ok and ph in r0.phases else '—'}"
+            row += f" | {f'{r1.phases[ph]:.3f}' if r1 and r1.ok and ph in r1.phases  else '—'} |"
+        t0  = r0.elapsed        if r0 and r0.ok else None
+        sd0 = r0.elapsed_stddev if r0 and r0.ok else None
+        t1  = r1.elapsed        if r1 and r1.ok else None
+        sd1 = r1.elapsed_stddev if r1 and r1.ok else None
+        ratio = f"{t1 / t0:.3f}" if (t0 is not None and t1 is not None and t0 > 0) else "—"
+        md0 = r0.elapsed_median if r0 and r0.ok else None
+        md1 = r1.elapsed_median if r1 and r1.ok else None
         row += (
-            f" {f'{cir_t:.3f}' if cir_t is not None else '—'} |"
-            f" {f'{cir_sd:.3f}' if cir_sd is not None else '—'} |"
-            f" {f'{cir_md:.3f}' if cir_md is not None else '—'} |"
-            f" {f'{og_t:.3f}' if og_t is not None else '—'} |"
-            f" {f'{og_sd:.3f}' if og_sd is not None else '—'} |"
-            f" {f'{og_md:.3f}' if og_md is not None else '—'} |"
+            f" {f'{t0:.3f}' if t0 is not None else '—'} |"
+            f" {f'{sd0:.3f}' if sd0 is not None else '—'} |"
+            f" {f'{md0:.3f}' if md0 is not None else '—'} |"
+            f" {f'{t1:.3f}' if t1 is not None else '—'} |"
+            f" {f'{sd1:.3f}' if sd1 is not None else '—'} |"
+            f" {f'{md1:.3f}' if md1 is not None else '—'} |"
             f" {ratio} |"
         )
         lines.append(row)
@@ -361,40 +367,43 @@ def _arch_section(results: list[TimingResult], root: Path, arch: str) -> list[st
 
 
 def markdown(results: list[TimingResult], root: Path, arch_tag: str, log_dir: Path, warmup: int, samples: int,
-             clangir_rev: str = "unknown", scripts_rev: str = "unknown") -> str:
+             clangir_rev: str = "unknown", scripts_rev: str = "unknown",
+             pipelines: tuple[str, str] = ("CIR", "OG")) -> str:
+    p0, p1 = pipelines
     arches    = sorted(set(r.arch for r in results))
     multi     = len(arches) > 1
-    cir_ok    = sum(1 for r in results if r.pipeline == "CIR" and r.ok)
-    og_ok     = sum(1 for r in results if r.pipeline == "OG"  and r.ok)
-    total_cir = sum(1 for r in results if r.pipeline == "CIR")
-    total_og  = sum(1 for r in results if r.pipeline == "OG")
+    ok0       = sum(1 for r in results if r.pipeline == p0 and r.ok)
+    ok1       = sum(1 for r in results if r.pipeline == p1 and r.ok)
+    total0    = sum(1 for r in results if r.pipeline == p0)
+    total1    = sum(1 for r in results if r.pipeline == p1)
 
     lines = [
-        "PolyBench compile-phase timing: CIR vs OG.", "",
+        f"PolyBench compile-phase timing: {p0} vs {p1}.", "",
         f"- ClangIR commit: `{clangir_rev}`",
         f"- Scripts commit: `{scripts_rev}`",
         f"- arch: `{arch_tag}`",
         f"- PolyBench root: `{root}`",
         f"- Logs: `{log_dir}`",
-        "- Flags: `-O3 host+device -ftime-report -mllvm -time-passes`",
+        "  - Flags: `-O3 host+device -ftime-report -mllvm -time-passes`"
+        + ("; merge arm adds `--clangir-offload-merge`" if p1 == "CIR-merge" else ""),
         f"- Warmup runs per benchmark: {warmup}",
         f"- Timed samples per benchmark: {samples}",
-        f"- CIR compiled OK: `{cir_ok}/{total_cir}`",
-        f"- OG compiled OK: `{og_ok}/{total_og}`",
+        f"- {p0} compiled OK: `{ok0}/{total0}`",
+        f"- {p1} compiled OK: `{ok1}/{total1}`",
         "",
         "## Environment",
         "",
         *provenance_lines(provenance()),
         "",
         "## Phase averages (wall seconds, over successful compilations)",
-        *(["_(averaged across all architectures)_", ""] if multi else [""]),
-        *_phase_rows(results),
+        *(["(averaged across all architectures)", ""] if multi else [""]),
+        *_phase_rows(results, p0, p1),
         "",
         "## Per-arch breakdown" if multi else "## Per-benchmark breakdown",
         "",
     ]
     for arch in arches:
-        lines.extend(_arch_section([r for r in results if r.arch == arch], root, arch))
+        lines.extend(_arch_section([r for r in results if r.arch == arch], root, arch, p0, p1))
         lines.append("")
 
     failures = [r for r in results if not r.ok]
@@ -440,6 +449,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--log-dir", type=path_arg, default=Path("~/polybench-gpu-audit/temp/compile"))
     parser.add_argument("--limit",   type=int, default=0,  help="Cap number of source files")
     parser.add_argument("--device-only", action="store_true", help="Device-only compilation (old default)")
+    parser.add_argument("--merge", action="store_true",
+                        help="Compare CIR (no-merge) vs CIR-merge (--clangir-offload-merge) instead of CIR vs OG")
     parser.add_argument("--clang-flags", default="", help="Extra flags forwarded to every clang compile line")
     parser.add_argument("-j", "--jobs", type=int, default=4)
 
@@ -485,10 +496,11 @@ def main(argv: list[str] | None = None) -> int:
     cuda_arches = (override or CUDA_MULTI_ARCHES) if args.multi_arch else [args.cuda_arch]
     include_dirs = discover_include_dirs(files)
 
+    pipelines = ("CIR", "CIR-merge") if args.merge else ("CIR", "OG")
     jobs = [
         (file, pipeline, arch)
         for file in files
-        for pipeline in ("CIR", "OG")
+        for pipeline in pipelines
         for arch in (hip_arches if is_hip(file) else cuda_arches)
     ]
     total_jobs = len(jobs)
@@ -548,7 +560,7 @@ def main(argv: list[str] | None = None) -> int:
     clangir_rev = git_rev(args.clang.parent.parent.parent)
     scripts_rev = git_rev(Path(__file__).parent)
     report      = markdown(results, args.polybench_root, arch_tag, args.log_dir, args.warmup, args.samples,
-                           clangir_rev=clangir_rev, scripts_rev=scripts_rev)
+                           clangir_rev=clangir_rev, scripts_rev=scripts_rev, pipelines=pipelines)
     report_path = args.log_dir / "compile_summary.md"
     report_path.write_text(report + "\n", encoding="utf-8")
 
@@ -561,6 +573,8 @@ def main(argv: list[str] | None = None) -> int:
         "samples":       args.samples,
         "jobs":          args.jobs,
         "device_only":   args.device_only,
+        "merge":         args.merge,
+        "pipelines":     list(pipelines),
         "clangir_commit": clangir_rev,
         "scripts_commit": scripts_rev,
         "polybench_root": str(args.polybench_root),
