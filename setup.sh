@@ -213,6 +213,8 @@ else
 
     # Phase 2: clang + all HIP offload pipeline tools.
     # System lld (apt) is too old (v14) for AMDGPU ELF output — build ours.
+    # cir-offload-merge is the merge-pipeline job tool: --clangir-offload-merge
+    # in the driver spawns it, so it must sit in bin/ next to clang++.
     ninja -C "$LLVM_BUILD" -j"$JOBS" \
         clang \
         clang-linker-wrapper \
@@ -220,7 +222,8 @@ else
         llvm-offload-binary \
         clang-offload-bundler \
         clang-offload-packager \
-        llvm-objcopy
+        llvm-objcopy \
+        cir-offload-merge
 
     echo ""
     echo "clang++ version:"
