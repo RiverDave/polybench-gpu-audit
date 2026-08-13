@@ -2,14 +2,26 @@
 # One-shot VM setup for ClangIR / PolyBench-GPU development on AMD Devcloud.
 #
 # Usage:
-#   bash setup.sh [--skip-build] [--jobs N]
+#   ./setup.sh [--skip-build] [--jobs N] \
+#              [--llvm-repo <url>] [--llvm-branch <branch>] [--llvm-commit <sha>] \
+#              [--with-agents]
+#
+#   --llvm-repo    llvm-project to clone (default: David's fork over ssh).
+#                  Upstream: git@github.com:llvm/llvm-project.git
+#   --llvm-branch  Checkout this branch after clone.
+#   --llvm-commit  Checkout this exact commit after clone (wins over branch).
+#   --with-agents  Also install claude-code + opencode (default: off).
 #
 # Assumptions: Ubuntu 22.04, ROCm already installed at /opt/rocm-*, sudo access.
 
 set -euo pipefail
 
-LLVM_FORK="https://github.com/llvm/llvm-project"
+LLVM_REPO="git@github.com:RiverDave/llvm-project.git"
+LLVM_BRANCH=""
+LLVM_COMMIT=""
+WITH_AGENTS=0
 POLYBENCH_FORK="https://github.com/RiverDave/polybenchGpu"
+POLYBENCH_AUDIT_FORK="https://github.com/RiverDave/polybench-gpu-audit.git"
 POLYBENCH_RESULTS_FORK="git@github.com:RiverDave/polybench-results.git"
 INTERCOMMS_FORK="git@github.com:RiverDave/intercomms.git"
 JOBS="$(nproc)"
@@ -17,8 +29,12 @@ SKIP_BUILD=0
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --skip-build) SKIP_BUILD=1; shift ;;
-        --jobs)       JOBS="$2";    shift 2 ;;
+        --skip-build)  SKIP_BUILD=1; shift ;;
+        --jobs)        JOBS="$2";    shift 2 ;;
+        --llvm-repo)   LLVM_REPO="$2";   shift 2 ;;
+        --llvm-branch) LLVM_BRANCH="$2"; shift 2 ;;
+        --llvm-commit) LLVM_COMMIT="$2"; shift 2 ;;
+        --with-agents) WITH_AGENTS=1; shift ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
@@ -68,6 +84,10 @@ fi
 
 ssh-keyscan -H github.com >> "$HOME/.ssh/known_hosts" 2>/dev/null
 
+# Git identity — same as David's machine (matches run_polybench.py COMMIT_*).
+git config --global user.name  "RiverDave"
+git config --global user.email "davidriverg@gmail.com"
+
 # ---------------------------------------------------------------------------
 # 2. System packages
 # ---------------------------------------------------------------------------
@@ -93,10 +113,22 @@ echo ""
 echo "=== [3/6] Repos ==="
 
 if [[ ! -d "$LLVM_SRC/.git" ]]; then
-    echo "Cloning llvm-project"
-    git clone "$LLVM_FORK" "$LLVM_SRC"
+    echo "Cloning llvm-project from $LLVM_REPO"
+    git clone "$LLVM_REPO" "$LLVM_SRC"
 else
     echo "llvm-project: already present, skipping clone."
+fi
+if [[ -n "$LLVM_COMMIT" ]]; then
+    git -C "$LLVM_SRC" checkout "$LLVM_COMMIT"
+elif [[ -n "$LLVM_BRANCH" ]]; then
+    git -C "$LLVM_SRC" checkout "$LLVM_BRANCH"
+fi
+
+if [[ ! -d "$HOME/polybench-gpu-audit/.git" ]]; then
+    echo "Cloning polybench-gpu-audit…"
+    git clone "$POLYBENCH_AUDIT_FORK" "$HOME/polybench-gpu-audit"
+else
+    echo "polybench-gpu-audit: already present, skipping clone."
 fi
 
 if [[ ! -d "$POLYBENCH_DIR/.git" ]]; then
@@ -199,6 +231,7 @@ fi
 # 6. AI coding agents
 # ---------------------------------------------------------------------------
 echo ""
+if [[ "$WITH_AGENTS" -eq 1 ]]; then
 echo "=== [6/6] AI coding agents ==="
 
 echo "Installing Claude Code…"
@@ -206,6 +239,9 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 echo "Installing opencode…"
 curl -fsSL https://opencode.ai/install | bash
+else
+echo "=== [6/6] Skipping AI coding agents (use --with-agents to install) ==="
+fi
 
 # ---------------------------------------------------------------------------
 # Done
