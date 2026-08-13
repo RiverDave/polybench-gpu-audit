@@ -23,7 +23,8 @@ parity), formerly `run_cir_offload_merge.py`.
 
 --accurate-mode is the paper-grade profile: fully serialized (-j 1) to remove
 CPU and GPU contention, 3 warmups, 8 timed samples, run-tagged log dirs, and
-it refuses to run on a guessed GPU arch.
+it refuses to run on a guessed GPU arch. It also implies --validate: paper-grade
+runs carry the CPU-reference correctness check (misses) in the record.
 
 Settings resolve as: explicit flag > machines.json profile > auto-detection.
 """
@@ -248,6 +249,10 @@ def main() -> int:
     for key, value in ACCURATE.items():
         if args.accurate_mode and getattr(args, key) is None:
             setattr(args, key, value)
+    # Paper-grade runs carry the correctness stamp: --accurate-mode implies the
+    # runtime validation phase (build without NO_CPU_REF, check misses).
+    if args.accurate_mode:
+        args.validate = True
     if args.jobs    is None: args.jobs    = 4
     if args.warmup  is None: args.warmup  = 2
     if args.samples is None: args.samples = 5
