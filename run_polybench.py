@@ -177,7 +177,7 @@ def publish(log_dirs: list[str], machine: str, prov: dict, suffix: str = "") -> 
     return 1
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -220,7 +220,7 @@ def main() -> int:
     parser.add_argument("-j", "--jobs", type=int, help="Parallel jobs (accurate-mode forces 1)")
     parser.add_argument("--dry-run", action="store_true", help="Print commands without running")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     if args.all:
         args.compile = args.runtime = args.multi_arch = True

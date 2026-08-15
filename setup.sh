@@ -24,6 +24,11 @@ POLYBENCH_FORK="https://github.com/RiverDave/polybenchGpu"
 POLYBENCH_AUDIT_FORK="https://github.com/RiverDave/polybench-gpu-audit.git"
 POLYBENCH_RESULTS_FORK="git@github.com:RiverDave/polybench-results.git"
 INTERCOMMS_FORK="git@github.com:RiverDave/intercomms.git"
+HECBENCH_FORK="https://github.com/ORNL/HeCBench.git"
+# HeCBench tracks upstream main (no pin): the manifest records the exact
+# commit it was generated from (`hecbench_commit`), so regenerate it with
+# gen_hecbench_manifest.py when main moves.
+HARNESS_BRANCH=""
 JOBS="$(nproc)"
 SKIP_BUILD=0
 
@@ -34,6 +39,7 @@ while [[ $# -gt 0 ]]; do
         --llvm-repo)   LLVM_REPO="$2";   shift 2 ;;
         --llvm-branch) LLVM_BRANCH="$2"; shift 2 ;;
         --llvm-commit) LLVM_COMMIT="$2"; shift 2 ;;
+        --harness-branch) HARNESS_BRANCH="$2"; shift 2 ;;
         --with-agents) WITH_AGENTS=1; shift ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
@@ -49,6 +55,7 @@ BIN_DIR="$LLVM_BUILD/bin"
 POLYBENCH_DIR="$HOME/polybenchGpu"
 POLYBENCH_RESULTS_DIR="$HOME/polybench-results"
 INTERCOMMS_DIR="$HOME/intercomms"
+HECBENCH_DIR="$HOME/hecbench"
 # ROCM_ROOT="$(ls -d /opt/rocm-[0-9]* 2>/dev/null | sort -V | tail -1)"
 # ROCM_ROOT="${ROCM_ROOT:-/opt/rocm}"
 
@@ -58,6 +65,7 @@ echo "  LLVM build  : ${LLVM_BUILD}"
 echo "  Build bins  : ${BIN_DIR}"
 # echo "  ROCm root   : ${ROCM_ROOT}"
 echo "  PolyBench   : ${POLYBENCH_DIR}"
+echo "  HeCBench    : ${HECBENCH_DIR} (pinned ${HECBENCH_COMMIT:0:12})"
 echo "  Results     : ${POLYBENCH_RESULTS_DIR}"
 echo "  Intercomms  : ${INTERCOMMS_DIR}"
 
@@ -129,6 +137,19 @@ if [[ ! -d "$HOME/polybench-gpu-audit/.git" ]]; then
     git clone "$POLYBENCH_AUDIT_FORK" "$HOME/polybench-gpu-audit"
 else
     echo "polybench-gpu-audit: already present, skipping clone."
+fi
+if [[ -n "$HARNESS_BRANCH" ]]; then
+    echo "polybench-gpu-audit: checking out $HARNESS_BRANCH"
+    git -C "$HOME/polybench-gpu-audit" checkout "$HARNESS_BRANCH"
+    git -C "$HOME/polybench-gpu-audit" pull --ff-only origin "$HARNESS_BRANCH" || true
+fi
+
+if [[ ! -d "$HECBENCH_DIR/.git" ]]; then
+    echo "Cloning HeCBench (main)…"
+    git clone "$HECBENCH_FORK" "$HECBENCH_DIR"
+else
+    echo "hecbench: already present, skipping clone."
+    git -C "$HECBENCH_DIR" pull --ff-only 2>/dev/null || true
 fi
 
 if [[ ! -d "$POLYBENCH_DIR/.git" ]]; then
