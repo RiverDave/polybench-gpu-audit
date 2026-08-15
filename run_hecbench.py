@@ -699,6 +699,20 @@ def write_artifacts(log_dir: Path, kind: str, report: str, results,
 # Entry point
 # ---------------------------------------------------------------------------
 
+def _profile_name(config: Path, cfg: dict) -> str:
+    """Reverse-lookup the profile's key in machines.json, for labelling results."""
+    if not cfg or not config.exists():
+        return "unknown"
+    try:
+        data = json.loads(config.read_text())
+    except OSError:
+        return "unknown"
+    for name, entry in data.items():
+        if entry is cfg or entry == cfg:
+            return name
+    return "unknown"
+
+
 def main(argv: list[str] | None = None) -> int:
     _rocm = find_rocm_root()
 
@@ -756,7 +770,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("pick at least one axis: --compile / --runtime / --multi-arch / --all")
 
     cfg = load_machine_config(Path(args.config).expanduser(), args.machine)
-    machine_name = args.machine or cfg.get("name") or "unknown"
+    machine_name = args.machine or cfg.get("name") or _profile_name(Path(args.config), cfg)
 
     if not (args.hip or args.cuda):
         t = cfg.get("target")
