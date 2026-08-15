@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -127,22 +128,63 @@ def src_main(root: Path, name: str, model: str) -> Path | None:
 
 
 _DEFINE_RE = re.compile(r"-D[A-Za-z_][A-Za-z0-9_]*(?:=[^ ]+)?")
+_INCLUDE_RE = re.compile(r"-I([^\s\\]+)")
+
+# Per-benchmark compile overrides the Makefiles cannot express:
+#   lr: linear.h guards on __NVCC__ (nvcc-only macro); clang CUDA must define
+#       it to take the CUDA include branch instead of HIP.
+EXTRA_DEFINES = {
+    "lr": ["-D__NVCC__"],
+}
 
 
-def makefile_defines(src: Path) -> list[str]:
-    """Per-benchmark -D defines from the ORNL Makefile CFLAGS line.
+def makefile_flags(src: Path) -> tuple[list[str], list[str]]:
+    """(-D defines, -I include dirs) from the Makefile CFLAGS block.
 
-    Some benches (e.g. adv: -Ddfloat=double -Ddlong=int) fail to compile
-    without them; the harness must mirror the Makefile's defines.
+    Handles multi-line continuations (line ends with backslash) and one-level
+    $(VAR) references defined in the same Makefile (e.g. SPATH). -I paths are
+    stored relative to the bench's own src dir (absolute paths stay absolute)
+    so the manifest is portable across checkouts (~/dev/hecbench vs ~/hecbench).
     """
     mf = src / "Makefile"
     if not mf.exists():
-        return []
+        return [], []
+    text = mf.read_text(errors="ignore")
+    # Simple variable assignments (first definition wins, like make).
+    vars_: dict[str, str] = {}
+    for line in text.splitlines():
+        m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*[:?+]?=\s*(.+?)\s*$", line)
+        if m and m.group(1) not in vars_ and not m.group(2).startswith("$("):
+            vars_[m.group(1)] = m.group(2).rstrip("\\").strip()
+    def resolve(tok: str) -> str | None:
+        out = re.sub(r"\$\((\w+)\)",
+                     lambda mm: vars_.get(mm.group(1), mm.group(0)), tok)
+        return out if "$(" not in out else None
     defs: list[str] = []
-    for line in mf.read_text(errors="ignore").splitlines():
-        if "CFLAGS" in line and "-D" in line:
-            defs += _DEFINE_RE.findall(line)
-    return list(dict.fromkeys(defs))  # dedupe, keep order
+    incs: list[str] = []
+    in_cflags = False
+    for raw in text.splitlines():
+        line = raw.rstrip()
+        if "CFLAGS" in line and "=" in line:
+            in_cflags = True
+        if in_cflags:
+            for tok in _DEFINE_RE.findall(line):
+                r = resolve(tok)
+                if r:
+                    defs.append(r)
+            for tok in _INCLUDE_RE.findall(line):
+                r = resolve(tok)
+                if r:
+                    incs.append(r)
+        if in_cflags and not line.endswith("\\"):
+            in_cflags = False
+    resolved = []
+    for p in incs:
+        if os.path.isabs(p):
+            resolved.append(p)
+        else:
+            resolved.append(os.path.relpath((src / p).resolve(), src))
+    return list(dict.fromkeys(defs)), list(dict.fromkeys(resolved))
 
 
 def main() -> int:
@@ -238,7 +280,10 @@ def main() -> int:
                 if src.is_dir() else None)
             if per[f"{model}_main"]:
                 per[f"{model}_libs"] = scan_vendor_libs(src / per[f"{model}_main"])
-                per[f"{model}_defines"] = makefile_defines(src)
+                defs, incs = makefile_flags(src)
+                per[f"{model}_defines"] = list(dict.fromkeys(
+                    defs + EXTRA_DEFINES.get(name, [])))
+                per[f"{model}_includes"] = incs
         manifest["benchmarks"][name] = per
 
     manifest["counts"] = {

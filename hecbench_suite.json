@@ -2,7 +2,7 @@
   "manifest_version": 1,
   "hecbench_url": "https://github.com/ORNL/HeCBench",
   "hecbench_commit": "f9540404573a2be7ad1d1ee4b3106fd064825fa8",
-  "generated_at": "2026-08-15T06:26:17+00:00",
+  "generated_at": "2026-08-15T06:45:10+00:00",
   "benchmarks": {
     "accuracy": {
       "categories": [
@@ -32,10 +32,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../accuracy-cuda"
+      ]
     },
     "ace": {
       "categories": [
@@ -63,12 +67,16 @@
         "-DDEBUG",
         "-DVERIFY"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG",
         "-DVERIFY"
+      ],
+      "hip_includes": [
+        "../ace-cuda"
       ]
     },
     "adam": {
@@ -98,10 +106,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../adam-cuda"
+      ]
     },
     "adv": {
       "categories": [
@@ -132,6 +144,7 @@
         "-Ddlong=int",
         "-DOUTPUT"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
@@ -139,6 +152,9 @@
         "-Ddfloat=double",
         "-Ddlong=int",
         "-DOUTPUT"
+      ],
+      "hip_includes": [
+        "../adv-cuda"
       ]
     },
     "aidw": {
@@ -166,10 +182,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../aidw-cuda"
+      ]
     },
     "all-pairs-distance": {
       "categories": [
@@ -194,10 +214,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "aobench": {
       "categories": [
@@ -224,12 +246,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "ao.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "aop": {
       "categories": [
@@ -257,12 +281,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "asmooth": {
       "categories": [
@@ -290,10 +316,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../asmooth-cuda"
+      ]
     },
     "assert": {
       "categories": [
@@ -318,12 +348,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "asta": {
       "categories": [
@@ -346,10 +378,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "atomicAggregate": {
       "categories": [
@@ -375,13 +409,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DHIP_ENABLE_WARP_SYNC_BUILTINS=1",
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "atomicCAS": {
       "categories": [
@@ -405,10 +441,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../atomicCAS-cuda"
+      ]
     },
     "atomicCost": {
       "categories": [
@@ -436,10 +476,12 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "atomicPerf": {
       "categories": [
@@ -466,10 +508,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../atomicPerf-cuda"
+      ]
     },
     "atomicReduction": {
       "categories": [
@@ -492,10 +538,14 @@
       "cuda_main": "reduction.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "reduction.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../atomicReduction-cuda"
+      ]
     },
     "attention": {
       "categories": [
@@ -523,10 +573,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../attention-cuda"
+      ]
     },
     "axhelm": {
       "categories": [
@@ -552,13 +606,20 @@
       "has_cuda_dir": true,
       "cuda_main": "main.cu",
       "cuda_libs": [],
-      "cuda_defines": [],
+      "cuda_defines": [
+        "-Ddfloat=float",
+        "-Ddlong=int"
+      ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-Ddfloat=float",
         "-Ddlong=int"
+      ],
+      "hip_includes": [
+        "../axhelm-cuda"
       ]
     },
     "background-subtract": {
@@ -589,10 +650,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../background-subtract-cuda"
+      ]
     },
     "backprop": {
       "categories": [
@@ -619,11 +684,15 @@
       "cuda_defines": [
         "-DOUTPUT"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DOUTPUT"
+      ],
+      "hip_includes": [
+        "../backprop-cuda"
       ]
     },
     "bezier-surface": {
@@ -650,10 +719,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "bh": {
       "categories": [
@@ -680,12 +751,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "bilateral": {
       "categories": [
@@ -716,11 +789,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../bilateral-cuda"
       ]
     },
     "binomial": {
@@ -744,10 +821,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "bitonic-sort": {
       "categories": [
@@ -773,10 +852,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "bitpacking": {
       "categories": [
@@ -798,10 +879,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "black-scholes": {
       "categories": [
@@ -826,10 +909,12 @@
       "cuda_main": "blackScholesAnalyticEngine.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "blackScholesAnalyticEngine.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "bn": {
       "categories": [
@@ -855,10 +940,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../bn-cuda"
+      ]
     },
     "bonds": {
       "categories": [
@@ -883,10 +972,15 @@
       "cuda_main": "bondsEngine.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "bondsEngine.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        ".",
+        "../bonds-cuda"
+      ]
     },
     "boxfilter": {
       "categories": [
@@ -912,10 +1006,16 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [
+        "../boxfilter-sycl"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../boxfilter-sycl"
+      ]
     },
     "bsearch": {
       "categories": [
@@ -943,12 +1043,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "bspline-vgh": {
       "categories": [
@@ -971,10 +1073,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../bspline-vgh-cuda"
+      ]
     },
     "burger": {
       "categories": [
@@ -1001,10 +1107,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../burger-cuda"
+      ]
     },
     "bwt": {
       "categories": [
@@ -1029,10 +1139,15 @@
       "cuda_main": "bwt.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "bwt.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../include",
+        "../bwt-cuda"
+      ]
     },
     "cbsfil": {
       "categories": [
@@ -1061,11 +1176,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../cbsfil-cuda"
       ]
     },
     "ccsd-trpdrv": {
@@ -1092,10 +1211,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "ccsd_tengy.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "channelShuffle": {
       "categories": [
@@ -1125,10 +1246,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../channelShuffle-cuda"
+      ]
     },
     "channelSum": {
       "categories": [
@@ -1157,10 +1282,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../channelSum-cuda"
+      ]
     },
     "chemv": {
       "categories": [
@@ -1183,10 +1312,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "chi2": {
       "categories": [
@@ -1216,10 +1347,14 @@
       "cuda_main": "chi2.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "chi2.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../chi2-cuda"
+      ]
     },
     "clenergy": {
       "categories": [
@@ -1242,10 +1377,12 @@
       "cuda_main": "WKFUtils.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "WKFUtils.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "clink": {
       "categories": [
@@ -1272,11 +1409,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../clink-cuda"
       ]
     },
     "cmp": {
@@ -1315,10 +1456,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../cmp-cuda"
+      ]
     },
     "cobahh": {
       "categories": [
@@ -1346,11 +1491,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../cobahh-cuda"
       ]
     },
     "complex": {
@@ -1379,11 +1528,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../complex-cuda"
       ]
     },
     "compute-score": {
@@ -1409,10 +1562,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "concat": {
       "categories": [
@@ -1439,10 +1594,12 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "concurrentKernels": {
       "categories": [
@@ -1468,12 +1625,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "convolution3D": {
       "categories": [
@@ -1509,13 +1668,15 @@
         "-DCUDNN_CONV",
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DMIOPEN_CONV",
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "convolutionSeparable": {
       "categories": [
@@ -1542,10 +1703,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "cooling": {
       "categories": [
@@ -1573,12 +1736,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "cross": {
       "categories": [
@@ -1606,10 +1771,12 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "crossEntropy": {
       "categories": [
@@ -1635,11 +1802,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../crossEntropy-cuda"
       ]
     },
     "crs": {
@@ -1668,11 +1839,15 @@
       "cuda_defines": [
         "-DDUMP"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDUMP"
+      ],
+      "hip_includes": [
+        "../crs-cuda"
       ]
     },
     "damage": {
@@ -1701,11 +1876,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../damage-cuda"
       ]
     },
     "dct8x8": {
@@ -1733,10 +1912,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "degrid": {
       "categories": [
@@ -1761,12 +1942,14 @@
       "cuda_defines": [
         "-DPRECISION=double"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DPRECISION=double"
-      ]
+      ],
+      "hip_includes": []
     },
     "dense-embedding": {
       "categories": [
@@ -1795,12 +1978,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "dp": {
       "categories": [
@@ -1828,10 +2013,14 @@
         "cublas"
       ],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "/opt/rocm/include/hipblas"
+      ]
     },
     "dwconv": {
       "categories": [
@@ -1861,11 +2050,17 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [
+        "../tensorAccessor-cuda"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../tensorAccessor-cuda"
       ]
     },
     "dxtc2": {
@@ -1893,10 +2088,16 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [
+        "../boxfilter-sycl"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../boxfilter-sycl"
+      ]
     },
     "ecdh": {
       "categories": [
@@ -1924,11 +2125,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../ecdh-cuda"
       ]
     },
     "eigenvalue": {
@@ -1955,10 +2160,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "entropy": {
       "categories": [
@@ -1987,11 +2194,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../entropy-cuda"
       ]
     },
     "epistasis": {
@@ -2019,10 +2230,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../epistasis-cuda"
+      ]
     },
     "ert": {
       "categories": [
@@ -2047,10 +2262,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "expdist": {
       "categories": [
@@ -2078,11 +2295,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../expdist-cuda"
       ]
     },
     "extend2": {
@@ -2108,10 +2329,16 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [
+        "../extend2-sycl"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../extend2-sycl"
+      ]
     },
     "f16sp": {
       "categories": [
@@ -2139,11 +2366,16 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
+        "-DHIPBLAS_V2",
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "/opt/rocm/include/hipblas"
       ]
     },
     "fdtd3d": {
@@ -2171,10 +2403,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "fft": {
       "categories": [
@@ -2200,10 +2434,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../fft-cuda"
+      ]
     },
     "filter": {
       "categories": [
@@ -2230,10 +2468,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "flip": {
       "categories": [
@@ -2262,10 +2502,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../flip-cuda"
+      ]
     },
     "floydwarshall": {
       "categories": [
@@ -2293,10 +2537,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "fpc": {
       "categories": [
@@ -2322,10 +2568,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "fsm": {
       "categories": [
@@ -2352,11 +2600,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../fsm-cuda"
       ]
     },
     "fwt": {
@@ -2382,10 +2634,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "gabor": {
       "categories": [
@@ -2414,11 +2668,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../gabor-cuda"
       ]
     },
     "gamma-correction": {
@@ -2449,10 +2707,12 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "gaussian": {
       "categories": [
@@ -2480,10 +2740,12 @@
       "cuda_main": "gaussianElim.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "gaussianElim.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "gd": {
       "categories": [
@@ -2511,11 +2773,15 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DUNSAFE_FP_ATOMICS"
+      ],
+      "hip_includes": [
+        "../gd-cuda"
       ]
     },
     "gelu": {
@@ -2545,10 +2811,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../gelu-cuda"
+      ]
     },
     "geodesic": {
       "categories": [
@@ -2573,10 +2843,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "glu": {
       "categories": [
@@ -2605,11 +2877,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../glu-cuda"
       ]
     },
     "goulash": {
@@ -2636,10 +2912,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../goulash-cuda"
+      ]
     },
     "gpp": {
       "categories": [
@@ -2664,11 +2944,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../gpp-cuda"
       ]
     },
     "haccmk": {
@@ -2694,10 +2978,12 @@
       "cuda_main": "haccmk.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "haccmk.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "hausdorff": {
       "categories": [
@@ -2726,11 +3012,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../hausdorff-cuda"
       ]
     },
     "heat": {
@@ -2757,10 +3047,12 @@
       "cuda_main": "heat.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "heat.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "heat2d": {
       "categories": [
@@ -2787,10 +3079,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "histogram": {
       "categories": [
@@ -2816,10 +3110,12 @@
       "cuda_main": "histogram_compare.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "histogram_compare.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "hmm": {
       "categories": [
@@ -2842,10 +3138,12 @@
       "cuda_main": "HiddenMarkovModel.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "HiddenMarkovModel.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "hotspot3D": {
       "categories": [
@@ -2875,10 +3173,14 @@
       "cuda_main": "3D.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "3D.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../hotspot3D-cuda"
+      ]
     },
     "hwt1d": {
       "categories": [
@@ -2904,10 +3206,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "hybridsort": {
       "categories": [
@@ -2934,12 +3238,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "bucketsort.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "inversek2j": {
       "categories": [
@@ -2965,10 +3271,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "ising": {
       "categories": [
@@ -2993,10 +3301,14 @@
         "curand"
       ],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../ising-cuda"
+      ]
     },
     "iso2dfd": {
       "categories": [
@@ -3023,10 +3335,12 @@
       "cuda_main": "iso2dfd.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "iso2dfd.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "jacobi": {
       "categories": [
@@ -3050,10 +3364,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "jenkins-hash": {
       "categories": [
@@ -3080,10 +3396,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "knn": {
       "categories": [
@@ -3108,10 +3426,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "laplace": {
       "categories": [
@@ -3134,10 +3454,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../laplace-cuda"
+      ]
     },
     "laplace3d": {
       "categories": [
@@ -3168,11 +3492,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../laplace3d-cuda"
       ]
     },
     "lavaMD": {
@@ -3202,13 +3530,15 @@
         "-DDEBUG",
         "-DOUTPUT"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG",
         "-DOUTPUT"
-      ]
+      ],
+      "hip_includes": []
     },
     "layout": {
       "categories": [
@@ -3233,10 +3563,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "libor": {
       "categories": [
@@ -3261,10 +3593,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "lid-driven-cavity": {
       "categories": [
@@ -3287,10 +3621,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "lif": {
       "categories": [
@@ -3319,11 +3655,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../lif-cuda"
       ]
     },
     "linearprobing": {
@@ -3350,10 +3690,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "logprob": {
       "categories": [
@@ -3382,12 +3724,16 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG",
         "-DWAVE64"
+      ],
+      "hip_includes": [
+        "../logprob-cuda"
       ]
     },
     "lombscargle": {
@@ -3413,10 +3759,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "lr": {
       "categories": [
@@ -3442,13 +3790,19 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [
-        "-DDEBUG"
+        "-DDEBUG",
+        "-D__NVCC__"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "linear_par.cu",
       "hip_libs": [],
       "hip_defines": [
-        "-DDEBUG"
+        "-DDEBUG",
+        "-D__NVCC__"
+      ],
+      "hip_includes": [
+        "../lr-cuda"
       ]
     },
     "mandelbrot": {
@@ -3474,10 +3828,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "mask": {
       "categories": [
@@ -3507,11 +3863,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../mask-cuda"
       ]
     },
     "matrix-rotate": {
@@ -3538,10 +3898,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "maxpool3d": {
       "categories": [
@@ -3569,10 +3931,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "mcpr": {
       "categories": [
@@ -3600,11 +3964,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../mcpr-cuda"
       ]
     },
     "md": {
@@ -3633,11 +4001,15 @@
       "cuda_defines": [
         "-DSINGLE_PRECISION"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DSINGLE_PRECISION"
+      ],
+      "hip_includes": [
+        "../md-cuda"
       ]
     },
     "meanshift": {
@@ -3666,11 +4038,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../meanshift-cuda"
       ]
     },
     "medianfilter": {
@@ -3697,10 +4073,17 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [
+        "../boxfilter-sycl"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../boxfilter-sycl",
+        "../medianfilter-cuda"
+      ]
     },
     "merge": {
       "categories": [
@@ -3728,11 +4111,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../merge-cuda"
       ]
     },
     "merkle": {
@@ -3757,12 +4144,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "minimod": {
       "categories": [
@@ -3784,10 +4173,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "minisweep": {
       "categories": [
@@ -3815,11 +4206,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../minisweep-cuda"
       ]
     },
     "minkowski": {
@@ -3847,11 +4242,15 @@
       "cuda_defines": [
         "-DVERIFY"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DVERIFY"
+      ],
+      "hip_includes": [
+        "../minkowski-cuda"
       ]
     },
     "mnist": {
@@ -3878,11 +4277,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../mnist-cuda"
       ]
     },
     "mr": {
@@ -3908,11 +4311,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../mr-cuda"
       ]
     },
     "mrc": {
@@ -3941,10 +4348,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../mrc-cuda"
+      ]
     },
     "multinomial": {
       "categories": [
@@ -3972,10 +4383,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../multinomial-cuda"
+      ]
     },
     "murmurhash3": {
       "categories": [
@@ -4001,10 +4416,12 @@
       "cuda_main": "murmurhash3.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "murmurhash3.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "nbnxm": {
       "categories": [
@@ -4030,11 +4447,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../nbnxm-cuda"
       ]
     },
     "nbody": {
@@ -4061,10 +4482,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../nbody-cuda"
+      ]
     },
     "nlll": {
       "categories": [
@@ -4093,11 +4518,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../nlll-cuda"
       ]
     },
     "overlap": {
@@ -4122,10 +4551,12 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "overlay": {
       "categories": [
@@ -4153,11 +4584,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../overlay-cuda"
       ]
     },
     "p4": {
@@ -4185,11 +4620,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../p4-cuda"
       ]
     },
     "pad": {
@@ -4218,12 +4657,16 @@
         "-DDYNAMIC_PARTITION",
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDYNAMIC_PARTITION",
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../pad-cuda"
       ]
     },
     "page-rank": {
@@ -4250,10 +4693,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../page-rank-cuda"
+      ]
     },
     "particle-diffusion": {
       "categories": [
@@ -4279,10 +4726,14 @@
       "cuda_main": "motionsim.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "motionsim.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../particle-diffusion-cuda"
+      ]
     },
     "particlefilter": {
       "categories": [
@@ -4314,10 +4765,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../particlefilter-cuda"
+      ]
     },
     "pathfinder": {
       "categories": [
@@ -4346,12 +4801,14 @@
       "cuda_defines": [
         "-DBENCH_PRINT"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DBENCH_PRINT"
-      ]
+      ],
+      "hip_includes": []
     },
     "permute": {
       "categories": [
@@ -4379,11 +4836,17 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [
+        "../qkv-cuda"
+      ],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../qkv-hip"
       ]
     },
     "perplexity": {
@@ -4411,10 +4874,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../perplexity-cuda"
+      ]
     },
     "pns": {
       "categories": [
@@ -4443,11 +4910,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../pns-cuda"
       ]
     },
     "pointwise": {
@@ -4479,11 +4950,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../pointwise-cuda"
       ]
     },
     "projectile": {
@@ -4509,10 +4984,14 @@
       "cuda_main": "Projectile.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "Projectile.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../projectile-cuda"
+      ]
     },
     "rsc": {
       "categories": [
@@ -4542,11 +5021,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../rsc-cuda"
       ]
     },
     "s3d": {
@@ -4575,10 +5058,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "sc": {
       "categories": [
@@ -4606,12 +5091,16 @@
         "-DDYNAMIC_PARTITION",
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDYNAMIC_PARTITION",
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../sc-cuda"
       ]
     },
     "sheath": {
@@ -4635,10 +5124,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "simplemoc": {
       "categories": [
@@ -4670,12 +5161,14 @@
       "cuda_defines": [
         "-DVERIFY"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DVERIFY"
-      ]
+      ],
+      "hip_includes": []
     },
     "softmax": {
       "categories": [
@@ -4704,10 +5197,12 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": []
     },
     "stddev": {
       "categories": [
@@ -4734,10 +5229,14 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../stddev-cuda"
+      ]
     },
     "su3": {
       "categories": [
@@ -4762,13 +5261,15 @@
       "cuda_defines": [
         "-DMILC_COMPLEX"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "su3_nn_bench.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DMILC_COMPLEX",
         "-DPRECISION"
-      ]
+      ],
+      "hip_includes": []
     },
     "swish": {
       "categories": [
@@ -4821,12 +5322,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "tqs": {
       "categories": [
@@ -4854,11 +5357,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../tqs-cuda"
       ]
     },
     "tridiagonal": {
@@ -4887,13 +5394,15 @@
         "-DUNIX",
         "-DBENCH_ITERATIONS=100"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DUNIX",
         "-DBENCH_ITERATIONS=100"
-      ]
+      ],
+      "hip_includes": []
     },
     "vanGenuchten": {
       "categories": [
@@ -4923,11 +5432,15 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
+      ],
+      "hip_includes": [
+        "../vanGenuchten-cuda"
       ]
     },
     "vol2col": {
@@ -4955,10 +5468,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../vol2col-cuda"
+      ]
     },
     "winograd": {
       "categories": [
@@ -4981,15 +5498,18 @@
       "cuda_main": "main.cu",
       "cuda_libs": [],
       "cuda_defines": [
+        "-DMAP_SIZE=1024",
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
-        "-DMAP_SIZE=$(INPUT_SIZE)",
+        "-DMAP_SIZE=1024",
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "zerocopy": {
       "categories": [
@@ -5015,12 +5535,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
       "hip_defines": [
         "-DDEBUG"
-      ]
+      ],
+      "hip_includes": []
     },
     "zeropoint": {
       "categories": [
@@ -5048,10 +5570,14 @@
       "cuda_defines": [
         "-DDEBUG"
       ],
+      "cuda_includes": [],
       "has_hip_dir": true,
       "hip_main": "main.cu",
       "hip_libs": [],
-      "hip_defines": []
+      "hip_defines": [],
+      "hip_includes": [
+        "../zeropoint-cuda"
+      ]
     }
   },
   "counts": {

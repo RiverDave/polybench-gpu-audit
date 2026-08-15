@@ -203,6 +203,10 @@ def build_cmd(clang: Path, model: str, entry: dict, cuda_root: Path,
     cmd += ["-std=c++17", "-O3", *extra,
             *(entry.get(f"{model}_defines") or []),   # Makefile -D flags (e.g. adv: dfloat=double)
             str(source), f"-I{source.parent}"]
+    # Makefile -I flags, stored bench-relative (or absolute); e.g. boxfilter
+    # pulls shrUtils.h from its sycl sibling dir.
+    for inc in entry.get(f"{model}_includes") or []:
+        cmd.append(inc if inc.startswith("/") else f"-I{source.parent}/{inc}")
     if link:
         if model == "hip":
             cmd += [f"-L{hip_path}/lib", "-lamdhip64"]
