@@ -126,6 +126,25 @@ def src_main(root: Path, name: str, model: str) -> Path | None:
     return cus[0] if cus else None
 
 
+_DEFINE_RE = re.compile(r"-D[A-Za-z_][A-Za-z0-9_]*(?:=[^ ]+)?")
+
+
+def makefile_defines(src: Path) -> list[str]:
+    """Per-benchmark -D defines from the ORNL Makefile CFLAGS line.
+
+    Some benches (e.g. adv: -Ddfloat=double -Ddlong=int) fail to compile
+    without them; the harness must mirror the Makefile's defines.
+    """
+    mf = src / "Makefile"
+    if not mf.exists():
+        return []
+    defs: list[str] = []
+    for line in mf.read_text(errors="ignore").splitlines():
+        if "CFLAGS" in line and "-D" in line:
+            defs += _DEFINE_RE.findall(line)
+    return list(dict.fromkeys(defs))  # dedupe, keep order
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("~/dev/hecbench"),
@@ -219,6 +238,7 @@ def main() -> int:
                 if src.is_dir() else None)
             if per[f"{model}_main"]:
                 per[f"{model}_libs"] = scan_vendor_libs(src / per[f"{model}_main"])
+                per[f"{model}_defines"] = makefile_defines(src)
         manifest["benchmarks"][name] = per
 
     manifest["counts"] = {

@@ -200,7 +200,9 @@ def build_cmd(clang: Path, model: str, entry: dict, cuda_root: Path,
                 "-D__AMDGCN_WAVEFRONT_SIZE=64"]
     else:
         cmd += [f"--cuda-path={cuda_root}", f"--cuda-gpu-arch={arch}"]
-    cmd += ["-std=c++17", "-O3", *extra, str(source), f"-I{source.parent}"]
+    cmd += ["-std=c++17", "-O3", *extra,
+            *(entry.get(f"{model}_defines") or []),   # Makefile -D flags (e.g. adv: dfloat=double)
+            str(source), f"-I{source.parent}"]
     if link:
         if model == "hip":
             cmd += [f"-L{hip_path}/lib", "-lamdhip64"]
