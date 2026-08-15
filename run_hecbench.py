@@ -794,19 +794,24 @@ def main(argv: list[str] | None = None) -> int:
     if args.warmup is None: args.warmup = 2
     if args.samples is None: args.samples = 5
 
-    args.clang = args.clang or cfg.get("clang") or str(find_clang())
+    # machines.json profiles store clang/roots as ~-relative strings; expand
+    # them here (polybench backends get this from their argparse path_arg type;
+    # this backend resolves directly).
+    args.clang = str(Path(args.clang or cfg.get("clang") or str(find_clang())).expanduser())
     args.hecbench_root = Path(
         args.hecbench_root or cfg.get("hecbench_root") or HECBENCH_DEFAULT_ROOT
     ).expanduser().resolve()
-    args.gcc_install_dir = (args.gcc_install_dir or cfg.get("gcc_install_dir")
-                            or str(find_gcc_install()))
+    args.gcc_install_dir = str(Path(
+        args.gcc_install_dir or cfg.get("gcc_install_dir") or str(find_gcc_install())
+    ).expanduser())
 
     if model == "hip":
         rocm = Path(args.hip_path or cfg.get("hip_path") or str(find_rocm_root())).expanduser()
         args.hip_path = rocm
-        args.rocm_device_lib_path = (args.rocm_device_lib_path
-                                     or cfg.get("rocm_device_lib_path")
-                                     or str(find_rocm_device_lib(rocm)))
+        args.rocm_device_lib_path = str(Path(
+            args.rocm_device_lib_path
+            or cfg.get("rocm_device_lib_path")
+            or find_rocm_device_lib(rocm)).expanduser())
     else:
         args.cuda_root = args.cuda_root or cfg.get("cuda_root") or str(find_cuda_root())
 
