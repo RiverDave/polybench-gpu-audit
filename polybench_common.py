@@ -261,11 +261,14 @@ def provenance() -> dict[str, str]:
 
     os_release = _run(["lsb_release", "-ds"]) or platform.version() or ""
 
+    affinity = getattr(os, "sched_getaffinity", None)  # Linux-only
+    cpu_count = str(len(affinity(0))) if affinity else str(os.cpu_count() or 0)
+
     return {
         "hostname":       socket.gethostname(),
         "timestamp_utc":  datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "cpu":            cpu,
-        "cpu_count":      str(len(os.sched_getaffinity(0))),
+        "cpu_count":      cpu_count,
         "kernel":         platform.release(),
         "gpu":            gpu,
         "rocm_version":   rocm_ver,

@@ -1,0 +1,4410 @@
+{
+  "manifest_version": 1,
+  "hecbench_url": "https://github.com/ORNL/HeCBench",
+  "hecbench_commit": "f9540404573a2be7ad1d1ee4b3106fd064825fa8",
+  "generated_at": "2026-08-15T03:49:42+00:00",
+  "benchmarks": {
+    "accuracy": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8192",
+        "10000",
+        "10",
+        "100"
+      ],
+      "regex": "(?:Average execution time of accuracy kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "ace": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Offload time: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "adam": {
+      "categories": [
+        "ml"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000",
+        "200",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "adv": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "7",
+        "15",
+        "16"
+      ],
+      "regex": "(?:elapsed time=)([0-9.+-e]+)(?: )",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "source-printf",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "aidw": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10",
+        "1",
+        "100"
+      ],
+      "regex": "(?:Average execution time of AIDW_Kernel_Tiled )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "all-pairs-distance": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time \\(w/o? shared memory\\): )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "aobench": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average render time: )([0-9.+-e]+)(?: sec)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "ao.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "ao.cu",
+      "hip_libs": []
+    },
+    "aop": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-paths",
+        "200"
+      ],
+      "regex": "(?:elapsed time for each run *: )([0-9.+-e]+)(?:ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "asmooth": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000",
+        "1",
+        "5",
+        "1"
+      ],
+      "regex": "(?:Average filtering time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "assert": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Kernel time : )([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "source-printf",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "asta": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "atomicAggregate": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Total kernel time \\(32 locations\\): )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "atomicCAS": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "10000"
+      ],
+      "regex": "(?:Average execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "atomicCost": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "16",
+        "10"
+      ],
+      "regex": "(?:Average execution time of WithoutAtomicOnGlobalMem: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "atomicPerf": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10"
+      ],
+      "regex": "(?:Average execution time of SingleRangeAtomicOnGlobalMem: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "atomicReduction": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:The average performance of reduction is )([0-9.+-e]+)(?: GBytes/sec)",
+      "regex_groups": 1,
+      "unit": null,
+      "unit_source": "rate-not-duration",
+      "not_duration": true,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "reduction.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "reduction.cu",
+      "hip_libs": []
+    },
+    "attention": {
+      "categories": [
+        "ml"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8192",
+        "8192",
+        "0",
+        "5"
+      ],
+      "regex": "(?:Average execution time of kernels )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "axhelm": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "3",
+        "8000",
+        "100"
+      ],
+      "regex": "(?:elapsed time=)([0-9.+-e]+)(?: )",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "source-printf",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "background-subtract": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "4096",
+        "2048",
+        "1",
+        "102"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "backprop": {
+      "categories": [
+        "ml"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "65536"
+      ],
+      "regex": "(?:Device offloading time = )([0-9.+-e]+)(?:\\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bezier-surface": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-n",
+        "8192"
+      ],
+      "regex": "(?:kernel execution time: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bh": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "300",
+        "30"
+      ],
+      "regex": "(?:Total kernel execution time: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bilateral": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2960",
+        "1440",
+        "0.5",
+        "0.5",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time \\([1-9]x[1-9]\\) )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "binomial": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total binomialOptionsGPU\\(\\) time: )([0-9.+-e]+)(?: msec)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bitonic-sort": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "25",
+        "2"
+      ],
+      "regex": "(?:Total kernel execution time: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bitpacking": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Device offload time = )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "black-scholes": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Processing time on GPU: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "blackScholesAnalyticEngine.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "blackScholesAnalyticEngine.cu",
+      "hip_libs": []
+    },
+    "bn": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "result",
+        "10"
+      ],
+      "regex": "(?:Average execution time of genScoreKernel: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bonds": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average processing time on GPU: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "bondsEngine.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "bondsEngine.cu",
+      "hip_libs": []
+    },
+    "boxfilter": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../boxfilter-sycl/data/lenaRGB.ppm",
+        "10000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bsearch": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "16384",
+        "1"
+      ],
+      "regex": "(?:Average kernel execution time \\(bs[1-9]\\) )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bspline-vgh": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "burger": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8193",
+        "8193",
+        "100"
+      ],
+      "regex": "(?:Total kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "bwt": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000"
+      ],
+      "regex": "(?:Device time: )([0-9.+-e]+)(?: (?:s|ms|us))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "bwt.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "bwt.cu",
+      "hip_libs": []
+    },
+    "cbsfil": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000",
+        "10000",
+        "5"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "ccsd-trpdrv": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "200",
+        "200"
+      ],
+      "regex": "(?:avg=)([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": null,
+      "unit_source": null,
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "ccsd_tengy.cu",
+      "hip_libs": []
+    },
+    "channelShuffle": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2",
+        "224",
+        "224",
+        "100"
+      ],
+      "regex": "(?:Average time of channel shuffle \\(\\w+\\): )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "channelSum": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "224",
+        "224",
+        "100"
+      ],
+      "regex": "(?:Average time of channel sum \\(\\w+\\): )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "chemv": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Average execution time of chemv kernels: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "chi2": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "4000",
+        "400000",
+        "2000",
+        "2000",
+        "256",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time = )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "chi2.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "chi2.cu",
+      "hip_libs": []
+    },
+    "clenergy": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Kernel time: )([0-9.+-e]+)(?: seconds)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "WKFUtils.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "WKFUtils.cu",
+      "hip_libs": []
+    },
+    "clink": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10"
+      ],
+      "regex": "(?:Average kernel time: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "cmp": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-c0",
+        "1.98e-7",
+        "-c1",
+        "1.77e-6",
+        "-nc",
+        "5",
+        "-aph",
+        "600",
+        "-tau",
+        "0.002",
+        "-v",
+        "2",
+        "-i",
+        "../cmp-cuda/data/simple-synthetic.su"
+      ],
+      "regex": "(?: Giga semblances traces per second: )([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": null,
+      "unit_source": "rate-not-duration",
+      "not_duration": true,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "cobahh": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000000",
+        "10"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "complex": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time \\([a-z]+\\) )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "compute-score": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-p=1000"
+      ],
+      "regex": "(?:Kernel Time = )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "concat": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "concurrentKernels": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "4"
+      ],
+      "regex": "(?:Measured time for sample = )([0-9.+-e]+)(?:s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "convolution3D": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "32",
+        "6",
+        "16",
+        "14",
+        "14",
+        "5",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time of conv3d_s3 kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [
+        "cudnn"
+      ],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "convolutionSeparable": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8192",
+        "8192",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "cooling": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000000",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "cross": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "100"
+      ],
+      "regex": "(?:Average execution time of cross[0-9]+ kernel: )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "crossEntropy": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average GPU kernel time \\(ms\\) : )([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "crs": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1",
+        "1"
+      ],
+      "regex": "(?:Total encoding time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "damage": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "50000000",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "dct8x8": {
+      "categories": [
+        "math"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8192",
+        "8192",
+        "100"
+      ],
+      "regex": "(?:Average DCT8x8 kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "degrid": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "dense-embedding": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "256",
+        "1000"
+      ],
+      "regex": "(?:Average execution time of dense embedding kernel \\(k1\\): )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "dp": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "10"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [
+        "cublas"
+      ],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "dwconv": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "128",
+        "16",
+        "224",
+        "224",
+        "100"
+      ],
+      "regex": "(?:Average execution time of dwconv2d_forward kernel: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "dxtc2": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../dxtc2-sycl/data/lena_std.ppm",
+        "../dxtc2-sycl/data/lena_ref.dds",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "ecdh": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "50000000",
+        "100"
+      ],
+      "regex": "(?:: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "eigenvalue": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2048",
+        "10000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "entropy": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8192",
+        "8192",
+        "100"
+      ],
+      "regex": "(?:execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "epistasis": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "146",
+        "31339",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "ert": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "128",
+        "1024"
+      ],
+      "regex": "(?:runtime \\([a-z1-9]*\\): )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "expdist": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000",
+        "10"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "extend2": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "300"
+      ],
+      "regex": "(?:Average offload time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "f16sp": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "100000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [
+        "cublas"
+      ],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "fdtd3d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "--dimx=192",
+        "--dimy=184",
+        "--timesteps=90"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "fft": {
+      "categories": [
+        "math"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "3",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "filter": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000000",
+        "256",
+        "100"
+      ],
+      "regex": "(?:Average execution time of filter \\(shared memory\\) )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "flip": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "3",
+        "1024",
+        "100"
+      ],
+      "regex": "(?:Average execution time of the flip kernel: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "floydwarshall": {
+      "categories": [
+        "cryptography",
+        "graph"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1024",
+        "100",
+        "16"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "fpc": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "256",
+        "100"
+      ],
+      "regex": "(?:fpc2: average device offload time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "fsm": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "65536"
+      ],
+      "regex": "([0-9.+-e]+)(?:\\s*#runtime \\[s\\])",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "fwt": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average device execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "gabor": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8640",
+        "15360",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "gamma-correction": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "7680",
+        "4320",
+        "256",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "gaussian": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-q",
+        "-t",
+        "-s",
+        "4096"
+      ],
+      "regex": "(?:Device offloading time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "gaussianElim.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "gaussianElim.cu",
+      "hip_libs": []
+    },
+    "gd": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../gd-cuda/gisette_scale",
+        "0.0001",
+        "10",
+        "100"
+      ],
+      "regex": "(?:Training time takes )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "gelu": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "512",
+        "8192",
+        "512",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "geodesic": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "glu": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "3",
+        "1024",
+        "100"
+      ],
+      "regex": "(?:Average execution time of GLU kernel \\(split dimension = 2\\): )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "goulash": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "101",
+        "5"
+      ],
+      "regex": "(?:total kernel time )([0-9.+-e]+)(?:\\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "gpp": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "haccmk": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "haccmk.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "haccmk.cu",
+      "hip_libs": []
+    },
+    "hausdorff": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "100000",
+        "100"
+      ],
+      "regex": "(?:Average execution time of kernels: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "heat": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "4096",
+        "1000"
+      ],
+      "regex": "(?:Solve time \\(s\\): )([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "heat.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "heat.cu",
+      "hip_libs": []
+    },
+    "heat2d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1024",
+        "1024",
+        "100"
+      ],
+      "regex": "([0-9.+-e]+)(?: usec/iter)",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "histogram": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "--width=3840",
+        "--height=2160"
+      ],
+      "regex": "(?:Avg time )([0-9.+-e]+)(?: us )",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "histogram_compare.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "histogram_compare.cu",
+      "hip_libs": []
+    },
+    "hmm": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Device execution time of Viterbi iterations )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "HiddenMarkovModel.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "HiddenMarkovModel.cu",
+      "hip_libs": []
+    },
+    "hotspot3D": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "512",
+        "8",
+        "5000",
+        "../data/hotspot3D/power_512x8",
+        "../data/hotspot3D/temp_512x8",
+        "output.out"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "3D.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "3D.cu",
+      "hip_libs": []
+    },
+    "hwt1d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8388608",
+        "100"
+      ],
+      "regex": "(?:Average device offload time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "hybridsort": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "r"
+      ],
+      "regex": "(?:GPU execution time: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "bucketsort.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "bucketsort.cu",
+      "hip_libs": []
+    },
+    "inversek2j": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../inversek2j-sycl/coord_in.txt",
+        "100000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "ising": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:elapsed time: )([0-9.+-e]+)(?: sec)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [
+        "curand"
+      ],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "iso2dfd": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2048",
+        "2048",
+        "1000"
+      ],
+      "regex": "(?:Total kernel execution time )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "iso2dfd.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "iso2dfd.cu",
+      "hip_libs": []
+    },
+    "jacobi": {
+      "categories": [
+        "math",
+        "simulation"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total elapsed time: )([0-9.+-e]+)(?: seconds)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "jenkins-hash": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "256",
+        "16777216",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time : )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "knn": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:100 iterations \\()([0-9.+-e]+)(?: s by iteration\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "laplace": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:iterations: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "laplace3d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "128",
+        "128",
+        "128",
+        "100",
+        "1"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "lavaMD": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-boxes1d",
+        "16"
+      ],
+      "regex": "(?:Device offloading time:\\s)([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "layout": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time \\(SoA\\): )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "libor": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time : )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "lid-driven-cavity": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total execution time of the iteration loop: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "lif": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000",
+        "1000",
+        "400"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "linearprobing": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "16",
+        "8"
+      ],
+      "regex": "(?:Kernel execution time \\(iterate\\): )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "logprob": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "100",
+        "128",
+        "60000",
+        "100"
+      ],
+      "regex": "(?:Average execution time of kernels: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "lombscargle": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "lr": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "0"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: us)",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "linear_par.cu",
+      "hip_libs": []
+    },
+    "mandelbrot": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "mask": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "512",
+        "512",
+        "512",
+        "100"
+      ],
+      "regex": "(?:Average execution time of \\w+ kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "matrix-rotate": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "5000",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "maxpool3d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2048",
+        "2048",
+        "96",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "mcpr": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../mcpr-cuda/alphas.csv",
+        "10"
+      ],
+      "regex": "(?:Average execution time of compute_probs_unitStrides kernel: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "md": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "3",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "meanshift": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../meanshift-cuda/dataset/data.csv",
+        "../meanshift-cuda/dataset/centroids.csv"
+      ],
+      "regex": "(?:Average execution time of mean-shift \\(opt\\) )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "medianfilter": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "../medianfilter-sycl/data/SierrasRGB.ppm",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "merge": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "merkle": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "minimod": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Average kernel time per iteration: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "minisweep": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "--niterations",
+        "5"
+      ],
+      "regex": "(?:kernel time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "minkowski": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "mnist": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "2"
+      ],
+      "regex": "(?:Total time \\(learn \\+ test\\) )([0-9.+-e]+)(?: secs)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "mr": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total kernel execution time \\(\\w+\\s*\\): )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "mrc": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "1000"
+      ],
+      "regex": "(?:Average execution time of MRC2 kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "multinomial": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "65536",
+        "2048",
+        "100"
+      ],
+      "regex": "(?:Average execution time of sampleMultinomialOnce kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "murmurhash3": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "murmurhash3.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "murmurhash3.cu",
+      "hip_libs": []
+    },
+    "nbnxm": {
+      "categories": [
+        "bioinformatics"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time \\(w/o shift\\): )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "nbody": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "20000",
+        "100"
+      ],
+      "regex": "(?:Total Time \\(s\\)[ ]*: )([0-9.+-e]+)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "nlll": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "2048",
+        "1000",
+        "1000"
+      ],
+      "regex": "(?:Average execution time of nll loss forward kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "overlap": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Avg. time when overlapped using [0-9]+ streams.*: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "overlay": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "640",
+        "480"
+      ],
+      "regex": "(?:Total kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "p4": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000"
+      ],
+      "regex": "(?:Average execution time of postprocess kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "pad": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "-a",
+        "0.1"
+      ],
+      "regex": "(?:Total padding execution time for [0-9.+-e]+ iterations: )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "page-rank": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000",
+        "1000"
+      ],
+      "regex": "(?:Total kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "particle-diffusion": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10",
+        "5"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "motionsim.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "motionsim.cu",
+      "hip_libs": []
+    },
+    "particlefilter": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-x",
+        "200",
+        "-y",
+        "200",
+        "-z",
+        "200",
+        "-np",
+        "10000"
+      ],
+      "regex": "(?:Device offloading time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "pathfinder": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000",
+        "1000",
+        "100"
+      ],
+      "regex": "(?:Total kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "permute": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "8",
+        "100"
+      ],
+      "regex": "(?:block_size  256 | time )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "perplexity": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000",
+        "50",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "pns": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "5000",
+        "100",
+        "100"
+      ],
+      "regex": "(?:Total device execution time: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "pointwise": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100",
+        "8",
+        "512",
+        "64",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "projectile": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "Projectile.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "Projectile.cu",
+      "hip_libs": []
+    },
+    "rsc": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-f",
+        "../rsc-cuda/input/vectors.csv",
+        "-g",
+        "512"
+      ],
+      "regex": "(?:Total task execution time for [0-9.+-e]+ iterations: )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "s3d": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-s",
+        "3",
+        "-n",
+        "100"
+      ],
+      "regex": "(?:Total time )([0-9.+-e]+)(?: secs)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "sc": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "-a",
+        "0.1"
+      ],
+      "regex": "(?:Total stream compaction time for [0-9.+-e]+ iterations: )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "sheath": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Time per time step: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "simplemoc": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-s",
+        "5000000",
+        "-e",
+        "128",
+        "-n",
+        "10"
+      ],
+      "regex": "(?:Total kernel time:       )([0-9.+-e]+)(?: seconds)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "softmax": {
+      "categories": [
+        "math",
+        "ml"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "100000",
+        "784",
+        "0",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(ms\\))",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "stddev": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "65536",
+        "16384",
+        "100"
+      ],
+      "regex": "(?:Average execution time of stddev kernels: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "su3": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Total kernel execution time = )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "su3_nn_bench.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "su3_nn_bench.cu",
+      "hip_libs": []
+    },
+    "swish": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "1000"
+      ],
+      "regex": "(?:Average execution time of SwishGradient kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": false,
+      "cuda_main": null,
+      "has_hip_dir": false,
+      "hip_main": null
+    },
+    "tissue": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "32",
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "tqs": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-f",
+        "../tqs-cuda/input/patternsNP100NB512FB25.txt"
+      ],
+      "regex": "(?:Total task execution time for [0-9.+-e]+ iterations: )([0-9.+-e]+)(?: \\((?:s|ms|us)\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "tridiagonal": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "-num_systems=30000"
+      ],
+      "regex": "(?:Time = )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "vanGenuchten": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "256",
+        "256",
+        "256",
+        "1000"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: \\(s\\))",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "vol2col": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "1000"
+      ],
+      "regex": "(?:Average execution time of vol2col kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "winograd": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [],
+      "regex": "(?:Co-execution time: )([0-9.+-e]+)(?: s)",
+      "regex_groups": 1,
+      "unit": "s",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "zerocopy": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "sycl"
+      ],
+      "args": [
+        "100"
+      ],
+      "regex": "(?:Average kernel execution time: )([0-9.+-e]+)(?: ms)",
+      "regex_groups": 1,
+      "unit": "ms",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    },
+    "zeropoint": {
+      "categories": [
+        "algorithms"
+      ],
+      "models": [
+        "cuda",
+        "hip",
+        "omp",
+        "sycl"
+      ],
+      "args": [
+        "10000000",
+        "100"
+      ],
+      "regex": "(?:Average execution time of zero-point kernel: )([0-9.+-e]+)(?: \\(us\\))",
+      "regex_groups": 1,
+      "unit": "us",
+      "unit_source": "regex-literal",
+      "not_duration": false,
+      "timeout": 300,
+      "has_cuda_dir": true,
+      "cuda_main": "main.cu",
+      "cuda_libs": [],
+      "has_hip_dir": true,
+      "hip_main": "main.cu",
+      "hip_libs": []
+    }
+  },
+  "counts": {
+    "with_metadata": 163,
+    "excluded_no_metadata": 342
+  }
+}
