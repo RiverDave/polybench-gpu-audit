@@ -239,15 +239,21 @@ def _source_path(root: Path, name: str, model: str, entry: dict) -> Path:
 # ---------------------------------------------------------------------------
 
 def parse_time(stdout: str, regex: str, groups: int) -> float | None:
-    """Extract the benchmark's own kernel time from stdout (first match)."""
+    """Extract the benchmark's own kernel time from stdout (first match).
+
+    Upstream regexes use the class ``[0-9.+-e]`` whose ``-e`` range spans
+    0x2D..0x65 — it matches letters, so "NaN" (or "1e999") can land in the
+    capture. Non-finite values must never enter a ratio/geomean.
+    """
     m = re.search(regex, stdout)
     if not m:
         return None
     num = m.group(1) if groups >= 1 else m.group(0)
     try:
-        return float(num)
+        v = float(num)
     except ValueError:
         return None
+    return v if math.isfinite(v) else None
 
 
 def parse_validation(stdout: str) -> str:
@@ -598,7 +604,7 @@ def run_compile_axis(args, selected, model, pipelines, arches, log_dir) -> list[
                 Path(args.hip_path or "/opt/rocm"),
                 Path(args.rocm_device_lib_path or "/opt/rocm/amdgcn/bitcode"),
                 Path(args.gcc_install_dir), pipeline, a, src,
-                log_dir / f"{name}.o",
+                log_dir / f"{name}.{model}.{pipeline.lower()}.{a}.o",
                 ["-ftime-report", "-mllvm", "-time-passes", "-c"], False)))
         print(f"(dry-run: {len(jobs)} compile jobs total)")
         return []
