@@ -92,6 +92,8 @@ class BenchResult:
     compile_log: Path
     binary: Path | None = None
     size: int | None = None
+    bench_dir: Path | None = None       # cwd for running (source-relative args)
+    completed: bool = False             # all timed reps ran, exited 0, and parsed
     times: list[float] = field(default_factory=list)       # seconds-normalized
     raw_times: list[float] = field(default_factory=list)   # as printed
     wall_times: list[float] = field(default_factory=list)
@@ -184,7 +186,7 @@ def select_benchmarks(manifest: dict, model: str, names: str | None,
 def build_cmd(clang: Path, model: str, entry: dict, cuda_root: Path,
               hip_path: Path, rocm_device_lib_path: Path,
               gcc_install_dir: Path, pipeline: str, arch: str,
-              source: Path, out: Path, extra: list[str],
+              sources: list[Path], out: Path, extra: list[str],
               link: bool) -> list[str]:
     cmd = [str(clang)]
     if pipeline in ("CIR", "CIR-merge"):
@@ -202,11 +204,11 @@ def build_cmd(clang: Path, model: str, entry: dict, cuda_root: Path,
         cmd += [f"--cuda-path={cuda_root}", f"--cuda-gpu-arch={arch}"]
     cmd += ["-std=c++17", "-O3", *extra,
             *(entry.get(f"{model}_defines") or []),   # Makefile -D flags (e.g. adv: dfloat=double)
-            str(source), f"-I{source.parent}"]
+            *[str(s) for s in sources], f"-I{sources[0].parent}"]
     # Makefile -I flags, stored bench-relative (or absolute); e.g. boxfilter
     # pulls shrUtils.h from its sycl sibling dir.
     for inc in entry.get(f"{model}_includes") or []:
-        cmd.append(inc if inc.startswith("/") else f"-I{source.parent}/{inc}")
+        cmd.append(inc if inc.startswith("/") else f"-I{sources[0].parent}/{inc}")
     if link:
         if model == "hip":
             cmd += [f"-L{hip_path}/lib", "-lamdhip64"]
@@ -233,11 +235,21 @@ def _first_error(stdout: str, stderr: str) -> str:
     return ""
 
 
-def _source_path(root: Path, name: str, model: str, entry: dict) -> Path:
+def _source_paths(root: Path, name: str, model: str, entry: dict) -> list[Path]:
+    """All translation units for a benchmark (Makefile-derived, manifest).
+
+    Multi-TU targets (clenergy: clenergy.cu + WKFUtils.cu; boxfilter: main.cu
+    + 3 sibling .cpp files) must compile every source, not just the entry
+    point. Falls back to the legacy single `{model}_main` field.
+    """
+    src = root / "src" / f"{name}-{model}"
+    files = entry.get(f"{model}_sources")
+    if files:
+        return [src / f for f in files]
     main_name = entry.get(f"{model}_main")
     if not main_name:
         raise SystemExit(f"error: {name}: no {model} source in manifest")
-    return root / "src" / f"{name}-{model}" / main_name
+    return [src / main_name]
 
 
 # ---------------------------------------------------------------------------
@@ -280,14 +292,14 @@ def runtime_compile_one(clang: Path, root: Path, name: str, entry: dict,
                         rocm_device_lib_path: Path, gcc_install_dir: Path,
                         pipeline: str, arch: str, build_dir: Path,
                         log_dir: Path, clang_flags: str) -> BenchResult:
-    source = _source_path(root, name, model, entry)
+    sources = _source_paths(root, name, model, entry)
     tag = f"{name}.{model}.{pipeline.lower()}.{arch}"
     binary = build_dir / tag
     log = log_dir / f"{tag}.log"
 
     cmd = build_cmd(clang, model, entry, cuda_root, hip_path,
                     rocm_device_lib_path, gcc_install_dir, pipeline, arch,
-                    source, binary, shlex.split(clang_flags) if clang_flags else [],
+                    sources, binary, shlex.split(clang_flags) if clang_flags else [],
                     link=True)
 
     proc = subprocess.run(cmd, text=True, capture_output=True, env=_env_for(clang, pipeline))
@@ -303,34 +315,65 @@ def runtime_compile_one(clang: Path, root: Path, name: str, entry: dict,
         compile_ok=ok, compile_log=log,
         binary=binary if ok else None,
         size=binary.stat().st_size if ok else None,
+        bench_dir=sources[0].parent,
         first_error=_first_error(proc.stdout, proc.stderr),
     )
 
 
 def run_binary(result: BenchResult, runs: int, warmup: int) -> None:
-    """Run the binary in-place, filling times/wall_times/validation. Mutates result."""
+    """Run the binary in-place, filling times/wall_times/validation.
+
+    Launches from the benchmark's source dir: manifest args like
+    `../boxfilter-sycl/data/lenaRGB.ppm` are relative to `src/<name>-<model>`
+    (upstream run targets launch from there). `completed` is set only when
+    every timed repetition exited 0 AND parsed a value — partial samples from
+    a failed or timed-out run must never enter a geomean. Mutates result.
+    """
     assert result.binary is not None
+    cwd = result.bench_dir or result.binary.parent
     try:
         for _ in range(warmup):
             subprocess.run([str(result.binary), *result.args],
-                           capture_output=True, timeout=result.timeout)
+                           cwd=cwd, capture_output=True, timeout=result.timeout)
+        result.completed = True
         for _ in range(runs):
             start = time.perf_counter()
             proc = subprocess.run([str(result.binary), *result.args],
-                                  capture_output=True, text=True,
+                                  cwd=cwd, capture_output=True, text=True,
                                   timeout=result.timeout)
             result.wall_times.append(time.perf_counter() - start)
             if proc.returncode != 0:
                 result.validation_status = "exec_failed"
+                result.completed = False
                 break
             t = parse_time(proc.stdout, result.regex, result.regex_groups)
             if t is not None:
                 result.raw_times.append(t)
                 if result.unit:
                     result.times.append(t * UNIT_SCALE[result.unit])
+            else:
+                result.completed = False  # no timing output this rep
             result.validation_status = parse_validation(proc.stdout)
     except subprocess.TimeoutExpired:
-        pass  # timed out mid-run; result.times holds whatever completed
+        result.completed = False  # timed out mid-run; keep partial raw data
+    if len(result.raw_times) < runs:
+        result.completed = False  # every timed rep must have parsed
+
+
+def _run_value(r: BenchResult | None) -> tuple[float, bool]:
+    """(mean value, is_raw) for a completed result; (nan, False) otherwise.
+
+    Unit-bearing benches report seconds-normalized durations; rate/unitless
+    captures (GB/s, FLOPS — `not_duration`) are kept as printed raw values,
+    which are still a valid measurement but never enter a latency geomean.
+    """
+    if not r or not r.completed:
+        return float("nan"), False
+    if r.unit and r.times:
+        return mean_stddev(r.times)[0], False
+    if r.raw_times:
+        return mean_stddev(r.raw_times)[0], True
+    return float("nan"), True
 
 
 def runtime_markdown(results: list[BenchResult], root: Path, arch: str,
@@ -341,10 +384,15 @@ def runtime_markdown(results: list[BenchResult], root: Path, arch: str,
     by_key = {(r.name, r.pipeline): r for r in results}
     names = list(dict.fromkeys(r.name for r in results))
     compile_ok = sum(1 for r in results if r.compile_ok)
-    run_ok = sum(1 for r in results if r.times)
+    run_ok = sum(1 for r in results if r.completed)
 
     def fmt_ms(v: float) -> str:
         return "—" if math.isnan(v) else f"{v * 1000:.3f}"
+
+    def fmt_val(v: float, is_raw: bool) -> str:
+        if math.isnan(v):
+            return "—"
+        return f"{v:.4g}" if is_raw else f"{v * 1000:.3f}"
 
     lines = [
         f"HeCBench runtime performance: {p0} vs {p1} (all times ms).", "",
@@ -371,16 +419,20 @@ def runtime_markdown(results: list[BenchResult], root: Path, arch: str,
         r0 = by_key.get((name, p0))
         r1 = by_key.get((name, p1))
         ref = r0 or r1
-        m0, _ = mean_stddev(r0.times if r0 else [])
-        m1, _ = mean_stddev(r1.times if r1 else [])
-        w0, _ = mean_stddev(r0.wall_times if r0 else [])
-        w1, _ = mean_stddev(r1.wall_times if r1 else [])
-        ratio = f"{m1 / m0:.3f}" if (m0 > 0 and m1 > 0) else "—"
+        m0, raw0 = _run_value(r0)
+        m1, raw1 = _run_value(r1)
+        w0, _ = mean_stddev(r0.wall_times if r0 and r0.completed else [])
+        w1, _ = mean_stddev(r1.wall_times if r1 and r1.completed else [])
+        # Ratios only between two unit-bearing durations; rate/raw values
+        # are displayed but must never form a latency ratio.
+        ratio = f"{m1 / m0:.3f}" if (m0 > 0 and m1 > 0 and not raw0 and not raw1) else "—"
         unit = ref.unit or ("rate" if ref.not_duration else "?")
         lines.append(
             f"| {name} | {' '.join(ref.args)} |"
-            f" {fmt_ms(w0)} | {fmt_ms(m0)} | {fmt_ms(w0 - m0)} |"
-            f" {fmt_ms(w1)} | {fmt_ms(m1)} | {fmt_ms(w1 - m1)} | {ratio} | {unit} |"
+            f" {fmt_ms(w0)} | {fmt_val(m0, raw0)} |"
+            f" {'—' if raw0 else fmt_ms(w0 - m0)} |"
+            f" {fmt_ms(w1)} | {fmt_val(m1, raw1)} |"
+            f" {'—' if raw1 else fmt_ms(w1 - m1)} | {ratio} | {unit} |"
             f" {f'{r0.size / 1024:.1f} KiB' if r0 and r0.size else '—'} |"
             f" {f'{r1.size / 1024:.1f} KiB' if r1 and r1.size else '—'} |"
         )
@@ -388,14 +440,14 @@ def runtime_markdown(results: list[BenchResult], root: Path, arch: str,
     ratios, excluded = [], []
     for name in names:
         r0 = by_key.get((name, p0)); r1 = by_key.get((name, p1))
-        m0, _ = mean_stddev(r0.times if r0 else [])
-        m1, _ = mean_stddev(r1.times if r1 else [])
+        m0, raw0 = _run_value(r0)
+        m1, raw1 = _run_value(r1)
         ref = r0 or r1
-        if m0 > 0 and m1 > 0:
-            if ref.unit:
-                ratios.append(m1 / m0)
-            else:
-                excluded.append(name)
+        if m0 > 0 and m1 > 0 and not raw0 and not raw1 and ref.unit:
+            ratios.append(m1 / m0)
+        elif any(r and r.completed and r.unit is None and r.raw_times
+                 for r in (r0, r1)):
+            excluded.append(name)  # captured, but rate/unitless: never in geomean
     if ratios:
         from statistics import geometric_mean
         lines += ["", f"**Total GPU {p1}/{p0} (geomean):** `{geometric_mean(ratios):.4f}`", ""]
@@ -403,7 +455,7 @@ def runtime_markdown(results: list[BenchResult], root: Path, arch: str,
         lines += ["", f"*Excluded from geomean (no duration unit or rate capture): "
                       f"{', '.join(excluded)}*", ""]
 
-    failures = [r for r in results if not r.compile_ok or not r.times]
+    failures = [r for r in results if not r.compile_ok or not r.completed]
     if failures:
         lines += ["", "## Failures", ""]
         for r in failures:
@@ -439,7 +491,8 @@ def runtime_json(results: list[BenchResult], args, clangir_rev: str,
             "benchmark": r.name, "model": r.model, "pipeline": r.pipeline,
             "arch": r.arch, "args": r.args, "regex": r.regex,
             "unit": r.unit, "compile_ok": r.compile_ok,
-            "binary_bytes": r.size, "times": r.times, "raw_times": r.raw_times,
+            "binary_bytes": r.size, "completed": r.completed,
+            "times": r.times, "raw_times": r.raw_times,
             "wall_times": r.wall_times,
             "validation_status": r.validation_status, "first_error": r.first_error,
         } for r in results],
@@ -455,36 +508,62 @@ def compile_one(clang: Path, root: Path, name: str, entry: dict, model: str,
                 gcc_install_dir: Path, pipeline: str, arch: str,
                 obj_path: Path, log_path: Path, warmup: int, samples: int,
                 clang_flags: str) -> CompileResult:
-    source = _source_path(root, name, model, entry)
+    sources = _source_paths(root, name, model, entry)
     extra = ["-ftime-report", "-mllvm", "-time-passes", "-c"]
     if clang_flags:
         extra += shlex.split(clang_flags)
-    cmd = build_cmd(clang, model, entry, cuda_root, hip_path,
-                    rocm_device_lib_path, gcc_install_dir, pipeline, arch,
-                    source, obj_path, extra, link=False)
+    # One object per translation unit: multi-TU targets (clenergy, boxfilter,
+    # ...) compile every source the upstream Makefile lists.
+    cmds = [
+        build_cmd(clang, model, entry, cuda_root, hip_path,
+                  rocm_device_lib_path, gcc_install_dir, pipeline, arch,
+                  sources, obj_path.with_name(f"{obj_path.stem}.{s.stem}.o"),
+                  extra, link=False)
+        for s in sources
+    ]
     env = _env_for(clang, pipeline)
 
+    def run_cmds() -> list[subprocess.CompletedProcess]:
+        procs: list[subprocess.CompletedProcess] = []
+        for c in cmds:
+            proc = subprocess.run(c, text=True, capture_output=True, env=env)
+            procs.append(proc)
+            if proc.returncode != 0:
+                break
+        return procs
+
     for _ in range(warmup):
-        subprocess.run(cmd, capture_output=True, env=env)
+        run_cmds()
 
     elapsed_samples: list[float] = []
     phase_samples: list[dict[str, float]] = []
-    proc = None
+    last_procs: list[subprocess.CompletedProcess] = []
     for _ in range(samples):
         start = time.perf_counter()
-        proc = subprocess.run(cmd, text=True, capture_output=True, env=env)
+        procs = run_cmds()
+        last_procs = procs
         elapsed_samples.append(time.perf_counter() - start)
-        if proc.returncode != 0:
+        if not procs or procs[-1].returncode != 0:
             break
-        phase_samples.append(parse_phases(proc.stderr))
+        # Merge -ftime-report phase dicts across all TUs (sum per phase).
+        merged: dict[str, float] = {}
+        for p in procs:
+            for k, v in parse_phases(p.stderr).items():
+                merged[k] = merged.get(k, 0.0) + v
+        phase_samples.append(merged)
 
-    assert proc is not None
+    assert last_procs
+    proc = last_procs[-1]
     ok = proc.returncode == 0
     elapsed, stddev = mean_stddev(elapsed_samples) if ok else (elapsed_samples[-1], 0.0)
-    phases = {k: sum(s[k] for s in phase_samples) / len(phase_samples)
-              for k in {k for s in phase_samples for k in s}} if phase_samples else {}
+    # Average each phase only over samples that contain it (samples may omit
+    # phases when an earlier TU failed or the pass list differs).
+    keys = {k for s in phase_samples for k in s}
+    phases = {k: sum(s.get(k, 0.0) for s in phase_samples)
+              / sum(1 for s in phase_samples if k in s)
+              for k in keys} if phase_samples else {}
     log_path.write_text(
-        "COMMAND: " + shlex.join(cmd)
+        "COMMAND: " + "\nCOMMAND: ".join(shlex.join(c) for c in cmds)
         + f"\n\nSAMPLES (wall seconds): {[f'{t:.4f}' for t in elapsed_samples]}"
         + "\n\nSTDOUT (last sample):\n" + (proc.stdout or "")
         + "\nSTDERR (last sample):\n" + (proc.stderr or ""),
@@ -495,7 +574,7 @@ def compile_one(clang: Path, root: Path, name: str, entry: dict, model: str,
         elapsed=elapsed, elapsed_stddev=stddev,
         elapsed_median=median(elapsed_samples) if ok else float("nan"),
         elapsed_samples=elapsed_samples, samples=len(elapsed_samples),
-        phases=phases, log=log_path, command=cmd,
+        phases=phases, log=log_path, command=cmds[0],
         first_error=_first_error(proc.stdout, proc.stderr),
     )
 
@@ -544,10 +623,12 @@ def compile_markdown(results: list[CompileResult], root: Path, arch_tag: str,
                 continue
             r1 = next((x for x in sub if x.name == r.name and x.pipeline == p1), None)
             ratio = f"{r1.elapsed / r.elapsed:.3f}" if (r1 and r.ok and r1.ok and r.elapsed > 0) else "—"
+            e0 = f"{r.elapsed:.3f}" if r.ok else "—"
+            s0 = f"{r.elapsed_stddev:.3f}" if r.ok else "—"
             e1 = f"{r1.elapsed:.3f}" if r1 and r1.ok else "—"
             s1 = f"{r1.elapsed_stddev:.3f}" if r1 and r1.ok else "—"
             lines.append(
-                f"| {r.name} | {r.elapsed:.3f} | {r.elapsed_stddev:.3f} |"
+                f"| {r.name} | {e0} | {s0} |"
                 f" {e1} | {s1} | {ratio} |"
             )
         lines.append("")
@@ -603,13 +684,13 @@ def run_compile_axis(args, selected, model, pipelines, arches, log_dir) -> list[
     print(f"Compiling {len(jobs)} object files with -j{args.jobs}...")
     if args.dry_run:
         for name, entry, pipeline, a in jobs[:3]:
-            src = _source_path(args.hecbench_root, name, model, entry)
+            srcs = _source_paths(args.hecbench_root, name, model, entry)
             print("$", " ".join(build_cmd(
                 Path(args.clang), model, entry,
                 Path(args.cuda_root or "/usr/local/cuda"),
                 Path(args.hip_path or "/opt/rocm"),
                 Path(args.rocm_device_lib_path or "/opt/rocm/amdgcn/bitcode"),
-                Path(args.gcc_install_dir), pipeline, a, src,
+                Path(args.gcc_install_dir), pipeline, a, srcs,
                 log_dir / f"{name}.{model}.{pipeline.lower()}.{a}.o",
                 ["-ftime-report", "-mllvm", "-time-passes", "-c"], False)))
         print(f"(dry-run: {len(jobs)} compile jobs total)")
@@ -645,13 +726,13 @@ def run_runtime_axis(args, selected, model, pipelines, arch, log_dir) -> list[Be
     print(f"Building {len(jobs)} binaries with -j{args.jobs}...")
     if args.dry_run:
         for name, entry, pipeline in jobs[:3]:
-            src = _source_path(args.hecbench_root, name, model, entry)
+            srcs = _source_paths(args.hecbench_root, name, model, entry)
             print("$", " ".join(build_cmd(
                 Path(args.clang), model, entry,
                 Path(args.cuda_root or "/usr/local/cuda"),
                 Path(args.hip_path or "/opt/rocm"),
                 Path(args.rocm_device_lib_path or "/opt/rocm/amdgcn/bitcode"),
-                Path(args.gcc_install_dir), pipeline, arch, src,
+                Path(args.gcc_install_dir), pipeline, arch, srcs,
                 build_dir / f"{name}.bin", [], True)))
         print(f"(dry-run: {len(jobs)} build jobs + run with manifest args)")
         return []

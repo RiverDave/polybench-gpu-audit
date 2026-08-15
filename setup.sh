@@ -25,8 +25,9 @@ POLYBENCH_AUDIT_FORK="https://github.com/RiverDave/polybench-gpu-audit.git"
 POLYBENCH_RESULTS_FORK="git@github.com:RiverDave/polybench-results.git"
 INTERCOMMS_FORK="git@github.com:RiverDave/intercomms.git"
 HECBENCH_FORK="https://github.com/ORNL/HeCBench.git"
-# Pin: hecbench_suite.json is generated from exactly this commit.
-HECBENCH_COMMIT="f9540404573a2be7ad1d1ee4b3106fd064825fa8"
+# HeCBench tracks upstream main (no pin): the manifest records the exact
+# commit it was generated from (`hecbench_commit`), so regenerate it with
+# gen_hecbench_manifest.py when main moves.
 HARNESS_BRANCH=""
 JOBS="$(nproc)"
 SKIP_BUILD=0
@@ -144,15 +145,12 @@ if [[ -n "$HARNESS_BRANCH" ]]; then
 fi
 
 if [[ ! -d "$HECBENCH_DIR/.git" ]]; then
-    echo "Cloning HeCBench (pinned $HECBENCH_COMMIT)…"
+    echo "Cloning HeCBench (main)…"
     git clone "$HECBENCH_FORK" "$HECBENCH_DIR"
 else
     echo "hecbench: already present, skipping clone."
+    git -C "$HECBENCH_DIR" pull --ff-only 2>/dev/null || true
 fi
-git -C "$HECBENCH_DIR" checkout "$HECBENCH_COMMIT" 2>/dev/null || {
-    echo "error: pinned HeCBench commit $HECBENCH_COMMIT not in the clone" >&2
-    exit 1
-}
 
 if [[ ! -d "$POLYBENCH_DIR/.git" ]]; then
     echo "Cloning polybenchGpu…"

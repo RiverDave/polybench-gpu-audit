@@ -41,7 +41,7 @@ _BARE_S = re.compile(r"(?<![a-zA-Z\u00b5])s(?![a-zA-Z])")
 # A rate number must never enter a latency geomean.
 _RATE_RE = re.compile(
     r"(?:bytes?/s|b/s|flops|bandwidth|throughput|per second|gbytes|mbytes)", re.IGNORECASE)
-_SOURCE_UNIT = re.compile(r"(usec|us|msec|ms|secs|sec|seconds?)\b", re.IGNORECASE)
+_SOURCE_UNIT = re.compile(r"(usec|us|msec|ms|secs|sec|seconds?|\(s\))\b", re.IGNORECASE)
 _RE_WORD = re.compile(r"[A-Za-z][A-Za-z]*")
 
 # Vendor libraries whose presence in sources changes the link line.
@@ -66,10 +66,20 @@ _VENDOR_HEADER_RE = {
 
 
 def infer_unit(regex: str) -> str | None:
-    """Infer the timing unit from a regex literal like `(?: \\(us\\))`."""
-    for token, unit in _UNIT_TOKENS:
-        if re.search(token, regex, re.IGNORECASE if token.isalpha() else 0):
-            return unit
+    """Infer the timing unit from a regex literal like `(?: \\(us\\))`.
+
+    Returns None when the regex is ambiguous — multiple distinct unit tokens
+    (e.g. alternations like `(?:s|ms|us)`, which match `us`, `ms` and `s`) —
+    so the caller falls back to reading the unit from the benchmark source,
+    whose printed unit is authoritative. `bitpacking` prints seconds but its
+    regex alternation would otherwise pin `us` (1,000,000x error).
+    """
+    units = {unit for token, unit in _UNIT_TOKENS
+             if re.search(token, regex, re.IGNORECASE if token.isalpha() else 0)}
+    if len(units) == 1:
+        return next(iter(units))
+    if len(units) > 1:
+        return None
     if _BARE_S.search(regex):
         return "s"
     return None
@@ -187,6 +197,70 @@ def makefile_flags(src: Path) -> tuple[list[str], list[str]]:
     return list(dict.fromkeys(defs)), list(dict.fromkeys(resolved))
 
 
+def makefile_sources(src: Path) -> list[str]:
+    """Source files a Makefile actually builds (`source =` / `obj =` lines).
+
+    Several upstream targets need multiple translation units or sibling
+    sources (clenergy-cuda: `source = clenergy.cu WKFUtils.cu`; boxfilter-cuda:
+    `obj = main.o shrUtils.o cmd_arg_reader.o reference.o`). A single
+    alphabetical `.cu` fallback (the old behavior) would compile the wrong
+    TU (e.g. WKFUtils.cu alone) or miss whole programs. Handles backslash
+    continuations and one-level `$(VAR)` resolution; `obj =` entries are
+    mapped back to sources by stem (shrUtils.o -> shrUtils.cu/.cpp). Falls
+    back to all `*.cu` files for wildcard builds.
+    """
+    mf = src / "Makefile"
+    if not mf.exists():
+        return sorted(f.name for f in src.glob("*.cu"))
+    text = mf.read_text(errors="ignore")
+    vars_: dict[str, str] = {}
+    for line in text.splitlines():
+        m = re.match(r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*[:?+]?=\s*(.+?)\s*$", line)
+        if m and m.group(1) not in vars_ and not m.group(2).startswith("$("):
+            vars_[m.group(1)] = m.group(2).rstrip("\\").strip()
+    def resolve(tok: str) -> str | None:
+        out = re.sub(r"\$\((\w+)\)",
+                     lambda mm: vars_.get(mm.group(1), mm.group(0)), tok)
+        return out if "$(" not in out else None
+    named: list[str] = []
+    lines = text.splitlines()
+    i = 0
+    while i < len(lines):
+        raw = lines[i]
+        m = re.match(r"^\s*(?:source|obj)\s*[:?+]?=\s*(.*)$", raw.rstrip())
+        if not m:
+            i += 1
+            continue
+        toks = [m.group(1)]
+        while raw.rstrip().endswith("\\") and i + 1 < len(lines):
+            i += 1
+            raw = lines[i]
+            toks.append(raw.rstrip())
+        for tok in " ".join(toks).split():
+            r = resolve(tok)
+            if r:
+                named.append(r)
+        i += 1
+    spath_raw = resolve(vars_.get("SPATH", "")) if vars_.get("SPATH") else None
+    spath_dir = (src / spath_raw).resolve() if spath_raw else None
+    sources: list[str] = []
+    for tok in named:
+        if tok.endswith(".o"):
+            # Objects map back to sources in the bench dir or its SPATH
+            # sibling (boxfilter: shrUtils.o -> ../boxfilter-sycl/shrUtils.cpp).
+            stem = tok[:-2]
+            cands = [src / (stem + ext) for ext in (".cu", ".cpp")]
+            if spath_dir:
+                cands += [spath_dir / (stem + ext) for ext in (".cu", ".cpp")]
+            hit = next((p for p in cands if p.exists()), None)
+            if hit is None:
+                continue  # generated/unknown object; not a source we can build
+            tok = os.path.relpath(hit.resolve(), src)
+        if tok.endswith((".cu", ".cpp")) and tok not in sources:
+            sources.append(tok)
+    return sources or sorted(f.name for f in src.glob("*.cu"))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("~/dev/hecbench"),
@@ -248,16 +322,21 @@ def main() -> int:
             unit = None
             unit_source = "rate-not-duration"
         if unit is None and not not_duration:
-            main_file = None
+            # The unit often lives in a non-main TU (bwt prints "Device time:
+            # ... ms" from main.cpp, not bwt.cu): scan every source file of
+            # every model dir, first hit wins.
             for model in ("cuda", "hip"):
-                cand = src_main(root, name, model)
-                if cand and cand.exists():
-                    main_file = cand
+                sdir = root / "src" / f"{name}-{model}"
+                if not sdir.is_dir():
+                    continue
+                for f in sorted([*sdir.glob("*.cu"), *sdir.glob("*.cpp")]):
+                    unit = unit_from_source(regex, f)
+                    if unit:
+                        break
+                if unit:
                     break
-            if main_file:
-                unit = unit_from_source(regex, main_file)
-                unit_source = "source-printf" if unit else None
-        if unit is None:
+            unit_source = "source-printf" if unit else None
+        if unit is None and not not_duration:
             bad.append(f"{name}: no unit token in regex or source: {regex[:90]}")
 
         per: dict = {
@@ -273,13 +352,14 @@ def main() -> int:
         }
         for model in ("cuda", "hip"):
             src = root / "src" / f"{name}-{model}"
-            main_cu = src / "main.cu"
             per[f"has_{model}_dir"] = src.is_dir()
-            per[f"{model}_main"] = "main.cu" if main_cu.exists() else (
-                next((f.name for f in sorted(src.glob("*.cu"))), None)
-                if src.is_dir() else None)
-            if per[f"{model}_main"]:
-                per[f"{model}_libs"] = scan_vendor_libs(src / per[f"{model}_main"])
+            sources = makefile_sources(src) if src.is_dir() else []
+            per[f"{model}_sources"] = sources
+            per[f"{model}_main"] = ("main.cu" if "main.cu" in sources
+                                    else (sources[0] if sources else None))
+            if sources:
+                per[f"{model}_libs"] = list(dict.fromkeys(
+                    lib for s in sources for lib in scan_vendor_libs(src / s)))
                 defs, incs = makefile_flags(src)
                 per[f"{model}_defines"] = list(dict.fromkeys(
                     defs + EXTRA_DEFINES.get(name, [])))

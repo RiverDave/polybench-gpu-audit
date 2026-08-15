@@ -13,7 +13,7 @@ repo and the LLVM-HPC paper.
 | `run_polybench.py` | PolyBench entry point; resolves the toolchain from `machines.json` and drives the other scripts (`--compile`, `--runtime`, `--all`, `--offload-merge`, `--publish`). |
 | `run_hecbench.py` | HeCBench entry point: same CLI vocabulary + benchmark selection (`--benchmarks`, `--benchmarks-file`, `--skip`); data-driven from `hecbench_suite.json`. |
 | `run_measure_cir_gpu.py` | Benchmark-agnostic router: `--polybench` (default) or `--hecbench`; everything else passes through to the backend. |
-| `gen_hecbench_manifest.py` / `hecbench_suite.json` | Generator + pinned manifest (run args, timing regex, unit, vendor libs per benchmark) from ORNL/HeCBench `benchmarks.yaml`. |
+| `gen_hecbench_manifest.py` / `hecbench_suite.json` | Generator + pinned manifest (run args, timing regex, unit, source list, vendor libs per benchmark) from ORNL/HeCBench `benchmarks.yaml`; records the `hecbench_commit` it was generated from. |
 | `run_compile.py` | CIR vs OG compile-phase timing breakdown (host+device, `-ftime-report` / `-time-passes`); `--merge` swaps the pair to CIR vs CIR-merge. |
 | `run_runtime.py` | CIR vs OG GPU runtime + executable size per benchmark; `--merge` swaps the pair to CIR vs CIR-merge. |
 | `polybench_common.py` | Shared benchmark table, path/name helpers, toolchain auto-detection. |
@@ -34,7 +34,7 @@ repo and the LLVM-HPC paper.
 ./run_measure_cir_gpu.py --hecbench --cuda --benchmarks accuracy,fft --runtime
 
 # HeCBench selection: explicit names, a JSON file, or all 162 with metadata
-# (--skip / --limit refine; units come from the pinned manifest).
+# (--skip / --limit refine; units come from the manifest, which records the HeCBench commit it was generated from).
 ./run_hecbench.py --cuda --runtime --benchmarks-file hecbench_paper.json
 
 # One axis:
