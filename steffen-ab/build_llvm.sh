@@ -18,5 +18,6 @@ cmake -G Ninja -S llvm -B build \
   -DMLIR_BUILD_MLIR_DYLIB=OFF -DMLIR_LINK_MLIR_DYLIB=OFF -DLLVM_PARALLEL_LINK_JOBS=4 \
   -DLLVM_BUILD_TESTS=OFF -DLLVM_BUILD_EXAMPLES=OFF -DLLVM_ENABLE_RTTI=OFF -DLLVM_ENABLE_EH=OFF \
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON > ~/cmake-$TAG.log 2>&1
-ninja -C build -j "${JOBS:-30}" clang cir-opt cir-offload-merge llc opt > ~/build-$TAG.log 2>&1
+ninja -C build -j "${JOBS:-30}" clang cir-opt cir-offload-merge llc opt \
+  clang-offload-bundler clang-linker-wrapper clang-offload-packager > ~/build-$TAG.log 2>&1
 echo "=== $(date) DONE $TAG $(git rev-parse --short HEAD) ==="
