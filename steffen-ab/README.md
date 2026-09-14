@@ -34,8 +34,11 @@ Requirements, both assumed to exist on the box:
 
 ## Notes
 
-- Both arms measure **both** pipelines the harness knows (`CIR` and `CIR-merge`
-  columns); within an arm the CIR column is the free negative control.
+- Default runs measure **CIR vs OG** per arm; the OG column is the
+  unchanged-code negative control across arms (same classic codegen, same
+  corpus, same GPU) and the CIR column is each arm's own pipeline. Set
+  `OFFLOAD_MERGE=1` to swap the pair to CIR vs CIR-merge (both arms then run
+  the fork's `--clangir-offload-merge` driver path).
 - Arm separation is `--log-root temp-A` / `temp-B`. The results are only safe
   once copied/published — the harness reuses a per-run-kind temp dir otherwise.
 - On arm B, CUDA codegen is Steffen's offload representation by default
@@ -43,3 +46,5 @@ Requirements, both assumed to exist on the box:
   representation-plus-pass-set vs the fork's pipeline, not pass-set alone.
 - Provenance trap applies: each arm's run happens with its checkout in place;
   do not move `HEAD` mid-run.
+- `compare_arms.py` reads each arm's `runtime_results.json` (the harness's own
+  output) and writes `AB-report.md` next to this script.

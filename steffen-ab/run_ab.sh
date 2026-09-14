@@ -22,6 +22,10 @@ cd "$HARNESS"
 extra=()
 [ "$PUBLISH" = 1 ] && extra+=(--publish)
 [ "$LIMIT" != 0 ] && extra+=(--limit "$LIMIT")
+# Default (no --offload-merge): each arm measures CIR vs OG. The OG column is
+# the unchanged-code negative control across arms; the CIR column is the arm's
+# own pipeline. OFFLOAD_MERGE=1 swaps the pair to CIR vs CIR-merge.
+[ "${OFFLOAD_MERGE:-0}" = 1 ] && extra+=(--offload-merge)
 
 run_arm() {  # $1 = ref, $2 = tag
   local ref=$1 tag=$2
